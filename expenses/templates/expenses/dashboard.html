@@ -1,0 +1,12 @@
+{% extends 'expenses/base.html' %} {% block title %}Dashboard{% endblock %} {%
+block content %}
+<h2>Dashboard</h2>
+<p>Tổng chi tiêu: {{ total_expenses }}</p>
+<p>Số giao dịch: {{ num_transactions }}</p>
+<h3>Danh sách chi tiêu</h3>
+<ul>
+  {% for expense in expenses %}
+  <li>{{ expense }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

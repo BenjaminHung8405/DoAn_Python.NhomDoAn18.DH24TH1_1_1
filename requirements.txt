@@ -1,0 +1,14 @@
+# Core
+Django==5.2.6
+psycopg2-binary>=2.9
+python-dotenv>=1.0
+requests>=2.31
+
+# Optional (use if you plan to enable plotting / data analysis / bot features)
+matplotlib>=3.8
+plotly>=5.15
+pandas>=2.2
+python-telegram-bot>=20.4
+
+# Deployment helpers
+gunicorn>=21.0
