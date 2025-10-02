@@ -4,12 +4,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap, QIcon
-from frontend_pyside6.api_client import APIClient
-import os
+from ..api_client import APIClient
 
 class LoginWindow(QWidget):
-    def __init__(self):
+    def __init__(self, on_signup=None):
         super().__init__()
+        self.on_signup = on_signup
         self.setWindowTitle("Đăng nhập - Expense Tracker")
         self.setFixedSize(400, 500)
         self.setStyleSheet("background-color: #f3f4f6;")  # Light gray background like bg-gray-100
@@ -146,13 +146,12 @@ class LoginWindow(QWidget):
         username = self.username_input.text()
         password = self.password_input.text()
         remember = self.remember_checkbox.isChecked()
-        backend = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
-        client = APIClient(base_url=backend)
+        client = APIClient()
         try:
             resp = client.__class__().__init__ if False else None
             # Use requests directly via APIClient endpoints: call token endpoint
             import requests
-            r = requests.post(f"{backend}/token", data={"username": username, "password": password})
+            r = requests.post(f"{client.base_url}/token", data={"username": username, "password": password})
             if r.status_code == 200:
                 data = r.json()
                 client.set_tokens(access_token=data.get("access_token"), refresh_token=data.get("refresh_token"))
@@ -167,5 +166,7 @@ class LoginWindow(QWidget):
         print("Forgot password clicked")
 
     def on_signup_clicked(self):
-        # TODO: Implement signup
-        print("Signup clicked")
+        if self.on_signup:
+            self.on_signup()
+        else:
+            print("Signup clicked")
