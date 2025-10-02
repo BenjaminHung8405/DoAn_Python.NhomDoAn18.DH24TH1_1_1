@@ -4,6 +4,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap, QIcon
+from frontend_pyside6.api_client import APIClient
+import os
 
 class LoginWindow(QWidget):
     def __init__(self):
@@ -144,8 +146,21 @@ class LoginWindow(QWidget):
         username = self.username_input.text()
         password = self.password_input.text()
         remember = self.remember_checkbox.isChecked()
-        # TODO: Implement login logic
-        print(f"Login: {username}, {password}, remember: {remember}")
+        backend = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+        client = APIClient(base_url=backend)
+        try:
+            resp = client.__class__().__init__ if False else None
+            # Use requests directly via APIClient endpoints: call token endpoint
+            import requests
+            r = requests.post(f"{backend}/token", data={"username": username, "password": password})
+            if r.status_code == 200:
+                data = r.json()
+                client.set_tokens(access_token=data.get("access_token"), refresh_token=data.get("refresh_token"))
+                print("Login successful, token stored via APIClient")
+            else:
+                print("Login failed:", r.text)
+        except Exception as e:
+            print("Error contacting backend:", e)
 
     def on_forgot_password_clicked(self):
         # TODO: Implement forgot password
