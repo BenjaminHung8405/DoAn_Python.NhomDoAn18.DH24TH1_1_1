@@ -9,148 +9,115 @@
 
 ## 📝 Tổng quan
 
-Hệ thống quản lý tài chính cá nhân được xây dựng bằng Django (backend) và PostgreSQL (cơ sở dữ liệu trên cloud).
+Hệ thống quản lý tài chính cá nhân được xây dựng bằng **FastAPI** (backend REST API) và **PySide6** (desktop frontend), với **SQLAlchemy** (ORM) và PostgreSQL (cơ sở dữ liệu).
+
 Dự án giúp người dùng ghi lại, phân loại và phân tích các khoản chi tiêu của mình.
-Trong tương lai, dự án sẽ được tích hợp với AI (Gemini API) và Telegram Bot để cung cấp các tính năng thông minh và tương tác qua chat.
 
 ## 🛠 Công nghệ sử dụng
 
-- **Backend:** Django 5 (Python 3.12)
-- **Cơ sở dữ liệu:** PostgreSQL (lưu trữ trên Neon cloud)
-- **Frontend:** Django templates (giao diện cơ bản), có thể mở rộng với React/Vue trong tương lai.
-- **Tích hợp AI:** Gemini API (phân tích văn bản, đưa ra gợi ý)
-- **Tích hợp Bot:** Telegram Bot API
-- **Trực quan hóa dữ liệu:** Matplotlib / Plotly (Biểu đồ tròn & cột)
+- **Backend:** FastAPI + SQLAlchemy + Pydantic (Python 3.12)
+- **Frontend:** PySide6 (Qt for Python) - Ứng dụng desktop cho Ubuntu
+- **Database:** PostgreSQL
+- **API Docs:** FastAPI tự động tạo tài liệu tại `/docs`
 
 ## 📂 Cấu trúc Dự án
 
-- `expenses/models.py`: Định nghĩa các model chính (User, Category, Expense).
-- `expenses/views.py`: Xử lý logic cho các chức năng CRUD (Thêm, Sửa, Xóa, Xem) và trang tổng quan.
-- `expenses/templates/`: Chứa các file HTML cho giao diện.
-- `config/settings.py`: Cấu hình Django, kết nối PostgreSQL và quản lý biến môi trường.
+```
+DTH235659_NguyenPhiHung_DoAn_Python/
+├── README.md
+├── requirements.txt
+├── backend/
+│   ├── requirements.txt
+│   └── app/
+│       ├── main.py
+│       ├── database.py
+│       ├── models.py
+│       ├── schemas.py
+│       ├── crud.py
+│       ├── deps.py
+│       ├── routers/
+│       │   ├── categories.py
+│       │   └── expenses.py
+│       └── services/
+│           └── ai_client.py
+├── frontend_pyside6/
+│   ├── main.py
+│   ├── api_client.py
+│   └── requirements.txt
+└── .env.example
+```
 
 ## 📌 Tính năng
 
-- Quản lý người dùng (đăng nhập cơ bản, liên kết với `chat_id` trên Telegram).
-- Quản lý danh mục chi tiêu (mỗi người dùng có danh mục riêng).
-- Ghi lại chi tiêu (số tiền, ngày tháng, ghi chú, danh mục).
-- Trang tổng quan (Dashboard) hiển thị tổng chi tiêu và số lượng giao dịch.
-- **Trực quan hóa dữ liệu:**
-  - Biểu đồ tròn: Tỷ lệ chi tiêu theo từng danh mục.
-  - Biểu đồ cột: Thống kê chi tiêu theo ngày/tuần/tháng.
-- Xuất dữ liệu chi tiêu ra file CSV/Excel.
-- **Tính năng AI (Sprint 3):**
-  - Tự động phân loại chi tiêu dựa trên mô tả.
-  - Gợi ý tiết kiệm thông minh dựa trên lịch sử chi tiêu.
-- **Telegram Bot (Sprint 4):**
-  - Lệnh `/add`: Thêm một khoản chi tiêu mới.
-  - Lệnh `/report`: Nhận báo cáo tóm tắt chi tiêu.
+- Quản lý người dùng (CRUD).
+- Quản lý danh mục chi tiêu (CRUD, toàn cục).
+- Ghi lại chi tiêu (CRUD + lọc theo người dùng, danh mục, ngày).
+- Quản lý ngân sách (CRUD).
+- Tài liệu API tự động với Swagger UI.
 
-## 🔧 Hướng dẫn chạy dự án khi clone về máy (local setup)
+## 🔧 Hướng dẫn chạy dự án
 
-Phần này mô tả các bước cần thiết để chạy project `Expense Tracker` trên máy local sau khi bạn clone repository.
+### Chuẩn bị môi trường
 
-### Yêu cầu trước
-- Python 3.12 (khuyến nghị) đã cài đặt và có thể gọi bằng `python` hoặc `python3`.
-- Git
-- **PostgreSQL (Neon) — project được cấu hình để dùng PostgreSQL trên cloud thông qua biến môi trường `DATABASE_URL`.**
-  - Trong môi trường production / staging, bạn nên cung cấp `DATABASE_URL` (ví dụ Neon). Project sẽ sử dụng PostgreSQL khi `DATABASE_URL` được thiết lập.
-  - Nếu bạn không cung cấp `DATABASE_URL` (ví dụ khi thử nhanh trên máy dev), project sẽ tự động fallback sang SQLite (`db.sqlite3`) cho mục đích phát triển.
+1. Tạo virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # Linux/Mac
+   # hoặc .venv\Scripts\activate  # Windows
+   ```
 
-### 1) Clone repository
-```bash
-git clone https://github.com/BenjaminHung8405/DTH235659_NguyenPhiHung_DoAn_Python.git
-cd expense_tracker
-```
+2. Cài đặt dependencies cho backend:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   ```
 
-### 2) Tạo và kích hoạt virtual environment
-Chạy trong bash (Windows Git Bash / WSL / macOS / Linux):
-```bash
-python -m venv .venv
-# Unix-like
-source .venv/bin/activate
-# Hoặc trên Windows (Git Bash / Powershell):
-source .venv/Scripts/activate
-```
+3. Cài đặt dependencies cho frontend:
+   ```bash
+   cd ../frontend_pyside6
+   pip install -r requirements.txt
+   ```
 
-(Chú ý: nếu `source .venv/Scripts/activate` không hoạt động trong terminal của bạn, mở PowerShell và dùng `\.venv\Scripts\Activate.ps1` hoặc `\.venv\Scripts\activate`.)
+### Chạy Backend (FastAPI)
 
-### 3) Cài dependency
-Nếu repository có file `requirements.txt` (nếu không, cài các gói sau):
-```bash
-# Nếu có requirements.txt
-pip install -r requirements.txt
-# Nếu không có, cài tối thiểu:
-pip install "Django>=5.0" psycopg2-binary python-dotenv
-```
+1. Thiết lập biến môi trường:
+   - Sao chép `.env.example` thành `.env`
+   - Cập nhật `DATABASE_URL` với thông tin PostgreSQL của bạn.
 
-> Lưu ý: `psycopg2-binary` là driver PostgreSQL phổ biến. Nếu bạn gặp lỗi khi cài, thử cài bản phù hợp với hệ điều hành hoặc cài các build tools cần thiết.
+2. Chạy server:
+   ```bash
+   cd backend
+   uvicorn app.main:app --reload
+   ```
 
-### 4) Cấu hình biến môi trường (BẮT BUỘC cho cloud PostgreSQL)
-Project được cấu hình để dùng biến môi trường `DATABASE_URL` để kết nối tới PostgreSQL (ví dụ Neon). Hãy export các biến sau trước khi chạy ứng dụng trong môi trường muốn dùng PostgreSQL:
+API sẽ chạy tại `http://localhost:8000`. Tài liệu API tại `http://localhost:8000/docs`.
 
-- `DATABASE_URL` — chuỗi kết nối tới Postgres, ví dụ:
-```
-postgres://USER:PASSWORD@HOST:PORT/DBNAME
-```
-- `SECRET_KEY` — secret key Django (production)
-- `DEBUG` — 0 hoặc 1
+### Chạy Frontend (PySide6)
 
-Ví dụ (Unix / WSL / macOS / Git Bash):
-```bash
-export DATABASE_URL="postgres://db_user:secret@ep-somehost.neon.tech:5432/dbname"
-export SECRET_KEY="a-very-secret-key"
-export DEBUG=1
-```
-Trên PowerShell (Windows):
-```powershell
-$env:DATABASE_URL = "postgres://db_user:secret@ep-somehost.neon.tech:5432/dbname"
-$env:SECRET_KEY = "a-very-secret-key"
-$env:DEBUG = "1"
-```
+1. Chạy ứng dụng:
+   ```bash
+   cd frontend_pyside6
+   python main.py
+   ```
 
-> Nếu bạn không thiết lập `DATABASE_URL`, project sẽ sử dụng SQLite (`db.sqlite3`) như một fallback cho phát triển local. Tuy nhiên vì repository được triển khai với PostgreSQL (Neon) trong môi trường cloud, **nên** cung cấp `DATABASE_URL` khi mô phỏng môi trường thực tế.
+## 📡 API Endpoints
 
-**Gợi ý:** tạo file `.env` chứa các biến trên và dùng `python-dotenv` (project đã có logic load `.env` nếu tồn tại) để nạp tự động.
+- **Categories:**
+  - `GET /categories/` - Liệt kê danh mục
+  - `POST /categories/` - Tạo danh mục
+  - `GET /categories/{id}` - Lấy danh mục
+  - `PUT /categories/{id}` - Cập nhật danh mục
+  - `DELETE /categories/{id}` - Xóa danh mục
 
-### 5) Chạy migrations (tạo schema trên DB)
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-- `makemigrations` tạo file migrations khi bạn thay model.
-- `migrate` áp dụng migrations lên DB.
+- **Expenses:**
+  - `GET /expenses/?user_id={id}&category_id={id}&date_from=2023-01-01&date_to=2023-12-31` - Liệt kê chi tiêu với bộ lọc
+  - `POST /expenses/` - Tạo chi tiêu
+  - `GET /expenses/{id}` - Lấy chi tiêu
+  - `PUT /expenses/{id}` - Cập nhật chi tiêu
+  - `DELETE /expenses/{id}` - Xóa chi tiêu
 
-### 6) Tạo superuser (tùy chọn, để vào /admin/)
-```bash
-python manage.py createsuperuser
-# điền username, email (nếu cần) và password
-```
+## 🚀 Triển khai Production
 
-### 7) Chạy server phát triển
-```bash
-python manage.py runserver
-```
-Mở trình duyệt tới `http://127.0.0.1:8000/`.
-
-### 8) Kiểm tra nhanh (debug)
-- Kiểm tra cấu hình dự án:
-```bash
-python manage.py check
-```
-- Vào Django shell để kiểm tra model / dữ liệu:
-```bash
-python manage.py shell
->>> from expenses.models import User, Expense, Category
->>> User.objects.all()
-```
-
-### Ghi chú & troubleshooting
-- Project mặc định dùng PostgreSQL khi `DATABASE_URL` được set (phù hợp với Neon cloud setup). SQLite chỉ là fallback cho trường hợp bạn muốn chạy nhanh trên máy dev.
-- Nếu bạn dùng PostgreSQL và gặp lỗi khi cài `psycopg2-binary`, hãy cài gói build tools tương ứng cho hệ điều hành hoặc dùng phiên bản `psycopg2-binary` tương thích.
-- Nếu thay đổi `AUTH_USER_MODEL` sau khi đã migrate thì sẽ rất phức tạp; tránh thay đổi nếu DB production đã dùng.
-- Đảm bảo `SECRET_KEY` không được commit vào git khi deploy (dùng biến môi trường cho production).
-- Trong quá trình phát triển, bạn có thể tạm dùng SQLite để thử nhanh, nhưng môi trường staging/production nên sử dụng PostgreSQL (Neon) giống môi trường thật.
-
----
-Mình đã cập nhật README để phản ánh rõ ràng rằng project được cấu hình dùng cloud PostgreSQL (Neon) qua `DATABASE_URL`, với SQLite chỉ là fallback cho local dev. Muốn mình thêm file `.env.example` và/hoặc `requirements.txt` tự động không?
+- Sử dụng PostgreSQL cho production.
+- Chạy `uvicorn app.main:app --host 0.0.0.0 --port 8000` cho production.
+- Thêm xác thực nếu cần (JWT, OAuth).
