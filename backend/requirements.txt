@@ -1,0 +1,5 @@
+Django>=5.2Django>=5.2
+
+python-dotenv>=1.0python-dotenv>=1.0
+
+psycopg[binary]>=3.0psycopg[binary]>=3.0
