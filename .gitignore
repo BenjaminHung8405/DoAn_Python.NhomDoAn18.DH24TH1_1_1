@@ -1,45 +1,23 @@
-# Python/Django# Python/Django
+# Python/Django
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+*.egg
+venv/
+.venv/
+ENV/
+env/
+.env
 
-__pycache__/__pycache__/
+# SQLite database (if present)
+db.sqlite3
+*.sqlite3
 
-*.py[cod]*.py[cod]
+# VS Code
+.vscode/
 
-*.so*.so
-
-*.egg-info/*.egg-info/
-
-.eggs/.eggs/
-
-*.egg*.egg
-
-venv/venv/
-
-.venv/.venv/
-
-ENV/ENV/
-
-env/env/
-
-.env.env
-
-
-
-# SQLite database# SQLite database (if present)
-
-db.sqlite3db.sqlite3
-
-*.sqlite3*.sqlite3
-
-
-
-# VS Code# VS Code
-
-.vscode/.vscode/
-
-
-
-# System# System
-
-.DS_Store.DS_Store
-
-Thumbs.dbThumbs.db
+# System
+.DS_Store
+Thumbs.db
