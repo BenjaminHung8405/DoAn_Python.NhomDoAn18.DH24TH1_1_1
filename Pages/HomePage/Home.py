@@ -31,13 +31,13 @@ class Home(tk.Frame):
         self.grid_columnconfigure(0, weight=1)
 
     def data(self):
-        # Mock data
+        # Mock data - using actual images that exist
         title = ['Listen Songs by Language','Trending Songs','Listen to your favourite Artist', 'Get your mood on']
         data = [
-            [{'name': 'English Song', 'image': 'image1.png'}, {'name': 'Vietnamese Song', 'image': 'image2.png'}],
-            [{'name': 'Trending 1', 'image': 'trend1.png'}, {'name': 'Trending 2', 'image': 'trend2.png'}],
-            [{'name': 'Artist 1', 'image': 'artist1.png'}, {'name': 'Artist 2', 'image': 'artist2.png'}],
-            [{'name': 'Mood 1', 'image': 'mood1.png'}, {'name': 'Mood 2', 'image': 'mood2.png'}]
+            [{'name': 'English Song', 'image': 'images/edsheeran.png'}, {'name': 'Vietnamese Song', 'image': 'images/taylor.png'}],
+            [{'name': 'Trending 1', 'image': 'images/music_icon.png'}, {'name': 'Trending 2', 'image': 'images/playlist.png'}],
+            [{'name': 'Artist 1', 'image': 'images/Ed_sheeran.png'}, {'name': 'Artist 2', 'image': 'images/taylor.png'}],
+            [{'name': 'Mood 1', 'image': 'images/radio.png'}, {'name': 'Mood 2', 'image': 'images/radio2.png'}]
         ]
         info = [
             {'title': title[0], 'data': data[0]},

@@ -20,7 +20,14 @@ class Splash(tk.Toplevel):
         self.labelLogo = tk.Label(self, image=self.logo, bd=0, bg='black')
         self.labelLogo.grid(row=1, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
         self.grid_columnconfigure(0, weight=1)
-        self.state('zoomed')
+        self.geometry('1600x900')
+        # Center the splash screen
+        self.update_idletasks()
+        width = 1600
+        height = 900
+        x = (self.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.winfo_screenheight() // 2) - (height // 2)
+        self.geometry(f'{width}x{height}+{x}+{y}')
         self.overrideredirect(True)
 
         lbl.load('ActivityIndicator/Activity.gif')
@@ -65,7 +72,8 @@ class Root(tk.Tk):
 
             self.grid_columnconfigure(0, weight=1)
             self.grid_rowconfigure(0, weight=1)
-            self.state('zoomed')
+            self.geometry('1600x900')
+            self.overrideredirect(True)
 
         def Splash_Screen():
             splash = Splash(self)

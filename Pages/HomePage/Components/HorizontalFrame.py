@@ -80,16 +80,20 @@ class Lower(tk.Frame):
         self.scrollable = HorizontalScrollableFrame(self)
         self.frame = tk.Frame(self.scrollable.scrollable_frame, bg='#181818')
 
+        # Load images and filter out items with missing images
+        valid_data = []
         self.images = []
 
-        for i in data:
+        for item in data:
             try:
-                self.image = Image.open(i['image'])
+                self.image = Image.open(item['image'])
                 self.images.append(self.image)
+                valid_data.append(item)
             except Exception as ex:
-                print(f'Error loading image: {i["image"]}')
+                print(f'Error loading image: {item.get("image", "unknown")} - Skipping this item')
 
-        for i, j in enumerate(data):
+        # Only create buttons for items with valid images
+        for i, j in enumerate(valid_data):
             musicPages[Lower.count].append(0)
             self.button = CardButton(self.frame, text=j['name'],
                                      url=self.images[i],
@@ -156,7 +160,7 @@ class CardButton(tk.Button):
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
         self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.ANTIALIAS)
+        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
         self.config(image=self.image)
 
@@ -165,7 +169,7 @@ class CardButton(tk.Button):
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
         self.image = self.url
-        self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.ANTIALIAS)
+        self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
         self.config(image=self.image)
 
@@ -174,6 +178,6 @@ class CardButton(tk.Button):
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
         self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.ANTIALIAS)
+        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
         self.config(image=self.image)
