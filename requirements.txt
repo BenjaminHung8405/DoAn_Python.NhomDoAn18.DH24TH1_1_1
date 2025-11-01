@@ -1,9 +1,10 @@
 # UI Libraries
-pyglet
-Pillow
-numpy
-scikit-image
-mutagen
-requests
-pygame
-psycopg2-binary
+pyglet==2.0.10
+Pillow==10.1.0
+numpy==1.26.2
+scikit-image==0.22.0
+mutagen==1.47.0
+requests==2.31.0
+pygame==2.5.2
+psycopg2-binary==2.9.9
+customtkinter==5.2.1

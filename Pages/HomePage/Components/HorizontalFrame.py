@@ -1,10 +1,20 @@
 import tkinter as tk
 import tkinter.font as tkfont
 from Pages.Resource.HorizontalScrollableFrame import HorizontalScrollableFrame
-from PIL import ImageTk, Image, ImageDraw, ImageFilter, ImageEnhance
+from PIL import ImageTk, Image, ImageDraw, ImageFilter, ImageEnhance, ImageOps
 import requests
 from io import BytesIO
 import pyglet
+import threading
+import time
+from pathlib import Path
+import hashlib
+
+
+# Global cache for loaded images
+IMAGE_CACHE = {}
+CACHE_DIR = Path("cache/images")
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def wid():
@@ -22,48 +32,148 @@ def num():
     return number
 
 
-def load_image_from_url(url, size=(300, 300)):
+def resize_and_crop(image, size):
     """
-    Load image from URL with proper error handling
-    Returns PIL Image object
+    Resize image to fill the size, cropping the excess to maintain aspect ratio
+    Similar to CSS: background-size: cover
+    
+    Args:
+        image: PIL Image object
+        size: tuple (width, height)
+    
+    Returns:
+        PIL Image object
     """
+    img = image.copy()
+    img_ratio = img.width / img.height
+    target_ratio = size[0] / size[1]
+    
+    if img_ratio > target_ratio:
+        # Image is wider than target - fit height and crop width
+        new_height = size[1]
+        new_width = int(new_height * img_ratio)
+        img = img.resize((new_width, new_height), Image.LANCZOS)
+        
+        # Crop from center
+        left = (new_width - size[0]) // 2
+        img = img.crop((left, 0, left + size[0], size[1]))
+    else:
+        # Image is taller than target - fit width and crop height
+        new_width = size[0]
+        new_height = int(new_width / img_ratio)
+        img = img.resize((new_width, new_height), Image.LANCZOS)
+        
+        # Crop from center
+        top = (new_height - size[1]) // 2
+        img = img.crop((0, top, size[0], top + size[1]))
+    
+    return img
+
+
+def get_cache_path(url):
+    """Get cache file path for a URL"""
+    url_hash = hashlib.md5(url.encode()).hexdigest()
+    return CACHE_DIR / f"{url_hash}.png"
+
+
+def load_from_cache(url):
+    """Try to load image from cache"""
+    cache_path = get_cache_path(url)
+    if cache_path.exists():
+        try:
+            return Image.open(cache_path)
+        except Exception as e:
+            print(f"Cache read error: {e}")
+            cache_path.unlink(missing_ok=True)
+    return None
+
+
+def save_to_cache(url, image):
+    """Save image to cache"""
     try:
-        # Set headers to mimic a browser
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        
-        # Download image
-        response = requests.get(url, headers=headers, timeout=10, stream=True)
-        response.raise_for_status()
-        
-        # Check if content is actually an image
-        content_type = response.headers.get('content-type', '')
-        if 'image' not in content_type.lower():
-            print(f"Warning: URL returned {content_type}, not an image: {url}")
-            return create_placeholder_image(size)
-        
-        # Load image
-        img = Image.open(BytesIO(response.content))
-        
-        # Convert to RGB if necessary
-        if img.mode in ('RGBA', 'LA', 'P'):
-            background = Image.new('RGB', img.size, (40, 40, 40))
-            if img.mode == 'P':
-                img = img.convert('RGBA')
-            background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
-            img = background
-        elif img.mode != 'RGB':
-            img = img.convert('RGB')
-        
-        return img
-        
-    except requests.exceptions.RequestException as e:
-        print(f"Network error loading image from {url}: {e}")
-        return create_placeholder_image(size)
+        cache_path = get_cache_path(url)
+        image.save(cache_path, "PNG")
     except Exception as e:
-        print(f"Error loading image from {url}: {e}")
-        return create_placeholder_image(size)
+        print(f"Cache write error: {e}")
+
+
+def load_image_from_url(url, size=(300, 300), max_retries=3):
+    """
+    Load image from URL with retry logic and caching
+    Returns PIL Image object with aspect ratio preserved
+    """
+    # Check memory cache first
+    if url in IMAGE_CACHE:
+        return IMAGE_CACHE[url].copy()
+    
+    # Check disk cache
+    cached_img = load_from_cache(url)
+    if cached_img:
+        img = resize_and_crop(cached_img, size)
+        IMAGE_CACHE[url] = img
+        return img.copy()
+    
+    # Download with retry
+    for attempt in range(max_retries):
+        try:
+            # Set headers to mimic a browser
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            
+            # Increase timeout and use stream
+            timeout = 15 + (attempt * 5)  # Increase timeout on retries
+            response = requests.get(url, headers=headers, timeout=timeout, stream=True)
+            response.raise_for_status()
+            
+            # Check content type
+            content_type = response.headers.get('content-type', '')
+            if 'image' not in content_type.lower():
+                print(f"Warning: URL returned {content_type}, not an image: {url}")
+                break
+            
+            # Load image
+            img = Image.open(BytesIO(response.content))
+            
+            # Convert to RGB if necessary
+            if img.mode in ('RGBA', 'LA', 'P'):
+                background = Image.new('RGB', img.size, (40, 40, 40))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+                img = background
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # Save to cache before resizing
+            save_to_cache(url, img)
+            
+            # Resize and crop to maintain aspect ratio
+            img = resize_and_crop(img, size)
+            
+            # Cache in memory
+            IMAGE_CACHE[url] = img
+            
+            return img.copy()
+            
+        except requests.exceptions.Timeout:
+            print(f"⏱️ Timeout (attempt {attempt + 1}/{max_retries}): {url[:50]}...")
+            if attempt < max_retries - 1:
+                time.sleep(1)  # Wait before retry
+            continue
+            
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Network error (attempt {attempt + 1}/{max_retries}): {str(e)[:50]}...")
+            if attempt < max_retries - 1:
+                time.sleep(1)
+            continue
+            
+        except Exception as e:
+            print(f"❌ Error loading image: {str(e)[:50]}...")
+            break
+    
+    # All retries failed, return placeholder
+    return create_placeholder_image(size)
 
 
 def create_placeholder_image(size=(300, 300), text="No Image"):
@@ -102,9 +212,10 @@ class HorizontalFrame(tk.Frame):
         self['padx'] = 20
         self['pady'] = 20
 
+        self.controller = controller  # Store controller
         self.upper = Upper(self, text, data)
         self.line = tk.Frame(self, background='#333333', height=2)
-        self.lower = Lower(self, controller, data)
+        self.lower = Lower(self, controller, data)  # Pass controller
 
         self.upper.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.line.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
@@ -167,25 +278,25 @@ class Lower(tk.Frame):
         self['pady'] = 10
         self.bind('<Configure>', self.size)
 
+        # Store controller for navigation
+        self.controller = controller
+        self.data = data
+
         self.scrollable = HorizontalScrollableFrame(self)
         self.frame = tk.Frame(self.scrollable.scrollable_frame, bg='#181818')
 
         self.images = []
+        self.loading_jobs = []
 
-        # Load images with better error handling
+        # Load images asynchronously
         print(f"Loading {len(data)} images...")
+        
+        # Create placeholders first for instant UI
         for i, item in enumerate(data):
-            image_url = item.get('url', '')
-            item_text = item.get('text', 'Unknown')
-            
-            if image_url and image_url.startswith('http'):
-                img = load_image_from_url(image_url)
-            else:
-                img = create_placeholder_image(text=item_text[:15])
-            
-            self.images.append(img)
-
-        # Create buttons for each item
+            placeholder = create_placeholder_image(text="Loading...")
+            self.images.append(placeholder)
+        
+        # Create buttons with placeholders
         for i, j in enumerate(data):
             musicPages[Lower.count].append(0)
             
@@ -199,9 +310,20 @@ class Lower(tk.Frame):
                 self.images[i],
                 title=title,
                 artist=artist,
-                command=lambda x=i: self.click(x)
+                command=lambda item_data=j: self.click(item_data)
             )
             button.grid(row=0, column=i, sticky=tk.N + tk.S + tk.E + tk.W, padx=5)
+        
+        # Load images in background
+        for i, item in enumerate(data):
+            image_url = item.get('url', '')
+            if image_url and image_url.startswith('http'):
+                # Load async
+                threading.Thread(
+                    target=self.load_image_async,
+                    args=(i, image_url),
+                    daemon=True
+                ).start()
 
         self.frame.grid(row=0, column=0, sticky='nsew')
         self.scrollable.grid(row=0, column=0, sticky=tk.W + tk.E)
@@ -210,9 +332,50 @@ class Lower(tk.Frame):
         self.grid_rowconfigure(0, weight=1)
         Lower.count += 1
 
-    def click(self, index):
-        """Handle card click"""
-        print(f"Clicked item at index: {index}")
+    def load_image_async(self, index, url):
+        """Load image in background thread"""
+        try:
+            img = load_image_from_url(url, size=(300, 300))
+            # Update UI in main thread
+            self.after(0, lambda: self.update_image(index, img))
+        except Exception as e:
+            print(f"❌ Failed to load image {index}: {e}")
+
+    def update_image(self, index, img):
+        """Update image in main thread"""
+        try:
+            self.images[index] = img
+            # Find the button and update its image
+            button = self.frame.grid_slaves(row=0, column=index)[0]
+            if isinstance(button, MusicCard):
+                button.update_loaded_image(img)
+        except Exception as e:
+            print(f"❌ Error updating image {index}: {e}")
+
+    def click(self, item_data):
+        """Handle card click by showing the correct page"""
+        title = item_data.get('text', 'Unknown')
+        print(f"🎵 Clicked: {title}")
+        
+        # Check if it's an album
+        if 'album_id' in item_data:
+            album_id = item_data.get('album_id')
+            print(f"📀 Navigating to Album ID: {album_id}")
+            # TODO: Implement navigation when Top class has show_page method
+            # self.controller.show_page("Album", album_id)
+        
+        # Check if it's an artist
+        elif 'artist_id' in item_data:
+            artist_id = item_data.get('artist_id')
+            print(f"🎤 Navigating to Artist ID: {artist_id}")
+            # TODO: Implement navigation
+            # self.controller.show_page("Artist", artist_id)
+        
+        # It's a track
+        else:
+            track_id = item_data.get('track_id')
+            print(f"▶️ Playing Track ID: {track_id}")
+            # TODO: Add to player queue
 
     def size(self, event):
         global width, w, height, number
@@ -286,6 +449,17 @@ class MusicCard(tk.Frame):
         
         # Draw initial title
         self.draw_title()
+        
+        # Set initial image
+        self.on_resize(None)
+    
+    def update_loaded_image(self, new_image):
+        """Update image after async loading"""
+        self.image_original = new_image
+        global width
+        w = width / 5 - 14 if 'width' in globals() else 200
+        img_size = int(round(w))
+        self.update_image(img_size, shadow=self.is_hovering, play_overlay=self.is_hovering)
     
     def truncate_text(self, text, max_length):
         """Truncate text with ellipsis"""
@@ -361,9 +535,9 @@ class MusicCard(tk.Frame):
         self.update_image(img_size, shadow=False)
     
     def update_image(self, size, shadow=False, play_overlay=False):
-        """Update image with effects"""
-        # Resize image
-        img = self.image_original.resize((size, size), Image.LANCZOS)
+        """Update image with effects - MAINTAINS ASPECT RATIO"""
+        # Resize and crop to maintain aspect ratio
+        img = resize_and_crop(self.image_original, (size, size))
         
         # Add shadow effect on hover
         if shadow:

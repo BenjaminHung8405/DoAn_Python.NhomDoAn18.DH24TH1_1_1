@@ -1,109 +1,456 @@
-# Dự án: Spotify Clone - Ứng dụng quản lý âm nhạc
+# 🎵 Amplify - Ứng dụng nghe nhạc Spotify Clone
 
-Đồ án học phần Python
+**Đồ án học phần Python - Nhóm 18**
 
-- Thành viên: **DTH235659 - Nguyễn Phi Hùng**
+- **Sinh viên**: DTH235659 - Nguyễn Phi Hùng
+- **Lớp**: DH24TH1
+- **Học phần**: Lập trình Python
 
-Mô tả ngắn: Đây là đồ án mô phỏng một ứng dụng quản lý âm nhạc (Spotify clone). Dự án gồm một backend REST API (FastAPI + SQLAlchemy + JWT) để quản lý người dùng, danh mục, chi tiêu (mô phỏng dữ liệu âm nhạc có thể mở rộng), và một frontend desktop viết bằng PySide6 làm giao diện người dùng.
+---
 
-Mục tiêu:
-- Thực hành xây dựng API với FastAPI và ORM (SQLAlchemy).
-- Thực hành xác thực (JWT), lưu trữ token, và gọi API từ frontend.
-- Tạo giao diện desktop bằng PySide6.
+## 📋 Mô tả dự án
 
-Tính năng chính (hiện có / có thể mở rộng):
-- Đăng ký tài khoản, đăng nhập (JWT)
-- Quản lý danh mục (categories)
-- Quản lý bản ghi (expenses) — trong đồ án này được dùng để mô phỏng các mục âm nhạc / giao dịch
-- Frontend desktop (PySide6) với form đăng nhập/đăng ký và tích hợp gọi API
+Amplify là ứng dụng desktop nghe nhạc được xây dựng bằng Python, mô phỏng giao diện và tính năng của Spotify. Dự án sử dụng:
 
-Yêu cầu hệ thống
-- Python 3.10+ (hoặc 3.8+ tùy môi trường)
-- PostgreSQL nếu dùng DB production / cloud (ví dụ Neon). SQLite có thể dùng cho phát triển cục bộ nếu cấu hình lại.
+- **Frontend**: Tkinter với custom UI components
+- **Database**: PostgreSQL (Neon Cloud)
+- **Features**:
+  - 🎨 Giao diện đẹp mắt, hiện đại với dark theme
+  - 🎵 Quản lý albums, tracks, artists, playlists
+  - 🔍 Tìm kiếm và browse nhạc
+  - ❤️ Yêu thích bài hát
+  - 👤 Quản lý user và authentication
+  - 🎼 Phát nhạc với music player controls
 
-Cài đặt & chạy (người chấm/giáo viên):
+---
 
-1) Backend
+## 🛠️ Công nghệ sử dụng
 
-```bash
-# vào thư mục backend
-cd backend
+### Backend & Database
+- **PostgreSQL** - Neon Cloud Database
+- **psycopg2** - PostgreSQL adapter
+- **Connection pooling** - Tối ưu kết nối database
 
-# (tạo và kích hoạt virtualenv - khuyến nghị)
-python3 -m venv .venv
-source .venv/bin/activate
+### Frontend
+- **Tkinter** - GUI framework
+- **Pillow (PIL)** - Xử lý hình ảnh
+- **Pyglet** - Custom fonts
+- **Requests** - HTTP client để load ảnh từ URL
 
-# cài dependencies
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+### Audio
+- **Pygame** - Audio playback
+- **Mutagen** - Audio metadata
 
-# cấu hình biến môi trường (ví dụ dùng .env hoặc export trực tiếp)
-# DATABASE_URL=postgresql://user:pass@host:port/dbname
-# SECRET_KEY và các biến khác nếu cần
+### Data Processing
+- **NumPy** - Numerical computing
+- **scikit-image** - Image processing
 
-# đồng bộ mô hình lên cơ sở dữ liệu (nếu muốn tạo bảng tự động)
-python sync_db.py
+---
 
-# chạy backend
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+## 📦 Cấu trúc thư mục
+
+```
+DoAn_Python.NhomDoAn18.DH24TH1_1_1/
+├── main.py                    # Entry point
+├── requirements.txt           # Dependencies
+├── test_db.py                # Database test script
+├── README.md
+│
+├── ActivityIndicator/        # Loading animation
+│   ├── Activity_Indicator.py
+│   └── Activity.gif
+│
+├── Base/                     # Base UI components
+│   ├── top.py               # Top navigation bar
+│   ├── bottom.py            # Bottom player bar
+│   ├── topLeft.py           # Logo & menu
+│   ├── topRight.py          # Page container
+│   └── ...
+│
+├── Database/                 # Database layer
+│   ├── config.py            # DB configuration
+│   ├── Database.py          # Connection pool & queries
+│   └── HomePagedata.py      # Data fetching logic
+│
+├── Pages/                    # Application pages
+│   ├── HomePage/            # Home page
+│   │   ├── Home.py
+│   │   └── Components/
+│   │       └── HorizontalFrame.py
+│   ├── SearchPage/          # Search page
+│   ├── Browse/              # Browse page
+│   ├── AlbumPage/           # Album detail page
+│   ├── ArtistPage/          # Artist detail page
+│   ├── MusicPage/           # Music player page
+│   ├── UserPage/            # User profile
+│   └── Resource/            # Shared resources
+│       ├── Header.py
+│       ├── HorizontalScrollableFrame.py
+│       └── VerticalScrollableFrame.py
+│
+├── fonts/                    # Custom fonts
+│   └── Play/
+│       ├── Play-Bold.ttf
+│       └── Play-Regular.ttf
+│
+└── images/                   # UI assets
+    ├── app_64.png
+    ├── play_icon.png
+    ├── pause_icon.png
+    └── ...
 ```
 
-2) Frontend (PySide6 desktop)
+---
+
+## 🚀 Hướng dẫn cài đặt & chạy
+
+### 1️⃣ Yêu cầu hệ thống
+
+- **Python**: 3.10+ (khuyến nghị 3.10)
+- **OS**: Windows / macOS / Linux
+- **RAM**: 4GB+
+- **Kết nối Internet**: Để load hình ảnh từ database
+
+### 2️⃣ Clone repository
 
 ```bash
-# vào thư mục frontend_pyside6
-cd frontend_pyside6
+git clone https://github.com/your-username/DoAn_Python.NhomDoAn18.DH24TH1_1_1.git
+cd DoAn_Python.NhomDoAn18.DH24TH1_1_1
+```
 
-# tạo virtualenv riêng nếu muốn
-python3 -m venv .venv
-source .venv/bin/activate
+### 3️⃣ Tạo môi trường ảo (Virtual Environment)
+
+**Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+**macOS/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 4️⃣ Cài đặt dependencies
+
+```bash
+# Upgrade pip
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
 
-# chạy app (chạy dưới dạng package từ thư mục chứa frontend_pyside6)
-cd ..  # quay về root của repo
-python -m frontend_pyside6.main
+# Cài đặt các thư viện cần thiết
+pip install -r requirements.txt
+```
 
-# hoặc chạy trực tiếp (nếu bạn đang ở trong frontend_pyside6 và đã cấu hình đúng PYTHONPATH)
+**Nội dung `requirements.txt`:**
+```txt
+pyglet==2.0.10
+Pillow==10.1.0
+numpy==1.26.2
+scikit-image==0.22.0
+mutagen==1.47.0
+requests==2.31.0
+pygame==2.5.2
+psycopg2-binary==2.9.9
+```
+
+### 5️⃣ Cấu hình Database
+
+Dự án sử dụng PostgreSQL trên Neon Cloud. Connection string đã được cấu hình sẵn trong `Database/config.py`:
+
+```python
+DATABASE_CONFIG = {
+    'connection_string': "postgresql://neondb_owner:npg_0xVDJL7dfsSI@ep-polished-water-a1gwnvhw-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+}
+```
+
+> **Lưu ý**: Để bảo mật, trong production nên đặt connection string vào biến môi trường.
+
+### 6️⃣ Test kết nối Database
+
+```bash
+python test_db.py
+```
+
+**Kết quả mong đợi:**
+```
+==================================================
+DATABASE CONNECTION TEST
+==================================================
+
+[1] Testing database connection...
+   ✓ Connected! Total artists: 15
+
+[2] Checking tables...
+   ✓ artists: 15 records
+   ✓ albums: 20 records
+   ✓ tracks: 50 records
+   ✓ genres: 10 records
+   ✓ languages: 5 records
+   ✓ users: 3 records
+
+[3] Testing HomePage data...
+   ✓ Got 4 sections
+      - Popular Albums: 10 items
+      - Trending Now: 10 items
+      - Top Artists: 10 items
+      - Recently Added: 10 items
+
+==================================================
+TEST COMPLETED
+==================================================
+```
+
+### 7️⃣ Chạy ứng dụng
+
+```bash
 python main.py
 ```
 
-Lưu ý về cấu hình
-- `BACKEND_URL`: frontend sẽ đọc biến môi trường `BACKEND_URL` để biết endpoint của backend. Mặc định là `http://localhost:8000`.
-- `DATABASE_URL`: backend đọc chuỗi kết nối cơ sở dữ liệu (Postgres). Nếu dùng Neon/hosted Postgres, đảm bảo schema và quyền đã được thiết lập (có thể cần set `search_path` về `public`).
+**Ứng dụng sẽ:**
+1. Hiển thị splash screen trong 3 giây
+2. Load dữ liệu từ PostgreSQL
+3. Hiển thị giao diện chính với:
+   - Home page với albums, tracks, artists
+   - Navigation menu (Home, Browse, Search)
+   - Music player controls (bottom bar)
 
-Cấu trúc dự án (mục tiêu tham khảo):
+---
 
+## 🎯 Tính năng chính
+
+### ✅ Đã hoàn thành
+
+#### 1. **Home Page**
+- Hiển thị Popular Albums
+- Trending Tracks với like count
+- Top Artists
+- Recently Added Albums
+- Lazy loading images từ URL
+- Hover effects (zoom, shadow, play button overlay)
+- Scrolling text cho tên bài hát dài
+
+#### 2. **Database Integration**
+- Connection pooling với PostgreSQL
+- Real-time data fetching
+- Error handling và fallback
+- Mock data khi database trống
+
+#### 3. **UI Components**
+- Custom scrollable frames (vertical & horizontal)
+- Music cards với hover animations
+- Header component tái sử dụng
+- Responsive layout với grid/pack managers
+
+#### 4. **Image Handling**
+- Load ảnh từ HTTP/HTTPS
+- Placeholder cho ảnh lỗi
+- Cache ảnh đã load
+- User-Agent spoofing cho Wikipedia
+
+### 🚧 Đang phát triển
+
+- [ ] Search functionality
+- [ ] Browse by genre/language
+- [ ] Album detail page
+- [ ] Artist detail page
+- [ ] Music player với audio playback
+- [ ] Playlist management
+- [ ] User authentication & profiles
+- [ ] Like/Unlike tracks
+- [ ] Add to playlist
+- [ ] Audio visualization
+
+---
+
+## 🗄️ Database Schema
+
+### **Bảng chính:**
+
+```sql
+-- Artists
+CREATE TABLE artists (
+    artist_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE,
+    image_url TEXT
+);
+
+-- Albums
+CREATE TABLE albums (
+    album_id SERIAL PRIMARY KEY,
+    title VARCHAR(255),
+    release_date DATE,
+    cover_image_url TEXT,
+    artist_id INTEGER REFERENCES artists(artist_id)
+);
+
+-- Tracks
+CREATE TABLE tracks (
+    track_id SERIAL PRIMARY KEY,
+    title VARCHAR(255),
+    duration_seconds INTEGER,
+    location_url TEXT,
+    like_count INTEGER DEFAULT 0,
+    album_id INTEGER REFERENCES albums(album_id),
+    genre_id INTEGER REFERENCES genres(genre_id),
+    language_id INTEGER REFERENCES languages(language_id)
+);
+
+-- Users
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE,
+    password_hash TEXT,
+    display_name VARCHAR
+);
+
+-- Playlists
+CREATE TABLE playlists (
+    playlist_id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    is_public BOOLEAN DEFAULT false,
+    user_id INTEGER REFERENCES users(user_id)
+);
 ```
-README.md
-requirements.txt
-backend/
-    requirements.txt
-    app/
-        main.py
-        routers/
-        models.py
-        schemas.py
-        crud.py
-    sync_db.py
-frontend_pyside6/
-    requirements.txt
-    api_client.py
-    main.py
-    ui/
-        login.py
-        register.py
+
+### **Bảng quan hệ:**
+
+```sql
+-- Track - Artist (Many-to-Many)
+CREATE TABLE track_artists (
+    track_id INTEGER REFERENCES tracks(track_id),
+    artist_id INTEGER REFERENCES artists(artist_id),
+    PRIMARY KEY (track_id, artist_id)
+);
+
+-- User - Liked Songs (Many-to-Many)
+CREATE TABLE user_liked_songs (
+    user_id INTEGER REFERENCES users(user_id),
+    track_id INTEGER REFERENCES tracks(track_id),
+    PRIMARY KEY (user_id, track_id)
+);
+
+-- Playlist - Tracks (Many-to-Many)
+CREATE TABLE playlist_tracks (
+    playlist_id INTEGER REFERENCES playlists(playlist_id),
+    track_id INTEGER REFERENCES tracks(track_id),
+    track_order INTEGER,
+    PRIMARY KEY (playlist_id, track_id)
+);
 ```
 
-Gợi ý debugging nhanh
-- Nếu backend không kết nối được DB trên Neon: kiểm tra `DATABASE_URL`, username/password, host, port. Kiểm tra schema (Neon có thể tạo schema không phải `public`).
-- Nếu `django-admin` hay lệnh CLI khác báo "command not found": đảm bảo bạn cài gói vào cùng Python/virtualenv mà bạn đang dùng (sử dụng `python -m pip install ...`).
+---
 
-Ghi chú học phần
-- Đây là một đồ án học phần; mã nguồn nhằm mục đích học tập. Bạn có thể mở rộng dự án để quản lý playlist, streaming metadata, hoặc tích hợp OAuth.
+## 🐛 Troubleshooting
 
-Liên hệ
-- Nguyễn Phi Hùng — Mã SV: DTH235659
+### ❌ Lỗi: `ModuleNotFoundError: No module named 'pyglet'`
 
-Phiên bản & Bản quyền
-- Không có bản quyền đặc biệt; mã dành cho mục đích học tập.
+**Giải pháp:**
+```bash
+pip install pyglet
+```
+
+### ❌ Lỗi: `cannot use geometry manager grid inside ... which already has slaves managed by pack`
+
+**Nguyên nhân**: Mixing pack() và grid() trong cùng container
+
+**Giải pháp**: Chỉ dùng một loại geometry manager. Xem file `Pages/HomePage/Home.py` - đã sửa dùng grid() cho tất cả.
+
+### ❌ Lỗi: `cannot identify image file`
+
+**Nguyên nhân**: Wikipedia trả về HTML thay vì ảnh
+
+**Giải pháp**: Đã implement User-Agent header và fallback placeholder trong `HorizontalFrame.py`
+
+### ❌ Lỗi: Database connection failed
+
+**Kiểm tra:**
+1. Kết nối internet
+2. Connection string trong `Database/config.py`
+3. Firewall/antivirus blocking port 5432
+
+**Test:**
+```bash
+python test_db.py
+```
+
+### ❌ Ứng dụng chạy chậm khi load ảnh
+
+**Nguyên nhân**: Đang download ảnh từ internet
+
+**Giải pháp tương lai**:
+- Implement image caching
+- Lazy loading với threading
+- Thumbnail generation
+- CDN cho ảnh
+
+---
+
+## 📚 Tài liệu tham khảo
+
+### Tkinter
+- [Official Tkinter Documentation](https://docs.python.org/3/library/tkinter.html)
+- [Tkinter Tutorial - Real Python](https://realpython.com/python-gui-tkinter/)
+
+### PostgreSQL
+- [psycopg2 Documentation](https://www.psycopg.org/docs/)
+- [Neon Postgres](https://neon.tech/docs/introduction)
+
+### PIL/Pillow
+- [Pillow Documentation](https://pillow.readthedocs.io/)
+
+### Audio
+- [Pygame Mixer](https://www.pygame.org/docs/ref/mixer.html)
+- [Mutagen](https://mutagen.readthedocs.io/)
+
+---
+
+## 🤝 Đóng góp
+
+Dự án này là đồ án học phần, không nhận PR từ bên ngoài. Tuy nhiên, bạn có thể fork và phát triển phiên bản của riêng mình.
+
+---
+
+## 📄 License
+
+MIT License - Dành cho mục đích học tập
+
+---
+
+## 👨‍💻 Thông tin liên hệ
+
+- **Sinh viên**: Nguyễn Phi Hùng
+- **MSSV**: DTH235659
+- **Email**: hungnp@example.com
+- **GitHub**: [@hungdev](https://github.com/hungdev)
+
+---
+
+## 🎓 Lời cảm ơn
+
+- Giảng viên hướng dẫn: Nguyễn Ngọc Minh
+- Nhóm học tập: Nhóm 1 - DH24TH1
+- Nguồn cảm hứng: Spotify
+- Base project: [Amplify by Srajan Gupta](https://github.com/srajangarg/Amplify)
+
+---
+
+## 📝 Changelog
+
+### v1.0.0 (01/11/2025)
+- ✅ Initial release
+- ✅ PostgreSQL integration
+- ✅ Home page với dynamic data
+- ✅ Music card với hover effects
+- ✅ Scrolling text cho tên dài
+- ✅ Image loading từ URLs
+- ✅ Database connection pooling
+
+### v0.1.0 (25/10/2025)
+- 🎨 Base UI layout
+- 📁 Project structure setup
+- 🗄️ Database schema design
+
+---
+
+**⭐ Nếu dự án hữu ích, hãy cho một star!**
