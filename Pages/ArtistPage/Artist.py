@@ -1,4 +1,5 @@
 import tkinter as tk
+from Pages.Resource.VerticalScrollableFrame import ScrollableFrame
 
 
 class Artist(tk.Frame):

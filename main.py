@@ -1,7 +1,6 @@
 import tkinter as tk
 from Base import top
 from Base.bottom import Bottom
-from threading import Thread
 from ActivityIndicator.Activity_Indicator import ImageLabel
 
 
@@ -59,41 +58,43 @@ class Root(tk.Tk):
         self.bind("<F11>", self.toggle_fullscreen)
         self.bind("<Escape>", self.end_fullscreen)
 
-        def TK_player():
-            self.withdraw()
-           
-            self.title('Amplify')
-            # self.title['bg']='black'
-            app_icon = tk.PhotoImage(file=r"images\app_64.png")
-            self.iconphoto(False, app_icon)
+        # Hide main window initially
+        self.withdraw()
+        
+        # Setup main window
+        self.title('Amplify')
+        app_icon = tk.PhotoImage(file=r"images\app_64.png")
+        self.iconphoto(False, app_icon)
+        self.geometry('1600x900')
+        
+        # Center the main window
+        self.update_idletasks()
+        width = 1600
+        height = 900
+        x = (self.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.winfo_screenheight() // 2) - (height // 2)
+        self.geometry(f'{width}x{height}+{x}+{y}')
+        
+        # Comment this line to show on taskbar
+        # self.overrideredirect(True)
 
+        # Show splash screen
+        splash = Splash(self)
+        
+        # Create container after splash is shown
+        def show_main_app():
             container = Container(self)
             container.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
-
             self.grid_columnconfigure(0, weight=1)
             self.grid_rowconfigure(0, weight=1)
-            self.geometry('1600x900')
-            self.overrideredirect(True)
-
-        def Splash_Screen():
-            splash = Splash(self)
-
-            def myfun():
-                splash.destroy()
-                self.deiconify()
-
-            splash.after(30000, myfun)
-            # time.sleep(15000)
-
-        self.tk_player = Thread(target=TK_player)
-        self.tk_player.start()
-        self.splash = Thread(target=Splash_Screen)
-        self.splash.start()
-
- 
+            splash.destroy()
+            self.deiconify()
+        
+        # Show main app after 3 seconds (instead of 30!)
+        self.after(3000, show_main_app)
 
     def toggle_fullscreen(self, event=None):
-        self.counter = not self.counter  # Just toggling the boolean
+        self.counter = not self.counter
         self.attributes("-fullscreen", self.counter)
         return "break"
 
@@ -104,6 +105,5 @@ class Root(tk.Tk):
 
 
 if __name__ == '__main__':
-    # Simplified for new project, no database or auth
     root = Root(data=None)
     root.mainloop()

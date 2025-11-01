@@ -1,6 +1,9 @@
 # UI Libraries
-Pillow>=9.0.0
-
-# PostgreSQL (you'll add later)
-# psycopg2-binary>=2.9.0
-# sqlalchemy>=2.0.0
+pyglet
+Pillow
+numpy
+scikit-image
+mutagen
+requests
+pygame
+psycopg2-binary

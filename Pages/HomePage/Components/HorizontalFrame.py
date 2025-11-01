@@ -1,12 +1,98 @@
 import tkinter as tk
 import tkinter.font as tkfont
-from Resource.HorizontalScrollableFrame import HorizontalScrollableFrame
-from PIL import ImageTk, Image
+from Pages.Resource.HorizontalScrollableFrame import HorizontalScrollableFrame
+from PIL import ImageTk, Image, ImageDraw, ImageFilter, ImageEnhance
+import requests
+from io import BytesIO
+import pyglet
 
 
 def wid():
     global w
     return w
+
+
+def hei():
+    global height
+    return height
+
+
+def num():
+    global number
+    return number
+
+
+def load_image_from_url(url, size=(300, 300)):
+    """
+    Load image from URL with proper error handling
+    Returns PIL Image object
+    """
+    try:
+        # Set headers to mimic a browser
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        # Download image
+        response = requests.get(url, headers=headers, timeout=10, stream=True)
+        response.raise_for_status()
+        
+        # Check if content is actually an image
+        content_type = response.headers.get('content-type', '')
+        if 'image' not in content_type.lower():
+            print(f"Warning: URL returned {content_type}, not an image: {url}")
+            return create_placeholder_image(size)
+        
+        # Load image
+        img = Image.open(BytesIO(response.content))
+        
+        # Convert to RGB if necessary
+        if img.mode in ('RGBA', 'LA', 'P'):
+            background = Image.new('RGB', img.size, (40, 40, 40))
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+            img = background
+        elif img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        return img
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Network error loading image from {url}: {e}")
+        return create_placeholder_image(size)
+    except Exception as e:
+        print(f"Error loading image from {url}: {e}")
+        return create_placeholder_image(size)
+
+
+def create_placeholder_image(size=(300, 300), text="No Image"):
+    """Create a placeholder image with text"""
+    img = Image.new('RGB', size, color='#282828')
+    draw = ImageDraw.Draw(img)
+    
+    # Calculate text position (centered)
+    try:
+        from PIL import ImageFont
+        font = ImageFont.truetype("arial.ttf", 20)
+    except:
+        font = None
+    
+    # Get text bounding box
+    if font:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+    else:
+        text_width = len(text) * 6
+        text_height = 10
+    
+    x = (size[0] - text_width) // 2
+    y = (size[1] - text_height) // 2
+    
+    draw.text((x, y), text, fill='#666666', font=font)
+    
+    return img
 
 
 class HorizontalFrame(tk.Frame):
@@ -17,7 +103,7 @@ class HorizontalFrame(tk.Frame):
         self['pady'] = 20
 
         self.upper = Upper(self, text, data)
-        self.line = tk.Frame(self, background='#333333')
+        self.line = tk.Frame(self, background='#333333', height=2)
         self.lower = Lower(self, controller, data)
 
         self.upper.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
@@ -40,7 +126,11 @@ class Upper(tk.Frame):
         self['background'] = '#181818'
         self.master = master
 
-        play = tkfont.Font(family="Arial", size=15, weight="bold")
+        try:
+            pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
+            play = tkfont.Font(family="Play", size=15, weight="bold")
+        except:
+            play = tkfont.Font(family="Arial", size=15, weight="bold")
 
         self.left = tk.PhotoImage(file=r'.\images\left_arrow.png')
         self.right = tk.PhotoImage(file=r'.\images\right_arrow.png')
@@ -80,48 +170,56 @@ class Lower(tk.Frame):
         self.scrollable = HorizontalScrollableFrame(self)
         self.frame = tk.Frame(self.scrollable.scrollable_frame, bg='#181818')
 
-        # Load images and filter out items with missing images
-        valid_data = []
         self.images = []
 
-        for item in data:
-            try:
-                self.image = Image.open(item['image'])
-                self.images.append(self.image)
-                valid_data.append(item)
-            except Exception as ex:
-                print(f'Error loading image: {item.get("image", "unknown")} - Skipping this item')
+        # Load images with better error handling
+        print(f"Loading {len(data)} images...")
+        for i, item in enumerate(data):
+            image_url = item.get('url', '')
+            item_text = item.get('text', 'Unknown')
+            
+            if image_url and image_url.startswith('http'):
+                img = load_image_from_url(image_url)
+            else:
+                img = create_placeholder_image(text=item_text[:15])
+            
+            self.images.append(img)
 
-        # Only create buttons for items with valid images
-        for i, j in enumerate(valid_data):
+        # Create buttons for each item
+        for i, j in enumerate(data):
             musicPages[Lower.count].append(0)
-            self.button = CardButton(self.frame, text=j['name'],
-                                     url=self.images[i],
-                                     command=lambda d=[j],  # Mock tracks
-                                                    img=self.images[i],
-                                                    txt=j['name'],
-                                                    r=Lower.count,
-                                                    c=i:
-                                     controller.show_frame_Main(data=d,
-                                                                image=img,
-                                                                text=txt,
-                                                                r=r, c=c)
-                                     )
-            self.button.grid(row=0, column=i, padx=(0, 10))
+            
+            # Get track info
+            tracks = j.get('tracks', [])
+            title = j.get('text', 'Unknown')
+            artist = tracks[0].get('artist', 'Unknown Artist') if tracks else 'Unknown Artist'
+            
+            button = MusicCard(
+                self.frame,
+                self.images[i],
+                title=title,
+                artist=artist,
+                command=lambda x=i: self.click(x)
+            )
+            button.grid(row=0, column=i, sticky=tk.N + tk.S + tk.E + tk.W, padx=5)
 
         self.frame.grid(row=0, column=0, sticky='nsew')
-
         self.scrollable.grid(row=0, column=0, sticky=tk.W + tk.E)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         Lower.count += 1
 
+    def click(self, index):
+        """Handle card click"""
+        print(f"Clicked item at index: {index}")
+
     def size(self, event):
-        global width
-        global w
+        global width, w, height, number
         width = event.width
         w = event.width / 5 - 14
+        height = self.winfo_height()
+        number = Lower.count
 
 
 class ArrowButton(tk.Button):
@@ -135,6 +233,218 @@ class ArrowButton(tk.Button):
         self['borderwidth'] = 0
 
 
+class MusicCard(tk.Frame):
+    """Enhanced music card with hover effects and scrolling text"""
+    
+    def __init__(self, master, image, title, artist, command=None, *args, **kwargs):
+        tk.Frame.__init__(self, master, bg='#181818', *args, **kwargs)
+        
+        self.image_original = image
+        self.title = title
+        self.artist = artist
+        self.command = command
+        self.scroll_offset = 0
+        self.scroll_job = None
+        self.is_hovering = False
+        
+        # Load fonts
+        try:
+            pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
+            self.title_font = tkfont.Font(family="Play", size=13, weight="bold")
+            self.artist_font = tkfont.Font(family="Play", size=11)
+        except:
+            self.title_font = tkfont.Font(family="Arial", size=13, weight="bold")
+            self.artist_font = tkfont.Font(family="Arial", size=11)
+        
+        # Image button (clickable)
+        self.image_button = tk.Label(self, bg='#181818', cursor='hand2')
+        self.image_button.pack(pady=(0, 5))
+        
+        # Title label with scrolling support
+        self.title_canvas = tk.Canvas(self, bg='#181818', highlightthickness=0, height=20)
+        self.title_canvas.pack(fill=tk.X, padx=5)
+        
+        # Artist label
+        self.artist_label = tk.Label(
+            self,
+            text=self.truncate_text(artist, 25),
+            font=self.artist_font,
+            bg='#181818',
+            fg='#B3B3B3',
+            anchor=tk.W,
+            justify=tk.LEFT
+        )
+        self.artist_label.pack(fill=tk.X, padx=5)
+        
+        # Bind events
+        self.bind('<Configure>', self.on_resize)
+        self.image_button.bind('<Button-1>', self.on_click)
+        self.image_button.bind('<Enter>', self.on_enter)
+        self.image_button.bind('<Leave>', self.on_leave)
+        self.bind('<Enter>', self.on_enter)
+        self.bind('<Leave>', self.on_leave)
+        
+        # Draw initial title
+        self.draw_title()
+    
+    def truncate_text(self, text, max_length):
+        """Truncate text with ellipsis"""
+        if len(text) > max_length:
+            return text[:max_length-3] + '...'
+        return text
+    
+    def draw_title(self):
+        """Draw title text on canvas"""
+        self.title_canvas.delete('all')
+        
+        # Calculate text width
+        title_text = self.title if len(self.title) <= 30 else self.title
+        
+        # Draw text
+        self.title_canvas.create_text(
+            -self.scroll_offset,
+            10,
+            text=title_text,
+            font=self.title_font,
+            fill='white',
+            anchor=tk.W,
+            tags='title'
+        )
+    
+    def start_scrolling(self):
+        """Start scrolling animation for long titles"""
+        if len(self.title) <= 25:
+            return
+        
+        self.is_hovering = True
+        self.scroll_text()
+    
+    def scroll_text(self):
+        """Scroll text animation"""
+        if not self.is_hovering:
+            return
+        
+        # Get text width
+        title_width = self.title_font.measure(self.title)
+        canvas_width = self.title_canvas.winfo_width()
+        
+        # Scroll
+        self.scroll_offset += 2
+        
+        # Reset when fully scrolled
+        if self.scroll_offset > title_width:
+            self.scroll_offset = -50  # Add gap before repeating
+        
+        self.draw_title()
+        
+        # Schedule next frame
+        self.scroll_job = self.after(50, self.scroll_text)
+    
+    def stop_scrolling(self):
+        """Stop scrolling animation"""
+        self.is_hovering = False
+        if self.scroll_job:
+            self.after_cancel(self.scroll_job)
+            self.scroll_job = None
+        
+        # Reset scroll position
+        self.scroll_offset = 0
+        self.draw_title()
+    
+    def on_resize(self, event):
+        """Handle resize event"""
+        global width
+        w = width / 5 - 14 if 'width' in globals() else 200
+        
+        # Resize image
+        img_size = int(round(w))
+        self.update_image(img_size, shadow=False)
+    
+    def update_image(self, size, shadow=False, play_overlay=False):
+        """Update image with effects"""
+        # Resize image
+        img = self.image_original.resize((size, size), Image.LANCZOS)
+        
+        # Add shadow effect on hover
+        if shadow:
+            # Create shadow
+            shadow_img = Image.new('RGBA', (size + 10, size + 10), (0, 0, 0, 0))
+            shadow_draw = ImageDraw.Draw(shadow_img)
+            shadow_draw.rectangle([(5, 5), (size + 5, size + 5)], fill=(0, 0, 0, 100))
+            shadow_img = shadow_img.filter(ImageFilter.GaussianBlur(5))
+            
+            # Paste original image on shadow
+            shadow_img.paste(img, (0, 0))
+            img = shadow_img.convert('RGB')
+        
+        # Add play button overlay on hover
+        if play_overlay:
+            overlay = img.copy()
+            draw = ImageDraw.Draw(overlay, 'RGBA')
+            
+            # Semi-transparent black overlay
+            draw.rectangle([(0, 0), (size, size)], fill=(0, 0, 0, 100))
+            
+            # Play button circle
+            center = size // 2
+            radius = size // 6
+            draw.ellipse(
+                [(center - radius, center - radius), (center + radius, center + radius)],
+                fill=(30, 215, 96, 255),
+                outline=(30, 215, 96, 255)
+            )
+            
+            # Play triangle
+            triangle = [
+                (center - radius // 3, center - radius // 2),
+                (center - radius // 3, center + radius // 2),
+                (center + radius // 2, center)
+            ]
+            draw.polygon(triangle, fill='white')
+            
+            img = overlay
+        
+        # Update label
+        self.photo = ImageTk.PhotoImage(img)
+        self.image_button.config(image=self.photo)
+    
+    def on_enter(self, event):
+        """Handle mouse enter"""
+        global width
+        w = width / 5 - 14 if 'width' in globals() else 200
+        
+        # Enlarge image with effects
+        img_size = int(round(w)) + 8
+        self.update_image(img_size, shadow=True, play_overlay=True)
+        
+        # Change artist color
+        self.artist_label.config(fg='white')
+        
+        # Start scrolling title
+        self.start_scrolling()
+    
+    def on_leave(self, event):
+        """Handle mouse leave"""
+        global width
+        w = width / 5 - 14 if 'width' in globals() else 200
+        
+        # Reset image
+        img_size = int(round(w))
+        self.update_image(img_size, shadow=False, play_overlay=False)
+        
+        # Reset artist color
+        self.artist_label.config(fg='#B3B3B3')
+        
+        # Stop scrolling
+        self.stop_scrolling()
+    
+    def on_click(self, event):
+        """Handle click"""
+        if self.command:
+            self.command()
+
+
+# Keep old CardButton for compatibility
 class CardButton(tk.Button):
     def __init__(self, master, url, *args, **kwargs):
         tk.Button.__init__(self, master, *args, **kwargs)
@@ -142,7 +452,12 @@ class CardButton(tk.Button):
 
         self.bind('<Configure>', self.size)
 
-        play = tkfont.Font(family="Arial", size=15, weight="bold")
+        try:
+            pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
+            play = tkfont.Font(family="Play", size=12, weight="bold")
+        except:
+            play = tkfont.Font(family="Arial", size=12, weight="bold")
+
         self['background'] = '#181818'
         self['height'] = 300
         self['border'] = 0
@@ -169,7 +484,7 @@ class CardButton(tk.Button):
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
         self.image = self.url
-        self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
+        self.image = self.image.resize((int(round(w))+5, int(round(w))+5), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
         self.config(image=self.image)
 
@@ -181,3 +496,4 @@ class CardButton(tk.Button):
         self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
         self.config(image=self.image)
+

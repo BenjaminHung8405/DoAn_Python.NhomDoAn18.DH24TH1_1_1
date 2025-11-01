@@ -1,4 +1,6 @@
 import tkinter as tk
+from Pages.Resource.VerticalScrollableFrame import ScrollableFrame
+from Pages.Resource.HorizontalScrollableFrame import HorizontalScrollableFrame
 
 
 class SearchPage(tk.Frame):
