@@ -2,7 +2,9 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter import font
 from .listOfPage import pages, rightPage, incrementCount, getCount, resetCount
+from Pages.UserPage.UserPage import UserPage
 import sys
+import subprocess
 
 
 class UserEntry(tk.Entry):
@@ -81,10 +83,23 @@ class TopRightTop(tk.Frame):
         self['background'] = '#000000'
         self['height'] = 1
 
-        # Simplified, no user data
+        try:
+            f = open('user')
+            x = f.readlines()[0].strip()
+            f.close()
+        except FileNotFoundError:
+            x = None  # No user logged in
+        
+        if x:
+            from Database.Database import get_user
+            myobject = get_user(x)
+        else:
+            myobject = {'display_name': 'Guest'}
+
         self.back = Back(self)
         self.search = tk.Frame(self, bg='#000000')
         self.name = tk.Frame(self, bg='#000000')
+        # self.dropdown = tk.Frame(self, bg='pink')
         self.min_max_cross = MinMaxCross(self)
 
         self.filter = UserEntry(
@@ -94,29 +109,31 @@ class TopRightTop(tk.Frame):
         )
         self.filter.grid(
             row=0, column=0, sticky='ew',
+            # padx=10,
             pady=4,
+            # ipadx=20,
             ipady=5
         )
         self.filter.bind("<Return>",lambda e: self.sendSearchData(e))
 
-        # User_button simplified
+        # User_button
        
         self.appHighlightFont = font.Font(family='lineto circular', size=11, weight='bold')
         self.appHighlightFont2 = font.Font(family='lineto circular', underline=1, size=11, weight='bold')
-        self.user_icon = tk.PhotoImage(file=r".\Images\user2.png", height=25, width=25)
-        self.userButton = IconButton(self.name,
-                                     master, text='User',
-                                     image=self.user_icon,
-                                     command=lambda: print('User Page')
-                                     )
+        # self.user_icon = tk.PhotoImage(file=r".\Images\user2.png", height=25, width=25)
+        # self.userButton = IconButton(self.name,
+        #                              master, text=myobject['display_name'],
+        #                              image=self.user_icon,
+        #                              command=lambda: self.master.master.show_frame(UserPage)
+        #                              )
+        self.userButton = tk.Button(self.name, text=myobject['display_name'], command=lambda: self.master.master.show_frame(UserPage))
         self.userButton.bind("<Enter>", lambda e: self.userButtonHighlight(e))
         self.userButton.bind("<Leave>", lambda e: self.userButtonLeave(e))
 
-        # user_dropdown simplified
-        self.down = tk.PhotoImage(file=r".\Images\down_arrow.png", width=25, height=25)
+        # user_dropdown
         self.user_menu = tk.Menubutton(
             self.name,
-            image=self.down,
+            text="▼",
             background="#000000",
             activebackground="#000000",
             bd=0, padx=2, pady=0
@@ -131,13 +148,15 @@ class TopRightTop(tk.Frame):
         )
         self.user_menu['menu'] = self.user_menu.menu
         self.user_menu.menu.add_command(label='Logout', command=self.logout)
-        self.user_menu.menu.add_command(label="Profile", command=lambda: print('Profile'))
+        #self.user_menu.menu.add_separator()
+        self.user_menu.menu.add_command(label="Profile", command=lambda: self.master.master.show_frame(UserPage))
 
         self.user_menu.grid(row=0, column=2, sticky='nsew', padx=10, pady=0)
         self.userButton.grid(row=0, column=1, sticky='nsew', ipady=0)
         self.back.grid(row=0, column=0, sticky='nsew')
         self.search.grid(row=0, column=1, sticky='nsew')
         self.name.grid(row=0, column=2, sticky='nsew')
+        # self.dropdown.grid(row=0, column=3, sticky='nsew')
         self.min_max_cross.grid(row=0, column=3, sticky='nsew')
 
         self.search.grid_rowconfigure(0, weight=1)
@@ -149,12 +168,14 @@ class TopRightTop(tk.Frame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=10)
         self.grid_columnconfigure(2, weight=5)
+        # self.grid_columnconfigure(3, weight=1)
         self.grid_columnconfigure(3, weight=4)
         self.grid_propagate(False)
     
     def sendSearchData(self, event):
-        print(f'Search: {self.filter.get()}')
+        # print(self.filter.get())
         self.master.focus()
+        self.master.master.show_frame_Search(data=self.filter.get())
         
 
     def userButtonHighlight(self, event):
@@ -166,8 +187,19 @@ class TopRightTop(tk.Frame):
         self.userButton['font'] = self.appHighlightFont
 
     def logout(self):
-        print('Logout')
-        sys.exit()
+        from Database.Database import sign_out
+        sign_out()
+        try:
+            from Base.listOfPage import current_playing
+            from Base.listOfPage import currentTrack
+            if currentTrack[0]['instance'].player.music.get_busy():
+                currentTrack[0]['instance'].player.music.stop()
+        except Exception:
+            pass
+        self.master.master.master.master.destroy()
+        import subprocess
+       
+        _ = subprocess.call(["venv/Scripts/python.exe", "main.py"])
 
 
 class Back(tk.Frame):
@@ -175,11 +207,13 @@ class Back(tk.Frame):
         tk.Frame.__init__(self, master, *args, **kwargs)
         self['background'] = '#000000'
 
-        self.leftImage = tk.PhotoImage(file=r'.\images\left_arrow.png')
-        self.rightImage = tk.PhotoImage(file=r'.\images\right_arrow.png')
+        # self.leftImage = tk.PhotoImage(file=r'.\images\left_arrow.png')
+        # self.rightImage = tk.PhotoImage(file=r'.\images\right_arrow.png')
 
-        self.left = ArrowButton(self, image=self.leftImage, command=self.left)
-        self.right = ArrowButton(self, image=self.rightImage, command=self.right)
+        # self.left = ArrowButton(self, image=self.leftImage, command=self.left)
+        # self.right = ArrowButton(self, image=self.rightImage, command=self.right)
+        self.left = tk.Button(self, text="<", command=self.left)
+        self.right = tk.Button(self, text=">", command=self.right)
 
         self.left.grid(row=0, column=0, sticky='ew')
         self.right.grid(row=0, column=1, sticky='ew')
@@ -290,8 +324,18 @@ class MinMaxCross(tk.Frame):
 
     @staticmethod
     def prepare_icon(filename, size):
-        icon = Image.open('images/' + filename)
-        # Use Image.LANCZOS instead of deprecated Image.ANTIALIAS
-        icon = icon.resize((size, size), Image.LANCZOS)
-        icon = ImageTk.PhotoImage(icon)
-        return icon
+        try:
+            icon = Image.open('images/' + filename)
+            # Try different resampling methods for compatibility
+            try:
+                icon = icon.resize((size, size), Image.LANCZOS)
+            except AttributeError:
+                try:
+                    icon = icon.resize((size, size), Image.Resampling.LANCZOS)
+                except AttributeError:
+                    icon = icon.resize((size, size), Image.ANTIALIAS)  # fallback
+            icon = ImageTk.PhotoImage(icon)
+            return icon
+        except Exception as e:
+            print(f"Error loading icon {filename}: {e}")
+            return None

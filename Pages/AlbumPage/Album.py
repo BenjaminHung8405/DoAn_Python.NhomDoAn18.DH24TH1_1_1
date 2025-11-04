@@ -1,111 +1,47 @@
-import customtkinter as ctk
+import tkinter as tk
 from Pages.Resource.VerticalScrollableFrame import ScrollableFrame
+from .Components.header import Header
+from .Components.HorizontalFrame import HorizontalFrame
 
 
-class Album(ctk.CTkFrame):
+class Album(tk.Frame):
     def __init__(self, master, controller, *args, **kwargs):
-        ctk.CTkFrame.__init__(self, master, fg_color='#121212', corner_radius=8, *args, **kwargs)
-        
-        self.controller = controller
-        
-        # Initial placeholder
-        self.label = ctk.CTkLabel(
-            self, 
-            text='Album Page\n(Click an album to view details)', 
-            font=ctk.CTkFont(family="Arial", size=24, weight="bold"),
-            text_color="white"
-        )
-        self.label.pack(pady=50)
-        
+        tk.Frame.__init__(self, master, *args, **kwargs)
+        self['background'] = '#181818'
+        self.bind('<Configure>', self.size)
+        self.main = tk.Frame(self, bg='#181818')
+        self.scrollable = ScrollableFrame(self.main)
+
+        self.head = Header(self, text='Album')
+
+        for i, j in enumerate(self.data()):
+            self.item = HorizontalFrame(self.scrollable.scrollable_frame,
+                                        controller,
+                                        text=j['title'], data=j['data'])
+            self.item.grid(row=i, column=0, sticky=tk.N + tk.W + tk.E)
+            break
+
+        self.head.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+        self.main.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+
+        self.main.grid_rowconfigure(0, weight=1)
+        self.main.grid_columnconfigure(0, weight=1)
+
         self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=10)
         self.grid_columnconfigure(0, weight=1)
-        
-    def update_data(self, album_id):
-        """Called by controller to update page content"""
-        if not album_id:
-            return
-            
-        # Clear old content
-        for widget in self.winfo_children():
-            widget.destroy()
-            
-        # TODO: Fetch album details from database
-        # from Database.Albumdata import get_album_details
-        # album_details = get_album_details(album_id)
-        
-        # Mock data for now
-        album_details = {
-            'title': f'Album #{album_id}',
-            'artist': 'Various Artists',
-            'year': '2024',
-            'tracks': [
-                {'title': 'Track 1', 'duration': '3:45'},
-                {'title': 'Track 2', 'duration': '4:12'},
-                {'title': 'Track 3', 'duration': '2:58'},
-            ]
-        }
-        
-        # Create scrollable content
-        scrollable = ScrollableFrame(self)
-        scrollable.pack(fill="both", expand=True, padx=20, pady=20)
-        
-        # Album header
-        header_frame = ctk.CTkFrame(scrollable.scrollable_frame, fg_color="transparent")
-        header_frame.pack(fill="x", pady=(0, 20))
-        
-        title = ctk.CTkLabel(
-            header_frame,
-            text=album_details['title'],
-            font=ctk.CTkFont(family="Arial", size=48, weight="bold"),
-            text_color="white",
-            anchor="w"
-        )
-        title.pack(fill="x")
-        
-        artist = ctk.CTkLabel(
-            header_frame,
-            text=album_details['artist'],
-            font=ctk.CTkFont(size=16),
-            text_color="#B3B3B3",
-            anchor="w"
-        )
-        artist.pack(fill="x", pady=(5, 0))
-        
-        # Play button
-        play_btn = ctk.CTkButton(
-            scrollable.scrollable_frame,
-            text="▶ Play",
-            font=ctk.CTkFont(size=16, weight="bold"),
-            fg_color="#1DB954",
-            hover_color="#1ED760",
-            height=50,
-            width=120,
-            corner_radius=25
-        )
-        play_btn.pack(pady=20, anchor="w")
-        
-        # Track list
-        tracks_label = ctk.CTkLabel(
-            scrollable.scrollable_frame,
-            text="Tracks",
-            font=ctk.CTkFont(size=20, weight="bold"),
-            text_color="white",
-            anchor="w"
-        )
-        tracks_label.pack(fill="x", pady=(20, 10))
-        
-        for i, track in enumerate(album_details['tracks'], 1):
-            track_frame = ctk.CTkFrame(scrollable.scrollable_frame, fg_color="#282828", corner_radius=4)
-            track_frame.pack(fill="x", pady=2)
-            
-            track_btn = ctk.CTkButton(
-                track_frame,
-                text=f"{i}. {track['title']} • {track['duration']}",
-                font=ctk.CTkFont(size=14),
-                fg_color="transparent",
-                hover_color="#404040",
-                text_color="white",
-                anchor="w",
-                height=50
-            )
-            track_btn.pack(fill="x", padx=10)
+
+    def data(self):
+        from Database import HomePagedata
+        title = ['Listen to your favourite Album']
+        data = [
+            HomePagedata.genre_data
+        ]
+        info = [
+            {'title': title[0], 'data': data[0]}
+        ]
+
+        return info
+
+    def size(self, event):
+        pass

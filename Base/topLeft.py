@@ -1,4 +1,8 @@
 import tkinter as tk
+from Pages.HomePage.Home import Home
+from Pages.Browse.browse import Browse
+from Pages.ArtistPage.Artist import Artist
+from Pages.AlbumPage.Album import Album
 from tkinter import font
 from PIL import ImageTk, Image
 
@@ -55,10 +59,10 @@ class TopLeft(tk.Frame):
         self.appHighlightFont3 = font.Font(family='lineto circular', size=9)
 
         # images
-        self.home_icon = tk.PhotoImage(file=r".\Images\home.png")
-        self.browse_icon = tk.PhotoImage(file=r".\Images\browse2.png")
-        self.menu_icon = tk.PhotoImage(file=r".\Images\menu2.png")
-        self.liked_image = Image.open(r".\Images\purple_heart.png")
+        self.home_icon = tk.PhotoImage()  # dummy
+        self.browse_icon = tk.PhotoImage()  # dummy
+        self.menu_icon = tk.PhotoImage()  # dummy
+        self.liked_image = Image.new('RGB', (16, 16), color='purple')  # dummy 16x16 purple image
 
         # frames
         self.frame1 = tk.Frame(self, bg='#121212', padx=10, pady=10)
@@ -85,9 +89,8 @@ class TopLeft(tk.Frame):
         self.menu2.menu.add_command(label='amplifyteam1234@gmail.com')
 
         # frame2
-        # Simplified, no pages yet
-        self.home = tk.Button(self.frame2, text='Home', command=lambda: print('Home'))
-        self.browse = tk.Button(self.frame2, text='About Us', command=lambda: print('Browse'))
+        self.home = IconButton(self.frame2, master, text='Home', image=self.home_icon, page=Home)
+        self.browse = IconButton(self.frame2, master, text='About Us', image=self.browse_icon, page=Browse)
 
         # frame3
         self.appHighlightFont = font.Font(family='lineto circular', size=9, weight='bold')
@@ -99,15 +102,20 @@ class TopLeft(tk.Frame):
                               padx=5,
                               font=self.appHighlightFont
                               )
+        #self.madeForYou = NormalButton(self.frame3, text='Made For You')
+        #self.recentlyPlayed = NormalButton(self.frame3, text='Recently Played')
         self.likedSongs = NormalButton(self.frame3,
                                        text='Liked Songs',
-                                       command=lambda: print('Liked Songs'))
+                                       command=lambda data=self.get_liked_song(): self.master.show_frame_liked(
+                                           data=self.get_liked_song(),
+                                           text='Liked Song',
+                                           image=self.liked_image))
         self.albums = NormalButton(self.frame3,
                                    text='Albums',
-                                   command=lambda: print('Albums'))
+                                   command=lambda: self.master.show_frame(Album))
         self.artists = NormalButton(self.frame3,
                                     text='Artists',
-                                    command=lambda: print('Artists'))
+                                    command=lambda: self.master.show_frame(Artist))
 
         # frame4
         self.label2 = tk.Label(self.frame4,
@@ -151,6 +159,8 @@ class TopLeft(tk.Frame):
         self.home.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.browse.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.label.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+        #self.madeForYou.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+        #self.recentlyPlayed.grid(row=2, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.likedSongs.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.albums.grid(row=2, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.artists.grid(row=3, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
@@ -177,3 +187,23 @@ class TopLeft(tk.Frame):
 
         self.frame5.grid_columnconfigure(0, weight=1)
         self.frame5.grid_rowconfigure((0,1), weight=1)
+
+    def logout(self):
+        import os
+        from Database.Database import sign_out
+        from Pages.UserAuthentication.AuthBase import AuthBase
+        sign_out()
+       
+        self.master.master.master.destroy()
+        login = AuthBase()
+        login.mainloop()
+
+    def get_liked_song(self):
+        f = open('user')
+    
+        x = f.readlines()[0]
+        from Database.Database import get_all_liked_songs
+       
+        
+        return get_all_liked_songs(x)
+

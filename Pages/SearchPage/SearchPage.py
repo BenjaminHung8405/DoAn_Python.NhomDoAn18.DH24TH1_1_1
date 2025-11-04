@@ -1,46 +1,83 @@
-import customtkinter as ctk
-from Pages.Resource.VerticalScrollableFrame import ScrollableFrame
+import tkinter as tk
+# from .Components.FilterFrame import FilterFrame
+from .Components.TitleFrame import TitleFrame
+from .Components.MusicFrame import MusicFrame
+from .Components.Content import Content
+import pyglet
+import tkinter.font as tkfont
+import re
+from Database.Database import get_all_tracks
+
+global matchingSongs
+matchingSongs = []
+
+class SearchPage(tk.Frame):
+    def __init__(self, master, controller, data=None, *args, **kwargs):
+        tk.Frame.__init__(self, master, *args, **kwargs)
+        self['background'] = "#000000"
+
+        self.titleFrame = tk.Frame(self,background="#999999")
+        self.contentFrame = tk.Frame(self,background="#181818")
+
+        pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
+        play = tkfont.Font(family="Play", size=35, weight="bold")
+        
+        self.heading = tk.Label(self.titleFrame,text="Search",bg="#000000",foreground='white',font=play,padx=20)
+
+       
+      
+        self.labelTitleFrame = TitleFrame(self.contentFrame)
+
+        data = self.searchFunc(data)
+        self.content = Content(self.contentFrame,controller,data=data)
 
 
-class SearchPage(ctk.CTkFrame):
-    def __init__(self, master, controller, *args, **kwargs):
-        ctk.CTkFrame.__init__(self, master, fg_color='#121212', corner_radius=8, *args, **kwargs)
-        
-        # Header
-        header = ctk.CTkLabel(
-            self, 
-            text='Search', 
-            font=ctk.CTkFont(family="Arial", size=32, weight="bold"),
-            text_color="white",
-            anchor="w"
-        )
-        header.grid(row=0, column=0, sticky="ew", padx=20, pady=20)
-        
-        # Search input
-        self.search_entry = ctk.CTkEntry(
-            self,
-            placeholder_text="What do you want to listen to?",
-            height=40,
-            font=ctk.CTkFont(size=14),
-            border_width=0,
-            corner_radius=20
-        )
-        self.search_entry.grid(row=1, column=0, sticky="ew", padx=20, pady=(0, 20))
-        
-        # Results area (placeholder)
-        self.results_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.results_frame.grid(row=2, column=0, sticky="nsew", padx=20, pady=(0, 20))
-        
-        placeholder = ctk.CTkLabel(
-            self.results_frame,
-            text="🔍 Start typing to search...",
-            font=ctk.CTkFont(size=16),
-            text_color="#B3B3B3"
-        )
-        placeholder.pack(pady=50)
-        
-        # Configure grid
-        self.grid_rowconfigure(0, weight=0)  # Header
-        self.grid_rowconfigure(1, weight=0)  # Search input
-        self.grid_rowconfigure(2, weight=1)  # Results
-        self.grid_columnconfigure(0, weight=1)
+        self.titleFrame.grid(row=0, column=0 , sticky='nsw')
+        self.heading.grid(row=0, column=0 , sticky='nsew')
+        self.contentFrame.grid(row=1,column=0,sticky='nsew')
+        # self.filterFrame.grid(row=0,column=0,sticky='nsew')
+        self.labelTitleFrame.grid(row=0,column=0,sticky='nsew')
+        self.content.grid(row=1,column=0,sticky='nsew')
+
+        self.titleFrame.grid_rowconfigure(0,weight=1)
+        self.titleFrame.grid_columnconfigure(0,weight=1)
+        self.grid_rowconfigure(0,weight=1)
+        self.grid_rowconfigure(1,weight=10)
+        self.grid_columnconfigure(0,weight=1)
+        # self.contentFrame.grid_rowconfigure(0,weight=2)
+        self.contentFrame.grid_rowconfigure(0,weight=1)
+        self.contentFrame.grid_rowconfigure(1,weight=55)
+        self.contentFrame.grid_columnconfigure(0,weight=1)
+        # self.contentFrame.grid_columnconfigure(0,weight=1)
+
+    def listOfSongs(self):
+       
+        all_songs= get_all_tracks()
+       
+        return all_songs
+    
+    def searchFunc(self, data):
+        if data==None:
+           
+            return None
+        else:
+            matchingSongs.clear()
+           
+            user_input = data
+           
+            song_list = self.listOfSongs()
+            for i in range(len(song_list)):
+              
+                input_matcher = re.search(
+                    user_input.upper(),
+                    song_list[i]['title'].upper()
+                )
+               
+                if input_matcher:
+                    matchingSongs.append(song_list[i])
+            
+            if not matchingSongs:
+                data=['not found']
+                return data
+            else:
+                return matchingSongs

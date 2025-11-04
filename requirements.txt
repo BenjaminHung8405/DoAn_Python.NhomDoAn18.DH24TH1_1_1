@@ -1,10 +1,24 @@
-# UI Libraries
-pyglet==2.0.10
-Pillow==10.1.0
-numpy==1.26.2
-scikit-image==0.22.0
-mutagen==1.47.0
-requests==2.31.0
-pygame==2.5.2
+# Database
 psycopg2-binary==2.9.9
-customtkinter==5.2.1
+
+# GUI
+Pillow==10.3.0
+pyglet==2.0.10
+
+# Music playback
+pygame==2.5.2
+mutagen==1.47.0
+
+# Image processing
+imageio==2.34.1
+scikit-image==0.23.2
+
+# HTTP requests
+requests==2.31.0
+urllib3==2.2.1
+
+# Date/time utilities
+python-dateutil==2.9.0
+
+# Environment variables
+python-dotenv==1.0.1

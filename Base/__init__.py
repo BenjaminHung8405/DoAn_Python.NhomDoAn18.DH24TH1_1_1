@@ -1,1 +1,1 @@
-# Base module
+# Base package initialization
