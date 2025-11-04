@@ -37,3 +37,18 @@ def release_connection(conn):
     if connection_pool and conn:
         connection_pool.putconn(conn)
 
+
+def test_connection(timeout=5):
+    """Test if database connection is working"""
+    try:
+        conn = get_connection()
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT 1")
+            cursor.close()
+            release_connection(conn)
+            return True
+        return False
+    except Exception as e:
+        print(f"Database connection test failed: {e}")
+        return False

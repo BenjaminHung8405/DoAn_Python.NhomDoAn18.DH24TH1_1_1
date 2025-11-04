@@ -32,21 +32,23 @@ cd DTH235659_NguyenPhiHung_DoAn_Python
 pip install -r requirements.txt
 ```
 
-### 3. Thiết lập database
+### 3. Cấu hình Database (Remote Neon PostgreSQL)
 
-#### Tạo database trên Neon:
+**Note:** This project uses **remote Neon PostgreSQL only**. Local SQL files are no longer used.
+
+#### Lấy connection string từ Neon:
 1. Truy cập https://neon.tech
-2. Tạo project mới
-3. Copy connection string
+2. Tạo project mới hoặc sử dụng project existing
+3. Copy connection string từ dashboard
 
 #### Tạo schema:
+Chạy SQL schema trên Neon console hoặc psql:
 
 ```bash
-# Kết nối với database và chạy schema
-psql "postgresql://user:password@host/database" < sql/schema.sql
+psql "postgresql://user:password@ep-xxx.us-east-2.aws.neon.tech/database?sslmode=require" < schema.sql
 ```
 
-### 4. Cấu hình
+### 4. Cấu hình .env
 
 Tạo file `.env` từ `.env.example`:
 
@@ -54,10 +56,10 @@ Tạo file `.env` từ `.env.example`:
 cp .env.example .env
 ```
 
-Sửa file `.env` và điền connection string của bạn:
+Sửa file `.env` và điền DATABASE_URL:
 
 ```
-DATABASE_URL=postgresql://user:password@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require
+DATABASE_URL=postgresql://user:password@ep-xxx.us-east-2.aws.neon.tech/dbname?sslmode=require
 ```
 
 ### 5. Chuẩn bị assets

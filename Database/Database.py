@@ -6,6 +6,19 @@ import hashlib
 import os
 
 
+def _handle_db_error(ex, return_empty_list=True):
+    """Handle database errors gracefully"""
+    print('Exception Occurred which is of type:', ex.__class__.__name__)
+    traceback.print_exc()
+    # Only show messagebox if running in GUI (not headless)
+    try:
+        if tk.Tk.winfo_exists(tk.Tk()):
+            messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
+    except:
+        pass
+    return [] if return_empty_list else False
+
+
 def hash_password(password):
     """Hash password using SHA256"""
     return hashlib.sha256(password.encode()).hexdigest()
@@ -220,6 +233,8 @@ def get_all_artists():
     conn = None
     try:
         conn = get_connection()
+        if not conn:
+            return []
         cursor = conn.cursor()
         cursor.execute("SELECT artist_id, name, image_url FROM artists")
         
@@ -234,7 +249,7 @@ def get_all_artists():
         cursor.close()
         return artists
     except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
+        return _handle_db_error(ex, return_empty_list=True)
         print('Exception Occurred which is of type:', ex.__class__.__name__)
         traceback.print_exc()
         return False
@@ -248,6 +263,8 @@ def get_all_tracks():
     conn = None
     try:
         conn = get_connection()
+        if not conn:
+            return []
         cursor = conn.cursor()
         cursor.execute("SELECT track_id, title, artist, genre, location, language, like_count FROM tracks")
         
@@ -259,10 +276,7 @@ def get_all_tracks():
         cursor.close()
         return tracks
     except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
+        return _handle_db_error(ex, return_empty_list=True)
     finally:
         if conn:
             release_connection(conn)
@@ -302,6 +316,8 @@ def get_all_genres():
     conn = None
     try:
         conn = get_connection()
+        if not conn:
+            return []
         cursor = conn.cursor()
         cursor.execute("SELECT genre_name, genre_image FROM genres")
         
@@ -330,6 +346,8 @@ def get_genre(genre_name):
     conn = None
     try:
         conn = get_connection()
+        if not conn:
+            return []
         cursor = conn.cursor()
         cursor.execute("SELECT genre_name, genre_image FROM genres WHERE genre_name = %s", (genre_name,))
         

@@ -81,7 +81,7 @@ def main():
     
     print("\nNext steps:")
     print("1. Edit .env file and add your Neon DATABASE_URL")
-    print("2. Run SQL schema: psql <connection-string> < sql/schema.sql")
+    print("2. Ensure your Neon database schema is set up (create tables)")
     print("3. Copy images from Amplify-master/images/ to images/")
     print("4. Run: python main.py")
     
