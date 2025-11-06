@@ -1,8 +1,10 @@
 import tkinter as tk
+import requests
+from io import BytesIO
 import pyglet
 import tkinter.font as tkfont
 from .HorizontalScrollableFrame import HorizontalScrollableFrame
-from skimage import io
+# from skimage import io
 from PIL import ImageTk, Image
 
 
@@ -54,8 +56,8 @@ class Upper(tk.Frame):
         pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
         play = tkfont.Font(family="Play", size=15, weight="bold")
 
-        self.left = tk.PhotoImage(file=r'.\images\left_arrow.png')
-        self.right = tk.PhotoImage(file=r'.\images\right_arrow.png')
+        self.left = tk.PhotoImage(file=r'./images/left_arrow.png')
+        self.right = tk.PhotoImage(file=r'./images/right_arrow.png')
 
         self.label = tk.Label(self,
                               text=text,
@@ -102,8 +104,8 @@ class Lower(tk.Frame):
         self.images = []
 
         for i in data:
-            self.image = io.imread(i['url'])
-            self.image = Image.fromarray(self.image)
+            response = requests.get(i['url'], timeout=10); self.image = Image.open(BytesIO(response.content))
+            self.image = self.image
             self.images.append(self.image)
 
         row = 0
@@ -185,7 +187,7 @@ class CardButton(tk.Button):
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
         self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.ANTIALIAS)
+        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
         self.config(image=self.image)
 
@@ -194,7 +196,7 @@ class CardButton(tk.Button):
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
         self.image = self.url
-        self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.ANTIALIAS)
+        self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
         # self.greyscale = self.image.convert('LA')
         self.image = ImageTk.PhotoImage(self.image)
         self.config(image=self.image)
@@ -204,6 +206,6 @@ class CardButton(tk.Button):
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
         self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.ANTIALIAS)
+        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
         self.config(image=self.image)

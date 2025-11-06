@@ -87,7 +87,7 @@ class MusicFrame(tk.Frame):
     @staticmethod
     def prepare_icon(filename, size):
         icon = Image.open('images/' + filename)
-        icon = icon.resize((size, size), Image.ANTIALIAS)
+        icon = icon.resize((size, size), Image.LANCZOS)
         icon = ImageTk.PhotoImage(icon)
         return icon
 

@@ -44,13 +44,9 @@ class ScrollableFrame(tk.Frame):
                              borderwidth=0,
                              relief=tk.FLAT)
 
-        self.style.theme_settings("vista", {
-            "My.Vertical.TScrollbar": {
-                'map': {
-                    'background': [('active', '#818181')]
-                }
-            }
-        })
+        # Áp dụng cài đặt cụ thể cho theme sử dụng style.map (tương thích đa nền tảng)
+        # Thay vì theme_settings là cụ thể cho theme
+        self.style.map("My.Vertical.TScrollbar", background=[('active', '#818181')])
 
         self.scrollbar = ttk.Scrollbar(self,
                                        orient="vertical",

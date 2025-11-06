@@ -58,13 +58,13 @@ class TopLeft(tk.Frame):
         self.appHighlightFont2 = font.Font(family='lineto circular', size=10)
         self.appHighlightFont3 = font.Font(family='lineto circular', size=9)
 
-        # images
-        self.home_icon = tk.PhotoImage()  # dummy
-        self.browse_icon = tk.PhotoImage()  # dummy
-        self.menu_icon = tk.PhotoImage()  # dummy
-        self.liked_image = Image.new('RGB', (16, 16), color='purple')  # dummy 16x16 purple image
+        # hình ảnh
+        self.home_icon = tk.PhotoImage(file="images/home.png")
+        self.browse_icon = tk.PhotoImage(file="images/browse2.png")
+        self.menu_icon = tk.PhotoImage(file="images/menu2.png")
+        self.liked_image = Image.open("images/purple_heart.png")
 
-        # frames
+        # các khung
         self.frame1 = tk.Frame(self, bg='#121212', padx=10, pady=10)
         self.frame2 = tk.Frame(self, bg='#121212', padx=10)
         self.frame3 = tk.Frame(self, bg='#121212', padx=10)
@@ -72,7 +72,7 @@ class TopLeft(tk.Frame):
         self.frame5 = tk.Frame(self, bg='#000000', padx=10)
         self.line = tk.Frame(self, bg="#2c2c2c", padx=10)
 
-        # frame1
+        # khung1
         self.menu2 = tk.Menubutton(self.frame1, image=self.menu_icon, background='#121212', activebackground='#121212',
                                    bd=0)
         self.menu2.menu = tk.Menu(self.menu2,
@@ -88,11 +88,11 @@ class TopLeft(tk.Frame):
         self.menu2.menu.add_command(label='Contact us:')
         self.menu2.menu.add_command(label='amplifyteam1234@gmail.com')
 
-        # frame2
+        # khung2
         self.home = IconButton(self.frame2, master, text='Home', image=self.home_icon, page=Home)
         self.browse = IconButton(self.frame2, master, text='About Us', image=self.browse_icon, page=Browse)
 
-        # frame3
+        # khung3
         self.appHighlightFont = font.Font(family='lineto circular', size=9, weight='bold')
         self.label = tk.Label(self.frame3,
                               text='YOUR LIBRARY',
@@ -102,8 +102,8 @@ class TopLeft(tk.Frame):
                               padx=5,
                               font=self.appHighlightFont
                               )
-        #self.madeForYou = NormalButton(self.frame3, text='Made For You')
-        #self.recentlyPlayed = NormalButton(self.frame3, text='Recently Played')
+        #self.madeForYou = NormalButton(self.khung3, text='Made For You')
+        #self.recentlyPlayed = NormalButton(self.khung3, text='Recently Played')
         self.likedSongs = NormalButton(self.frame3,
                                        text='Liked Songs',
                                        command=lambda data=self.get_liked_song(): self.master.show_frame_liked(
@@ -117,7 +117,7 @@ class TopLeft(tk.Frame):
                                     text='Artists',
                                     command=lambda: self.master.show_frame(Artist))
 
-        # frame4
+        # khung4
         self.label2 = tk.Label(self.frame4,
                                text='AMPLIFY',
                                background='#000000',
@@ -134,7 +134,7 @@ class TopLeft(tk.Frame):
                                padx=5,
                                font=self.appHighlightFont
                                )
-        # frame5
+        # khung5
         self.label4 = tk.Label(
                             self.frame5,
                             text='CONTACT US',
@@ -154,7 +154,7 @@ class TopLeft(tk.Frame):
                             font=self.appHighlightFont2
                         )
 
-        # grid - components
+        # lưới - các thành phần
         self.menu2.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
         self.home.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.browse.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
@@ -169,7 +169,7 @@ class TopLeft(tk.Frame):
         self.label3.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=0)
         self.label4.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=0)
 
-        # grid - frames
+        # grid - các khung
         self.frame1.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.frame2.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.frame3.grid(row=2, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
@@ -177,7 +177,7 @@ class TopLeft(tk.Frame):
         self.frame5.grid(row=5, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.line.grid(row=3, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
-        # grid - row/column
+        # lưới - hàng/cột
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=2)

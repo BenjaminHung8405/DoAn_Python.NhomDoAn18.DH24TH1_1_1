@@ -50,11 +50,11 @@ class Middle(tk.Frame):
         custom_name = 'custom' + str(Middle.count) + '.Horizontal.Scale'
 
         self.trough = Image.open('images/green_trough.png')
-        self.trough = self.trough.resize((8, 4), Image.ANTIALIAS)
+        self.trough = self.trough.resize((8, 4), Image.LANCZOS)
         self.trough = ImageTk.PhotoImage(self.trough)
 
         self.circle = Image.open('images/circle.png')
-        self.circle = self.circle.resize((20, 20), Image.ANTIALIAS)
+        self.circle = self.circle.resize((20, 20), Image.LANCZOS)
         self.circle = ImageTk.PhotoImage(self.circle)
 
         style.element_create(custom_name + '.trough', 'image', self.trough)
@@ -67,13 +67,9 @@ class Middle(tk.Frame):
                         'children': [('Horizontal.Scale.label', {'sticky': ''})]
                         })])
 
-        style.theme_settings("vista", {
-            "custom.Horizontal.TScale": {
-                'map':
-                    {'background': [("active", "#2c2c2c"),
-                                    ("!disabled", "#2c2c2c")],
-                     }
-            }})
+        # Áp dụng ánh xạ style (tương thích đa nền tảng)
+        style.map("custom.Horizontal.TScale",
+                 background=[("active", "#2c2c2c"), ("!disabled", "#2c2c2c")])
         # ------------------------------------------------------
 
         self.controller = controller
@@ -216,7 +212,7 @@ class Middle(tk.Frame):
     @staticmethod
     def prepare_image(filename, size):
         icon = Image.open('images/' + filename)
-        icon = icon.resize((size, size), Image.ANTIALIAS)
+        icon = icon.resize((size, size), Image.LANCZOS)
         icon = ImageTk.PhotoImage(icon)
         return icon
 

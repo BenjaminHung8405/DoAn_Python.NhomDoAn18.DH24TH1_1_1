@@ -17,7 +17,7 @@ class Browse(tk.Frame):
 	@staticmethod
 	def prepare_image(filename, height, width):
 		icon = Image.open('images/'+filename)
-		icon = icon.resize((width, height), Image.ANTIALIAS)
+		icon = icon.resize((width, height), Image.LANCZOS)
 		icon = ImageTk.PhotoImage(icon)
 		return icon
 

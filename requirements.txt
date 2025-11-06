@@ -1,24 +1,25 @@
-# Database
-psycopg2-binary==2.9.9
+# Database (PostgreSQL remote - Neon)
+psycopg2-binary==2.9.11
 
 # GUI
-Pillow==10.3.0
-pyglet==2.0.10
+Pillow>=10.3.0
+pyglet>=2.0.10
 
 # Music playback
-pygame==2.5.2
-mutagen==1.47.0
+pygame>=2.5.2
+mutagen>=1.47.0
 
 # Image processing
-imageio==2.34.1
-scikit-image==0.23.2
+imageio>=2.34.1
+scikit-image>=0.23.2
+numpy>=1.24
 
 # HTTP requests
-requests==2.31.0
-urllib3==2.2.1
+requests>=2.31.0
+urllib3>=2.2.1
 
 # Date/time utilities
-python-dateutil==2.9.0
+python-dateutil>=2.9.0
 
 # Environment variables
 python-dotenv==1.0.1

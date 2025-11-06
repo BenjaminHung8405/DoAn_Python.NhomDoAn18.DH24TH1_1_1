@@ -1,10 +1,12 @@
 import tkinter as tk
+import requests
+from io import BytesIO
 from Pages.SearchPage.Components.ContentLabel import ContentLabel
 from Pages.SearchPage.Components.LikeButton import LikeButton
 from Pages.SearchPage.Components.MenuFrame import MenuFrame
 from Pages.SearchPage.Components.PlayButton import PlayButton
 from PIL import Image, ImageTk
-from skimage import io
+# from skimage import io
 from Music.track import Track
 from Database.Database import get_genre,get_artist
 
@@ -91,7 +93,7 @@ class MusicFrame(tk.Frame):
     @staticmethod
     def prepare_icon(filename, size):
         icon = Image.open('images/' + filename)
-        icon = icon.resize((size, size), Image.ANTIALIAS)
+        icon = icon.resize((size, size), Image.LANCZOS)
         icon = ImageTk.PhotoImage(icon)
         return icon
 
@@ -161,8 +163,8 @@ class MusicFrame(tk.Frame):
         artist = get_artist(self.artist)
       
         try:
-                self.image = io.imread(artist['image_url'])
-                self.image = Image.fromarray(self.image)
+                response = requests.get(artist['image_url'], timeout=10); self.image = Image.open(BytesIO(response.content))
+                self.image = self.image
         except ValueError as ex:
             print('---------------------------------------------------------------------')
             print('This url(above url) need to be replaced as it is not readable by the imread function')

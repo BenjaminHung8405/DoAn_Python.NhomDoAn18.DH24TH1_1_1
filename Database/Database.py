@@ -1,662 +1,1147 @@
-from Database.config import get_connection, release_connection
+from Database.config import *
 import traceback
 import tkinter as tk
 from tkinter import messagebox
-import hashlib
-import os
 
 
-def _handle_db_error(ex, return_empty_list=True):
-    """Handle database errors gracefully"""
-    print('Exception Occurred which is of type:', ex.__class__.__name__)
-    traceback.print_exc()
-    # Only show messagebox if running in GUI (not headless)
-    try:
-        if tk.Tk.winfo_exists(tk.Tk()):
-            messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-    except:
-        pass
-    return [] if return_empty_list else False
+def Check_artist(artist):
+	"""
+	Returns boolean value if the artist exist or not in the database
+	"""
+	try:
+		doc_ref = db.collection(u'artist').document(artist)
+		if doc_ref.get().to_dict() is None:
+			return False
+		print('Artist got successfully')
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def Check_genre(genre):
+	"""
+	Returns boolean value if the genre exist or not in the database
+	"""
+	try:
+		doc_ref = db.collection(u'genres').document(genre)
+		if doc_ref.get().to_dict() is None:
+		   return False
+		print('genre got successfully')
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+	
+def Check_language(language):
+	"""
+	Returns boolean value if the language exist or not in the database
+	"""
+	try:
+		doc_ref = db.collection(u'languages').document(language)
+		if doc_ref.get().to_dict() is None:
+		   return False
+		print('language got successfully')
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def set_language(language):
+	'''
 
 
-def hash_password(password):
-    """Hash password using SHA256"""
-    return hashlib.sha256(password.encode()).hexdigest()
+	:param language:
+	This is the name of the language
 
+	:return:
+	Bool if success
 
-def check_artist(artist):
-    """Returns boolean value if the artist exists or not in the database"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1 FROM artists WHERE name = %s", (artist,))
-        result = cursor.fetchone()
-        cursor.close()
-        print('Artist checked successfully')
-        return result is not None
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
+	'''
+	try:
+		if(Check_language(language)):
+			pass
+		else : 
+			doc_ref = db.collection(u'languages').document(language)
+			doc_ref.set({
+				'language_name' : language,
+				'language_image':'',
 
-
-def check_genre(genre):
-    """Returns boolean value if the genre exists or not in the database"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1 FROM genres WHERE genre_name = %s", (genre,))
-        result = cursor.fetchone()
-        cursor.close()
-        print('Genre checked successfully')
-        return result is not None
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
-
-
-def check_language(language):
-    """Returns boolean value if the language exists or not in the database"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1 FROM languages WHERE language_name = %s", (language,))
-        result = cursor.fetchone()
-        cursor.close()
-        print('Language checked successfully')
-        return result is not None
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
-
-
-def set_language(language, language_image=''):
-    """Add a new language to the database"""
-    conn = None
-    try:
-        if check_language(language):
-            return True
-        
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO languages (language_name, language_image) VALUES (%s, %s)",
-            (language, language_image)
-        )
-        conn.commit()
-        cursor.close()
-        return True
-    except Exception as ex:
-        if conn:
-            conn.rollback()
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
-
-
+			})
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
 def get_tracks_by_language(**kwargs):
-    """
-    Returns a list of songs with particular language
-    kwarg: language = 'required language'
-    else return the list of all languages
-    """
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        if 'language' in kwargs:
-            cursor.execute("""
-                SELECT track_id, title, artist, genre, location, like_count, language
-                FROM tracks
-                WHERE language = %s
-            """, (kwargs['language'],))
-            
-            columns = [desc[0] for desc in cursor.description]
-            tracks = []
-            for row in cursor.fetchall():
-                track_dict = dict(zip(columns, row))
-                tracks.append(track_dict)
-            cursor.close()
-            return tracks
-        else:
-            cursor.execute("SELECT language_name, language_image FROM languages")
-            columns = [desc[0] for desc in cursor.description]
-            languages = []
-            for row in cursor.fetchall():
-                lang_dict = {
-                    'text': row[0],
-                    'url': row[1] or ''
-                }
-                languages.append(lang_dict)
-            cursor.close()
-            return languages
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
+	"""
+	Returns a list of songs with particular language
+	kwarg : language = 'required language'
+	else return the list of all languages
+	if failed returns false
+	"""
+	if 'language' in kwargs:
+		try:
+			doc_ref = db.collection('Tracks')
+			snapshots = list(doc_ref.where(u'Language', u'==', kwargs['language']).stream())
+			if len(snapshots):
+				object_list = list(map(lambda x: x.to_dict(), snapshots))
+				# print(object_list)
+				return object_list
+		except Exception as ex:
+			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+			print('Exception Occurred which is of type :', ex.__class__.__name__)
+			y = input('If you want to see Traceback press 1 : ')
+			if y == '1':
+				traceback.print_exc()
+			return []
+	else:
+		try:
+			# Truy vấn bảng languages của PostgreSQL
+			conn = get_connection()
+			if not conn:
+				return []
+			
+			cur = conn.cursor()
+			cur.execute("SELECT language_name, language_image FROM languages")
+			rows = cur.fetchall()
+			cur.close()
+			conn.close()
+			
+			all_dicts = []
+			for row in rows:
+				my_dict = {
+					'text': row[0],  # tên ngôn ngữ
+					'url': row[1],   # hình ảnh ngôn ngữ
+				}
+				all_dicts.append(my_dict)
+			return all_dicts
+		except Exception as ex:
+			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+			
+			print('Exception Occurred which is of type :', ex.__class__.__name__)
+			y = input('If you want to see Traceback press 1 : ')
+			if y == '1':
+				traceback.print_exc()
+			return []
+
+def set_artist(track_title, track_genre, track_location, track_artist,language):
+	"""
+	Function to set only artist details
+	Returns boolean True if set else False
+	gets invoked in the get song function
+	"""
+
+	try:
+		if(Check_artist(track_artist)):
+			pass
+		else:
+			collection = db.collection(u'artist').document(track_artist)
+			collection.set({
+				'name': track_artist,
+				'image_url': ''
+				
+			})
+		artistTracks = db.collection(u'artist/' + track_artist + '/tracks').document(track_title)
+		artistTracks.set({
+			'title': track_title,
+			'genre': track_genre,
+			'location': track_location,
+			'artist':track_artist,
+			'like_count': 0,
+			'Language': language
+
+		})
+		print('artist added')
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
 
 
-def set_artist(track_title, track_genre, track_location, track_artist, language):
-    """Function to set artist details and add track"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        # Add artist if not exists
-        if not check_artist(track_artist):
-            cursor.execute(
-                "INSERT INTO artists (name, image_url) VALUES (%s, %s)",
-                (track_artist, '')
-            )
-        
-        # Add track
-        cursor.execute("""
-            INSERT INTO tracks (title, artist, genre, location, language, like_count)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT (title, artist) DO NOTHING
-        """, (track_title, track_artist, track_genre, track_location, language, 0))
-        
-        conn.commit()
-        cursor.close()
-        print('Artist and track added successfully')
-        return True
-    except Exception as ex:
-        if conn:
-            conn.rollback()
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
 
 
 def get_artist_tracks(artist):
-    """Returns a list of track objects for the given artist"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT track_id, title, artist, genre, location, like_count, language
-            FROM tracks
-            WHERE artist = %s
-        """, (artist,))
-        
-        columns = [desc[0] for desc in cursor.description]
-        tracks = []
-        for row in cursor.fetchall():
-            track_dict = dict(zip(columns, row))
-            tracks.append(track_dict)
-        cursor.close()
-        return tracks
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
+	"""
+	Returns a list of the objects of tracks
+	if the artist exist or else returns False
+
+	"""
+	try:
+		doc_ref = db.collection(u'artist/' + artist + '/tracks')
+		if list(doc_ref.stream()) is None:
+			raise Exception('Not such artist registered')
+		tracks = list(map(lambda x: x.to_dict(), list(doc_ref.stream())))
+		return tracks
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
 
 
-def get_all_artists():
-    """Returns a list of all artists"""
-    conn = None
-    try:
-        conn = get_connection()
-        if not conn:
-            return []
-        cursor = conn.cursor()
-        cursor.execute("SELECT artist_id, name, image_url FROM artists")
-        
-        columns = [desc[0] for desc in cursor.description]
-        artists = []
-        for row in cursor.fetchall():
-            artist_dict = dict(zip(columns, row))
-            artists.append({
-                'text': artist_dict['name'],
-                'url': artist_dict.get('image_url', '')
-            })
-        cursor.close()
-        return artists
-    except Exception as ex:
-        return _handle_db_error(ex, return_empty_list=True)
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
+def set_track(track_title, track_genre, track_location, track_artist,language):
+	"""
+	Function to set only track details
+	Returns boolean depending if the value is successfully set then 'True' else 'False'
+
+	"""
+	if track_artist == '' or track_genre == '' or track_location == '' or track_title == '':
+		raise Exception('Cannot generate with empty Field')
+	try:
+		collection = db.collection(u'Tracks').document(track_title)
+		collection.set({
+			'artist': track_artist,
+			'genre': track_genre,
+			'location': track_location,
+			'title': track_title,
+			'like_count': 0,
+			'Language': language
+		})
+		print('Track added successfully')
+		set_artist(track_title, track_genre, track_location, track_artist,language)
+		set_genre(track_genre)
+		set_language(language)
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+
+def get_track(trackName):
+	"""
+	Fetch particular track for user
+	returns dictitonary with the keys as
+	artist, genre, location , title
+	if failed returns false
+	"""
+	try:
+		doc_ref = db.collection(u'Tracks').document(trackName)
+		if doc_ref.get().to_dict() is None:
+			raise Exception("No such track found")
+		return doc_ref.get().to_dict()
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+
+def register_user(username, email, phone_number, password):
+	"""
+	Returns user uid if successfully registered
+	else returns false
+	"""
+	from firebase_admin import auth, _auth_utils
+	import psycopg2
+	try:
+		if username == '' or email == '' or phone_number == '':
+			raise Exception('Some of fields were found to be empty')
+		elif len(password) <= 6:
+			raise Exception('Password length less then equal to 6')
+		
+		# Tạo người dùng trong PostgreSQL qua firebase_admin shim
+		user = auth.create_user(
+			email=email,
+			phone_number=phone_number,
+			password=password,
+			display_name=username,
+			email_verified = False,
+		)
+		print('Successfully created new user: {0}'.format(user.uid))
+		return user.uid
+	except _auth_utils.EmailAlreadyExistsError as ex:
+		# Email đã tồn tại
+		messagebox.showerror('Error', 'Email already exists! Please use a different email.')
+		print('Registration failed: Email already exists')
+		return False
+	except psycopg2.errors.UniqueViolation as ex:
+		# Số điện thoại đã tồn tại
+		messagebox.showerror('Error', 'Phone number already exists! Please use a different phone.')
+		print('Registration failed: Phone number already exists')
+		return False
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		print(str(ex))
+		return False
+
+
+def set_album(track_title, album_name, artist):
+	"""
+ Returns boolean value depending upon success
+ and atleast one track in needed for the album.
+	"""
+	try:
+		track_object = get_track(track_title)
+		doc_ref = db.collection(u'albums/' + album_name + '/tracks').document(track_object['title'])
+		doc_ref.set(track_object)
+		doc_ref = db.collection(u'albums').document(album_name)
+		doc_ref.set({
+			'album_title': album_name,
+			'artist': artist
+		})
+		print('Album Created Successfully')
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+
+def get_album(**kwargs):
+	"""
+	parameters : album_name, artist_name
+	if want all the albums dont pass any argument else pass name of the album or artist of the album.
+	eg:- get_album(album_name = devdatta)
+	Kwargs : album_name
+	"""
+
+	if 'album_name' in kwargs:
+		try:
+			doc_ref = db.collection(u'albums/' + kwargs['album_name'] + '/tracks')
+			snapshots = list(doc_ref.stream())
+			if len(snapshots):
+				tracks = list(map(lambda x: x.to_dict(), snapshots))
+				return tracks
+		except Exception as ex:
+			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+			
+			print('Exception Occured which is of type :', ex.__class__.__name__)
+			y = input('If you want to see Traceback press 1 : ')
+			if y == '1':
+				traceback.print_exc()
+			return False
+	elif 'artist' in kwargs:
+		try:
+			doc_ref = db.collection('albums')
+			snapshots = list(doc_ref.where(u'artist', u'==', kwargs['artist']).stream())
+
+			if len(snapshots):
+				object_list = list(map(lambda x: x.to_dict(), snapshots))
+				return object_list
+			else:
+				raise Exception('No data with the give artist found')
+		except Exception as ex:
+			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+			
+			print('Exception Occurred which is of type :', ex.__class__.__name__)
+			y = input('If you want to see Traceback press 1 : ')
+			if y == '1':
+				traceback.print_exc()
+			return False
+	else:
+		try:
+			collection = db.collection(u'albums')
+			print(list(map(lambda x: x.to_dict(), collection.stream())))
+		except Exception as ex:
+			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+			
+			print('Exception Occurred which is of type :', ex.__class__.__name__)
+			y = input('If you want to see Traceback press 1 : ')
+			if y == '1':
+				traceback.print_exc()
+			return False
 
 
 def get_all_tracks():
-    """Returns a list of all tracks"""
-    conn = None
-    try:
-        conn = get_connection()
-        if not conn:
-            return []
-        cursor = conn.cursor()
-        cursor.execute("SELECT track_id, title, artist, genre, location, language, like_count FROM tracks")
-        
-        columns = [desc[0] for desc in cursor.description]
-        tracks = []
-        for row in cursor.fetchall():
-            track_dict = dict(zip(columns, row))
-            tracks.append(track_dict)
-        cursor.close()
-        return tracks
-    except Exception as ex:
-        return _handle_db_error(ex, return_empty_list=True)
-    finally:
-        if conn:
-            release_connection(conn)
+	"""
+	Returns a list of all track objects
+	if failed returns a false
+	"""
+	try:
+		collection = db.collection(u'Tracks')
+		return list(map(lambda x: x.to_dict(), collection.stream()))
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def set_genre(genre):
+	'''
 
 
-def get_tracks_by_genre(genre):
-    """Returns a list of tracks for a given genre"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT track_id, title, artist, genre, location, like_count, language
-            FROM tracks
-            WHERE genre = %s
-        """, (genre,))
-        
-        columns = [desc[0] for desc in cursor.description]
-        tracks = []
-        for row in cursor.fetchall():
-            track_dict = dict(zip(columns, row))
-            tracks.append(track_dict)
-        cursor.close()
-        return tracks
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
+	:param genre:
+	This is the name of the genre
+
+	:return:
+	Bool if success
+
+	'''
+	try:
+		if(Check_genre(genre)):
+			pass
+		else : 
+			doc_ref = db.collection(u'genres').document(genre)
+			doc_ref.set({
+				'genre_name' : genre,
+				'genre_image':'',
+
+			})
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+def get_tracks_by_genre(**kwargs):
+	"""
+	Returns a list of songs with particular genre
+	kwarg : genre = 'required genre'
+	else return the list of all genres
+	if failed returns false
+	"""
+	if 'genre' in kwargs:
+		try:
+			doc_ref = db.collection('Tracks')
+			snapshots = list(doc_ref.where(u'genre', u'==', kwargs['genre']).stream())
+			if len(snapshots):
+				object_list = list(map(lambda x: x.to_dict(), snapshots))
+				# print(object_list)
+				return object_list
+		except Exception as ex:
+			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+			print('Exception Occurred which is of type :', ex.__class__.__name__)
+			y = input('If you want to see Traceback press 1 : ')
+			if y == '1':
+				traceback.print_exc()
+			return []
+	else:
+		try:
+			# Truy vấn bảng genres của PostgreSQL
+			conn = get_connection()
+			if not conn:
+				return []
+			
+			cur = conn.cursor()
+			cur.execute("SELECT genre_name, genre_image FROM genres")
+			rows = cur.fetchall()
+			cur.close()
+			conn.close()
+			
+			all_dicts = []
+			for row in rows:
+				my_dict = {
+					'text': row[0],  # tên thể loại
+					'url': row[1],   # hình ảnh thể loại
+				}
+				all_dicts.append(my_dict)
+			return all_dicts
+		except Exception as ex:
+			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+			
+			print('Exception Occurred which is of type :', ex.__class__.__name__)
+			y = input('If you want to see Traceback press 1 : ')
+			if y == '1':
+				traceback.print_exc()
+			return []
 
 
-def get_all_genres():
-    """Returns a list of all genres"""
-    conn = None
-    try:
-        conn = get_connection()
-        if not conn:
-            return []
-        cursor = conn.cursor()
-        cursor.execute("SELECT genre_name, genre_image FROM genres")
-        
-        columns = [desc[0] for desc in cursor.description]
-        genres = []
-        for row in cursor.fetchall():
-            genre_dict = {
-                'text': row[0],
-                'url': row[1] or ''
-            }
-            genres.append(genre_dict)
-        cursor.close()
-        return genres
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
+def get_user(uid):
+	"""
+	Returns a user object that is dictionary
+	of the user with attributes:
+	display_name , email , password, phone_number
+	"""
+	# [BẮT ĐẦU get_user]
+	from firebase_admin import auth, _auth_utils
+	try:
+		user = auth.get_user(uid)
+		print('Successfully fetched user data: {0}'.format(user.uid))
+		# Trả về đối tượng user dưới dạng dict để tương thích
+		return {
+			'uid': user.uid,
+			'user_id': user.user_id,
+			'display_name': user.display_name,
+			'email': user.email,
+			'phone_number': user.phone_number,
+			'password': user.password  # Bao gồm password cho UserPage
+		}
+	except _auth_utils.UserNotFoundError as ex:
+		# Không tìm thấy người dùng - xóa file user và trả về False để hiển thị đăng nhập
+		import os
+		if os.path.exists('user'):
+			os.remove('user')
+			print('User file deleted - user not found in database')
+		return False
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+	# [KẾT THÚC get_user]
 
 
-def get_genre(genre_name):
-    """Get genre by name"""
-    conn = None
-    try:
-        conn = get_connection()
-        if not conn:
-            return []
-        cursor = conn.cursor()
-        cursor.execute("SELECT genre_name, genre_image FROM genres WHERE genre_name = %s", (genre_name,))
-        
-        result = cursor.fetchone()
-        cursor.close()
-        
-        if result:
-            return {
-                'genre_name': result[0],
-                'genre_image': result[1] or ''
-            }
-        return None
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
+def get_user_by_email(email):
+	"""
+	Returns a user object that is dictionary
+	of the user with attributes:
+	display_name , email , password, phone_number
+	"""
+	from firebase_admin import auth, _auth_utils
+	try:
+		user = auth.get_user_by_email(email)
+		# Trả về bản ghi user trực tiếp từ PostgreSQL
+		return user
+	except _auth_utils.UserNotFoundError as ex:
+		from Pages.UserAuthentication.Exceptions import User_not_Found
+		User_not_Found()
+		return False
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		print(str(ex))
+		return False
 
 
-def get_artist(artist_name):
-    """Get artist by name"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, image_url FROM artists WHERE name = %s", (artist_name,))
-        
-        result = cursor.fetchone()
-        cursor.close()
-        
-        if result:
-            return {
-                'name': result[0],
-                'image_url': result[1] or ''
-            }
-        return None
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
+def get_user_by_phone_number(phone):
+	"""
+	Returns a user object that is dictionary
+	of the user with attributes:
+	display_name , email , password, phone_number
+	"""
+
+	from firebase_admin import auth, _auth_utils
+	try:
+		user = auth.get_user_by_phone_number(phone)
+		doc = db.collection(u'users').document(user.uid)
+		doc = doc.get().to_dict()
+		return doc
+	
+	except _auth_utils.UserNotFoundError as ex:
+		from Pages.UserAuthentication.Exceptions import User_not_Found
+		User_not_Found()
+		return False
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+		# [KẾT THÚC get_user_by_phone]
 
 
-def get_user(user_id):
-    """Get user by ID"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT user_id, display_name, email, created_at, phone_number
-            FROM users
-            WHERE user_id = %s
-        """, (user_id,))
-        
-        result = cursor.fetchone()
-        cursor.close()
-        
-        if result:
-            return {
-                'user_id': result[0],
-                'display_name': result[1],
-                'email': result[2],
-                'created_at': result[3],
-                'phone_number': result[4]
-            }
-        return None
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return None
-    finally:
-        if conn:
-            release_connection(conn)
+def sign_in_with_phone():
+	pass
 
 
-def create_user(email, password, display_name, phone_number=None):
-    """Create a new user"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        password_hash = hash_password(password)
-        
-        cursor.execute("""
-            INSERT INTO users (email, password_hash, display_name, phone_number)
-            VALUES (%s, %s, %s, %s)
-            RETURNING user_id
-        """, (email, password_hash, display_name, phone_number))
-        
-        user_id = cursor.fetchone()[0]
-        conn.commit()
-        cursor.close()
-        
-        print(f'User created successfully with ID: {user_id}')
-        return user_id
-    except Exception as ex:
-        if conn:
-            conn.rollback()
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return None
-    finally:
-        if conn:
-            release_connection(conn)
+def sign_in_with_email_and_password(email, password):
+	"""
+	Returns user if email and password match
+	else false
+	"""
+	from os import path
+	from firebase_admin import auth, _auth_utils
 
-
-def verify_user(email, password):
-    """Verify user credentials"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        password_hash = hash_password(password)
-        
-        cursor.execute("""
-            SELECT user_id, display_name, email
-            FROM users
-            WHERE email = %s AND password_hash = %s
-        """, (email, password_hash))
-        
-        result = cursor.fetchone()
-        cursor.close()
-        
-        if result:
-            return {
-                'user_id': result[0],
-                'display_name': result[1],
-                'email': result[2]
-            }
-        return None
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return None
-    finally:
-        if conn:
-            release_connection(conn)
-
-
-def get_trending_tracks(limit=20):
-    """Get trending tracks sorted by like count"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT track_id, title, artist, genre, location, like_count, language
-            FROM tracks
-            ORDER BY like_count DESC
-            LIMIT %s
-        """, (limit,))
-        
-        columns = [desc[0] for desc in cursor.description]
-        tracks = []
-        for row in cursor.fetchall():
-            track_dict = dict(zip(columns, row))
-            tracks.append(track_dict)
-        cursor.close()
-        return tracks
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return []
-    finally:
-        if conn:
-            release_connection(conn)
-
-
-def search_tracks(query):
-    """Search tracks by title or artist"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        search_pattern = f'%{query}%'
-        cursor.execute("""
-            SELECT track_id, title, artist, genre, location, like_count, language
-            FROM tracks
-            WHERE title ILIKE %s OR artist ILIKE %s
-            ORDER BY like_count DESC
-        """, (search_pattern, search_pattern))
-        
-        columns = [desc[0] for desc in cursor.description]
-        tracks = []
-        for row in cursor.fetchall():
-            track_dict = dict(zip(columns, row))
-            tracks.append(track_dict)
-        cursor.close()
-        return tracks
-    except Exception as ex:
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return []
-    finally:
-        if conn:
-            release_connection(conn)
-
-
-def like_track(track_id):
-    """Increment like count for a track"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE tracks
-            SET like_count = like_count + 1
-            WHERE track_id = %s
-        """, (track_id,))
-        conn.commit()
-        cursor.close()
-        return True
-    except Exception as ex:
-        if conn:
-            conn.rollback()
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
-
-
-def unlike_track(track_id):
-    """Decrement like count for a track"""
-    conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE tracks
-            SET like_count = GREATEST(like_count - 1, 0)
-            WHERE track_id = %s
-        """, (track_id,))
-        conn.commit()
-        cursor.close()
-        return True
-    except Exception as ex:
-        if conn:
-            conn.rollback()
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return False
-    finally:
-        if conn:
-            release_connection(conn)
-
-
-def Forget_password_email(email):
-    """Send forget password email - stub implementation"""
-    # For now, just show a message
-    messagebox.showinfo("Forget Password", "Password reset feature not implemented yet.")
-
-def get_all_liked_songs(uid):
-    """Get all liked songs for a user"""
-    conn = None
-    try:
-        conn = get_connection()
-        if conn is None:
-            return []
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT t.track_id, t.title, t.artist, t.genre, t.location, t.language, t.like_count
-            FROM tracks t
-            JOIN user_liked_tracks ult ON t.track_id = ult.track_id
-            WHERE ult.user_id = %s
-            ORDER BY ult.liked_at DESC
-        """, (uid,))
-        
-        columns = [desc[0] for desc in cursor.description]
-        tracks = []
-        for row in cursor.fetchall():
-            track_dict = dict(zip(columns, row))
-            tracks.append(track_dict)
-        cursor.close()
-        return tracks
-    except Exception as ex:
-        print('Exception in get_all_liked_songs:', ex)
-        # If table doesn't exist, return empty list
-        if 'UndefinedTable' in str(ex) or 'user_liked_tracks' in str(ex):
-            return []
-        messagebox.showerror('Error', 'Oops!! Something went wrong!!\nTry again later.')
-        print('Exception Occurred which is of type:', ex.__class__.__name__)
-        traceback.print_exc()
-        return []
-    finally:
-        if conn:
-            release_connection(conn)
+	try:
+		if path.exists('user'):
+			f = open('user', 'r')
+			doc = get_user(f.readline())
+			f.close()
+			return doc
+		
+		user = auth.get_user_by_email(email)
+		doc = get_user_by_email(email)
+		
+		# doc là đối tượng SimpleNamespace, sử dụng attributes không phải dict keys
+		if doc.email == email and doc.password == password:
+			f = open('user', "w+")
+			f.write(user.uid)
+			return doc
+		else:
+			from Pages.UserAuthentication.Exceptions import Invalid_credentials
+			Invalid_credentials()
+			return False
+			
+	except _auth_utils.UserNotFoundError as ex:
+		from Pages.UserAuthentication.Exceptions import User_not_Found
+		User_not_Found()
+		return False
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		print(str(ex))
+		return False
 
 
 def sign_out():
-    """Sign out by removing the user file"""
-    try:
-        os.remove("user")
-        return True
-    except Exception as ex:
-        print('Exception in sign_out:', ex)
-        return False
+	"""
+
+	returns True
+	if signed out else false
+	also remove the user files
+
+	"""
+	import os
+	try:
+		os.remove("user")
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+	# sign_out()
+# myuser = register_user('devdatta','dkhoche70@gmail.com','9145253235','15412342')
+def generate_otp(uid):
+	from firebase_admin import _auth_utils
+	import string
+	import random
+
+	# Lấy các lựa chọn ngẫu nhiên từ
+	# chữ cái ascii và số
+	try:
+		generate_pass = ''.join([random.choice(
+											   string.digits)
+								 for n in range(6)])
+
+		doc_ref = db.collection(u'users').document(uid)
+		doc_ref.update({
+			'verification_code'  : generate_pass
+		})
+		print(generate_pass)
+		return generate_pass
+	except _auth_utils.UserNotFoundError as ex:
+		from Pages.UserAuthentication.Exceptions import User_not_Found
+		User_not_Found()
+		return False
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+
+def check_verification(email):
+	user = get_user_by_email(email)
+	if not user:
+		return False
+	# Cho migration PostgreSQL: bỏ qua xác thực email, cho phép tất cả người dùng đăng nhập
+	return True  # Luôn trả về True để bỏ qua xác thực OTP
+
+
+def send_email_verification_otp(email):
+	'''
+
+	:param otp:
+		   email: email of the user
+	:return: bool
+
+
+	'''
+	try:
+		from firebase_admin import auth
+		
+		import smtplib
+		user = auth.get_user_by_email(email)
+		otp = generate_otp(user.uid)
+		fromaddr = 'amplifyteam1234@gmail.com.'
+		toaddrs = email
+		Text = 'Hello '+ user.display_name  + ',\nEnter the following OTP to verify your email address. \nYour verification code is '+otp+'\nIf you didn’t ask to verify this address, you can ignore this email.\nThanks,\nYour AmplifyTeam'
+		subject = 'Email Verification'
+		username = 'amplifyteam1234@gmail.com'
+		password = '15412342'
+		print('i ma in the funtion')
+		message = 'Subject: {}\n\n{}'.format(subject, Text)
+		message = message.encode()
+		server = smtplib.SMTP('smtp.gmail.com', 587)
+		server.ehlo()
+		server.starttls()
+		server.login(username, password)
+		server.sendmail(fromaddr, toaddrs, message)
+		server.quit()
+	except _auth_utils.UserNotFoundError as ex:
+		from Pages.UserAuthentication.Exceptions import User_not_Found
+		User_not_Found()
+		return False
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+
+def generate_password(uid):
+	import random
+	import string
+
+	
+	letters = string.ascii_lowercase
+	password = ''.join(random.choice(letters) for i in range(10))
+	doc_ref = db.collection(u'users').document(uid)
+	doc_ref.update({
+			'password'  :  password
+		})
+	return password
+
+
+
+def Forget_password_email(email):
+	'''
+
+	:param otp:
+		   email: email of the user
+	:return: bool
+
+
+	'''
+	try:
+		from firebase_admin import auth
+		
+		import smtplib
+		user = auth.get_user_by_email(email)
+		password = generate_password(user.uid)
+		fromaddr = 'amplifyteam1234@gmail.com.'
+		toaddrs = email
+		Text = 'Hello '+ user.display_name  + ',\nThis is your new password now on. \nYour new password is '+password+'.\nMake sure you don"t forget it.\nThanks,\nYour AmplifyTeam'
+		subject = 'New Password Request'
+		username = 'amplifyteam1234@gmail.com'
+		password = '15412342'
+		# print('i ma in the funtion')
+		message = 'Subject: {}\n\n{}'.format(subject, Text)
+		message = message.encode()
+		server = smtplib.SMTP('smtp.gmail.com', 587)
+		server.ehlo()
+		server.starttls()
+		server.login(username, password)
+		server.sendmail(fromaddr, toaddrs, message)
+		server.quit()
+	# except firebase_admin._auth_utils.UserNotFoundError as ex:
+	#     from Pages.UserAuthentication.Exceptions import User_not_Found
+	#     User_not_Found()
+	#     return False
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def verify_email_database(email,entered_otp):
+	'''
+	Verifies if the OTP is correct 
+	Returns bool depending on Success
+	'''
+	
+	from firebase_admin import auth
+	user = auth.get_user_by_email(email)
+	db_user = get_user_by_email(email)
+	if entered_otp == db_user['verification_code']:
+		auth.update_user(user.uid, email_verified = True)
+		doc_ref = db.collection(u'users').document(user.uid)
+		doc_ref.update({
+			'email_verified': True
+		})
+		return True
+	else:
+		return False
+
+# send_email_verification_otp('dkhoche2000@gmail.com')
+def user_create_playlist(uid,playlist_name):
+	'''
+
+
+	:param uid: Unique Identification of the user which is saved in the user file in the root directory
+	:param playlist_name: Name of the playlist to be created
+	:return: Bool;
+	'''
+	try:
+		collection = db.collection(u'users/'+uid+'/playlists').document(playlist_name)
+		collection.set({
+			'name':playlist_name
+		})
+		print('playlist created successfully')
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+# user_create_playlist('1DXAOpIfWdYLylWaGe1Hmm1O6vh2','myplalist')
+def add_song_to_playlist(uid,playlist_name,track_name):
+	'''
+
+	:param uid: unique identification of the user
+	:param playlist_name: name of the particular playlist
+	:param track_name: track_title which is to be added
+	:return: bool
+	'''
+	try:
+		collection = db.collection(u'users/' + uid + '/playlists/'+playlist_name+'/Tracks').document(track_name)
+		track_object = get_track(track_name)
+		collection.set(track_object)
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def get_playlists(uid,**kwargs):
+	'''
+
+	:param uid: unique identification of the user
+	:param kwargs: playlist = 'required Playlist'
+	:return: if mentioned playlist as kwarg then return a list of the all tracks of the particular playlist.
+			elseif left no kwarg is passed gives the names aof all the playlist
+			else returns false
+			If there are no songs then returns a empty list
+
+	'''
+	try:
+		if 'playlist' in kwargs :
+			doc_ref = db.collection(u'users/'+uid+'/playlists/'+kwargs['playlist']+'/Tracks')
+			snapshots = list(doc_ref.stream())
+			if len(snapshots):
+				tracks = list(map(lambda x: x.to_dict(), snapshots))
+				return tracks
+			return []
+		else:
+			doc_ref = db.collection(u'users/'+uid+'/playlists').stream()
+			object_list = list(map(lambda x: x.to_dict(), doc_ref))
+			return object_list
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def Following_artist(artist_name,uid):
+	'''
+
+	params : artist_name : The name of the artisit which is to be followed
+		   : uid : unique Identification No. of the user
+	return artist name
+
+	'''
+	try:
+		collection = db.collection(u'users/'+uid+'/Following_Artist').document(artist_name)
+		collection.set({
+			'name' : artist_name
+		})
+		return artist_name
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def get_user_artists(uid):
+	doc_ref = db.collection(u'users/'+uid+'/Following_Artist').stream()
+	object_list = list(map(lambda x: x.to_dict(), doc_ref))
+	return object_list
+
+def add_liked_songs(track_object,uid):
+	'''
+
+	params : track_object : The object of the track
+		   : uid : unique Identification No. of the user
+	return Bool
+
+	'''
+	try:
+		collection = db.collection(u'users/'+uid+'/Liked_songs').document(track_object['title'])
+		collection.set(track_object)
+		add_like_count(track_object['title'])
+		print('Added Liked song')
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def delete_liked_song(uid,track_title):
+	'''
+
+	params : track title : The title of the track to be deleted
+		   : uid : unique Identification No. of the user
+	return Bool
+
+	'''
+	try:
+		collection = db.collection(u'users/'+uid+'/Liked_songs').document(track_title)
+		collection.delete()
+		decrease_like_count(track_title)
+		print('deleted Liked song')
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def get_all_liked_songs(uid): 
+	try:
+		# Truy vấn bảng user_likes cho các bài hát đã thích của người dùng này
+		conn = get_connection()
+		cur = conn.cursor()
+		cur.execute("""
+			SELECT t.track_id, t.title, t.artist, t.genre, t.location, 
+			       t.language, t.like_count
+			FROM user_likes ul
+			JOIN tracks t ON ul.track_id = t.track_id
+			WHERE ul.user_id = %s
+			ORDER BY ul.created_at DESC
+		""", (uid,))
+		
+		rows = cur.fetchall()
+		cur.close()
+		conn.close()
+		
+		# Chuyển đổi sang định dạng dict để tương thích với cấu trúc Firebase
+		liked_songs = []
+		for row in rows:
+			liked_songs.append({
+				'track_id': row[0],
+				'title': row[1],
+				'artist': row[2],
+				'genre': row[3],
+				'location': row[4],
+				'language': row[5],
+				'like_count': row[6]
+			})
+		
+		return liked_songs
+		
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return []
+
+
+	
+def add_language_and_Like_count():
+	'''
+
+	Never use this function once used.
+	Used only when all songs are of same language
+
+	'''
+	my_objects = get_all_tracks()
+	for i in my_objects:
+		doc_ref = db.collection(u'Tracks').document(i['title'])
+		doc_ref.update({
+			'like_count': 0,
+			'Language': 'English'
+		})
+		doc_ref_artist = db.collection(u'artist/'+i['artist']+'/tracks').document(i['title'])
+		doc_ref_artist.update({
+			'like_count': 0,
+			'Language': 'English'
+		})
+
+def order_simple_trending_song():
+	'''
+	Returns list of songs in the descending order
+
+	'''
+	try:
+		# Truy vấn bảng tracks của PostgreSQL được sắp xếp theo like_count
+		conn = get_connection()
+		if not conn:
+			return []
+		
+		cur = conn.cursor()
+		cur.execute("""
+			SELECT track_id, title, artist, genre, location, language, like_count
+			FROM tracks
+			ORDER BY like_count DESC
+			LIMIT 100
+		""")
+		rows = cur.fetchall()
+		cur.close()
+		conn.close()
+		
+		# Chuyển đổi sang định dạng dict để tương thích
+		tracks = []
+		for row in rows:
+			tracks.append({
+				'track_id': row[0],
+				'title': row[1],
+				'artist': row[2],
+				'genre': row[3],
+				'location': row[4],
+				'language': row[5],
+				'like_count': row[6]
+			})
+		return tracks
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return []
+		
+
+def add_like_count(title):
+	try:
+		myobject = get_track(title)
+		doc_ref  = db.collection(u'Tracks').document(title)
+		doc_ref.update({
+			'like_count' : myobject['like_count'] + 1
+		})
+		doc_ref = db.collection(u'artist/'+myobject['artist']+'/tracks').document(title)
+		doc_ref.update({
+			'like_count' : myobject['like_count'] + 1 
+
+		})
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+
+def decrease_like_count(title):
+	try:
+		myobject = get_track(title)
+		doc_ref  = db.collection(u'Tracks').document(title)
+		doc_ref.update({
+			'like_count' : myobject['like_count'] - 1
+		})
+		doc_ref = db.collection(u'artist/'+myobject['artist']+'/tracks').document(title)
+		doc_ref.update({
+			'like_count' : myobject['like_count'] - 1 
+
+		})
+		return True
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+
+def get_genre(genre_name):
+	'''
+	parameters: artist name
+	output:return the dictionary with key genre_name ,genre_image
+	'''
+	try:
+		doc_ref = db.collection(u'genres').document(genre_name)
+		data=doc_ref.get().to_dict()
+		# print(data)
+		return data
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False
+
+def get_artist(artist_name):
+	'''
+	parameters: artist name
+	output:return the dictionary with key name ,image_url
+	'''
+	try:
+		doc_ref = db.collection(u'artist').document(artist_name)
+		data=doc_ref.get().to_dict()
+		# print(data)
+		return data
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occured which is of type :', ex.__class__.__name__)
+		y = input('If you want to see Traceback press 1 : ')
+		if y == '1':
+			traceback.print_exc()
+		return False

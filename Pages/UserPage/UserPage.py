@@ -16,7 +16,7 @@ class UserPage(tk.Frame):
         fontStyle = tkFont.Font(family="Lucida Grande", size=18, weight='bold' )
         Dynamic_Font = tkFont.Font(family="Lucida Grande", size=20 , weight = 'bold' )
 
-        #Frames
+        #Các Khung
         self.frame1 = tk.Frame(self, bg="#000000")
         self.frame1.grid(row=0,column=0,padx=5,pady=5)
 
@@ -29,7 +29,7 @@ class UserPage(tk.Frame):
         self.my_logo = tk.Label(self.frame2 , image = self.logo, bg = 'black')
         self.my_logo.grid(row = 0 , column  = 2, padx=30,pady=30)
         
-        #Profile
+        #Hồ sơ
         self.profile_icon = self.prepare_image('profile.png',50,360)
         self.your_profile = tk.Label(
                                 self.frame1, image=self.profile_icon,
@@ -37,7 +37,7 @@ class UserPage(tk.Frame):
                             )
         self.your_profile.grid(row=0, column=1,padx=20,pady=20)
         
-        #Name
+        #Tên
         self.name_icon = self.prepare_image('name.png',45,135)
         self.nameLabel = tk.Label(
                                 self.frame1, image=self.name_icon,
@@ -63,7 +63,7 @@ class UserPage(tk.Frame):
                     )
         self.email.grid(row=2, column=1, padx=20, pady=20)
 
-        #Contact No.
+        #Số liên lạc
         self.contact_icon = self.prepare_image('contact.png',45,135)
         self.contactLabel = tk.Label(
                                 self.frame1, image=self.contact_icon,
@@ -76,7 +76,7 @@ class UserPage(tk.Frame):
                     )
         self.contact.grid(row=3, column=1, padx=20, pady=20)
 
-        #Password
+        #Mật khẩu
         self.password_icon = self.prepare_image('password.png',45,135)
         self.passwordLabel = tk.Label(
                                 self.frame1, image=self.password_icon,
@@ -89,14 +89,14 @@ class UserPage(tk.Frame):
                     )
         self.password.grid(row=4, column=1, padx=20, pady=20)
 
-        #configure
+        #cấu hình
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure((0,1), weight=1)
 
     @staticmethod
     def prepare_image(filename, height, width):
         icon = Image.open('images/'+filename)
-        icon = icon.resize((width, height), Image.ANTIALIAS)
+        icon = icon.resize((width, height), Image.LANCZOS)
         icon = ImageTk.PhotoImage(icon)
         return icon
 

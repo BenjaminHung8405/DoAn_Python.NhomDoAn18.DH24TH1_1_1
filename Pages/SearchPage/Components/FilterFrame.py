@@ -10,30 +10,30 @@ class UserEntry(tk.Entry):
     def __init__(self, master, placeholder, textvariable, songDict, *args, **kwargs):
         tk.Entry.__init__(self, master, *args, **kwargs)
 
-        # placeholder function
+        # hàm placeholder
         def default_placeholder(self):
             self.insert(0, placeholder)
 
         default_placeholder(self)
 
-        # font size, style
+        # kích thước font, kiểu
         self.appHighlightFont = font.Font(
             family='lineto circular',
             size=11,
         )
 
-        # font color
+        # màu font
         self.default_fg = '#867f7a'
         self.input_fg = 'white'
 
-        # properties of Entry widget
+        # thuộc tính của widget Entry
         self['background'] = '#121212'
         self['foreground'] = self.default_fg
         self['insertbackground'] = 'white'
         self['font'] = self.appHighlightFont
         self['border'] = 0
 
-        # function called on focusing
+        # hàm được gọi khi focus
         def foc_in(event):
             if self.get() == placeholder:
                 self['foreground'] = self.default_fg
@@ -41,7 +41,7 @@ class UserEntry(tk.Entry):
             self['foreground'] = 'white'
             self['textvariable'] = textvariable
 
-        # function called when not focusing
+        # hàm được gọi khi không focus
         def foc_out(event):
             self['foreground'] = self.default_fg
            
@@ -62,8 +62,8 @@ class FilterFrame(tk.Frame):
         self['height'] = 35
         self.master=master
 
-        self.search = tk.PhotoImage(file=r'images\search2.png', height=18, width=18)
-        self.search_highlight = tk.PhotoImage(file=r'images\search_highlight.png', height=18, width=18)
+        self.search = tk.PhotoImage(file=r'images/search2.png', height=18, width=18)
+        self.search_highlight = tk.PhotoImage(file=r'images/search_highlight.png', height=18, width=18)
         self.search_icon = tk.Label(self, image=self.search, bd=0, bg="#121212")
         self.search_icon.grid(row=0, column=0, ipadx=10, ipady=3, sticky='nsew')
 

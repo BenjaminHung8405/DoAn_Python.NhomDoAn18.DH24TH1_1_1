@@ -1,4 +1,4 @@
-#-----Signup/Register Page
+#-----Trang Đăng ký
 import traceback
 import tkinter as tk
 from tkinter import ttk
@@ -7,7 +7,7 @@ import re
 from tkinter import messagebox  
 
 
-# data for registration and passing them
+# dữ liệu đăng ký và truyền chúng
 global data
 data = {
 	"username": "",
@@ -16,14 +16,14 @@ data = {
 	"email": ""
 }
 
-# data3 for email passing
+# data3 để truyền email
 global data3
 data3 = {
 	"email": ""
 }
 
 
-# Class for input field: contact number
+# Lớp cho trường nhập: số liên lạc
 class NumberEntry(tk.Entry):
 	def __init__(self, master, placeholder, id, *args, **kwargs):
 		tk.Entry.__init__(self, master, *args, **kwargs)
@@ -88,35 +88,35 @@ class NumberEntry(tk.Entry):
 		default_placeholder(self)
 
 
-# Class for input fields: username, password, email
+# Lớp cho các trường nhập: tên người dùng, mật khẩu, email
 class UserEntry(tk.Entry):
 	def __init__(self, master, placeholder, show, textvariable, id, *args, **kwargs):
 		tk.Entry.__init__(self, master, *args, **kwargs)
 
-		#placeholder function
+		#hàm placeholder
 		def default_placeholder(self):
 			self.insert(0, placeholder)
 
 		default_placeholder(self)		
 
-		#font size, style
+		#kích thước font, kiểu
 		self.appHighlightFont = font.Font(
 			family='lineto circular',
 			size=12,
 		)
 
-		#font color
+		#màu font
 		self.default_fg = '#867f7a'
 		self.input_fg = 'white'
 
-		#properties of Entry widget
+		#thuộc tính của widget Entry
 		self['background'] = '#404040'
 		self['foreground'] = self.default_fg
 		self['insertbackground'] = 'white'
 		self['font'] = self.appHighlightFont
 		self['border'] = 0
 
-		#function called on focusing
+		#hàm được gọi khi focus
 		def foc_in(event):
 			if (show == 1):
 				self['show'] = '*'
@@ -127,7 +127,7 @@ class UserEntry(tk.Entry):
 			self['foreground'] = 'white'
 			self['textvariable'] = textvariable
 
-		#function called when not focusing
+		#hàm được gọi khi không focus
 		def foc_out(event):
 			self['foreground'] = self.default_fg
 			
@@ -147,24 +147,24 @@ class Frame2(tk.Frame):
 	def __init__(self, master, *args, **kwargs):
 		tk.Frame.__init__(self, master, *args, **kwargs)
 
-		#Frame
+		#Khung
 		self.container = tk.Frame(self, bg='#121212', padx=80, pady=30)
 
-		#Signup/Register head
-		# self.logo = tk.PhotoImage(file=r'images/signup_head.png', height=225, width=360)
+		#Tiêu đề Đăng ký
+		# self.logo = tk.PhotoImage(file=r'hình ảnh/signup_head.png', height=225, width=360)
 		# self.labelLogo = tk.Label(self.container, image=self.logo, bd=0)
 		# self.labelLogo.grid(row=0, column=0)
 
-		#For Back button
+		#Cho nút Quay lại
 		from .Frame1 import Frame1
 
-		#Font style, size
+		#Kiểu font, kích thước
 		self.appHighlightFont = font.Font(
 			family='lineto circular',
 			size=14,
 		)
 
-		#Bck button
+		#Nút Quay lại
 		self.back = tk.Button(
 			self.container,
 			border=0,
@@ -186,7 +186,7 @@ class Frame2(tk.Frame):
 			ipady=10
 		)
 
-		#Username Entry
+		#Nhập Tên người dùng
 		self.username_input = tk.StringVar()
 		self.username = UserEntry(
 			self.container,
@@ -205,7 +205,7 @@ class Frame2(tk.Frame):
 			ipady=10
 		)
 
-		#Password Entry
+		#Nhập Mật khẩu
 		self.password = UserEntry(
 			self.container,
 			placeholder="  Password",
@@ -223,7 +223,7 @@ class Frame2(tk.Frame):
 			ipady=10
 		)
 
-		#Contact Number Entry
+		#Nhập Số liên lạc
 		self.phone = UserEntry(
 			self.container,
 			placeholder="  Contact Number",
@@ -241,7 +241,7 @@ class Frame2(tk.Frame):
 			ipady=10
 		)
 
-		#Email Entry
+		#Nhập Email
 		self.email = UserEntry(
 			self.container,
 			placeholder="  Email ID",
@@ -259,7 +259,7 @@ class Frame2(tk.Frame):
 			ipady=10
 		)
 
-		#Result/Stataus Display
+		#Hiển thị Kết quả/Trạng thái
 		self.result = tk.Label(
 			self.container,
 			border=0,
@@ -271,8 +271,8 @@ class Frame2(tk.Frame):
 		)
 		self.result.grid(row=5, column=0)
 
-		#Signup/Register Button
-		# self.btnimg = tk.PhotoImage(file=r'images/register.png')
+		#Nút Đăng ký
+		# self.btnimg = tk.PhotoImage(file=r'hình ảnh/register.png')
 		
 		self.register = tk.Button(
 			self.container,
@@ -285,30 +285,30 @@ class Frame2(tk.Frame):
 		)
 		self.register.grid(row=6, column=0, pady=10)
 
-		#Frame grid and configurations
+		#Lưới khung và cấu hình
 		self.container.grid(row=0, column=0)
 
 		self.grid_rowconfigure(0, weight=1)
 		self.grid_columnconfigure(0, weight=1)
 
-	#Validaiton funtion for contact number
+	#Hàm xác thực cho số liên lạc
 	def phoneCheck(self,s):
-		Pattern = re.compile("(0/91)?[7-9][0-9]{9}")
+		Pattern = re.compile(r"^0[0-9]{9}$")
 		return Pattern.match(s)
 
-	#Validation function for email
+	#Hàm xác thực cho email
 	def emailCheck(self,s):
 		Pattern = re.compile(r'^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$')
 		return Pattern.match(s)
 
-	#Validation function for password
+	#Hàm xác thực cho mật khẩu
 	def passwordCheck(self,s):
 		if (len(s) in range(8, 20)):
 			return True
 		else:
 			return False
 
-	#Validation for signup/register
+	#Xác thực cho đăng ký
 	def registerNow(self):
 		
 		global data
@@ -323,7 +323,7 @@ class Frame2(tk.Frame):
 		data["email"] = email
 	
 
-		#placeholders
+		#các placeholder
 		username_placeholder = "  Username"
 		password_placeholder = "  Password"
 		phone_placeholder = "  Contact Number"
@@ -350,17 +350,14 @@ class Frame2(tk.Frame):
 			return
 		data3['email'] = email
 		
-		# Register user directly without email verification
-		from Database.Database import create_user
+		# Đăng ký người dùng trực tiếp không cần xác thực email
+		from Database.Database import register_user
 		
-		user_id = create_user(email, password, username, phone)
-		if user_id:
+		success = register_user(username, email, phone, password)
+		if success:
 			self.result['text'] = "Account created successfully! Please login."
-			# Save user_id to file for auto-login
-			with open('user', 'w') as f:
-				f.write(str(user_id))
-			
-			# Show login frame
+			# Lưu user_id vào file để tự động đăng nhập
+			# Hiển thị khung đăng nhập
 			from .Frame3 import Frame3
 			return self.master.show_frame(Frame3)
 		else:

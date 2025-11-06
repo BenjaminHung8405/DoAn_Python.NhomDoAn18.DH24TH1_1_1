@@ -20,7 +20,7 @@ class Top(tk.Frame):
         self.topleft = TopLeft(self)
         self.topRight = TopRight(self)
         # --------------------------------------------------------------------------
-        # Loading all the frames
+        # Loading all the các khung
 
         self.frames = {}
         for F in (Home, Browse, UserPage, Artist, Album):

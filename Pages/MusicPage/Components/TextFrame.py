@@ -16,30 +16,30 @@ class TextFrame(tk.Frame):
         self.support = tkfont.Font(family="Play", size=10, weight="bold")
 
         self.button_heart_raw = Image.open('images/button_heart.png')
-        self.button_heart = self.button_heart_raw.resize((35, 35), Image.ANTIALIAS)
-        self.button_heart_active = self.button_heart_raw.resize((37, 37), Image.ANTIALIAS)
+        self.button_heart = self.button_heart_raw.resize((35, 35), Image.LANCZOS)
+        self.button_heart_active = self.button_heart_raw.resize((37, 37), Image.LANCZOS)
         self.button_heart = ImageTk.PhotoImage(self.button_heart)
         self.button_heart_active = ImageTk.PhotoImage(self.button_heart_active)
 
         self.button_liked_raw = Image.open('images/love_filled.png')
-        self.button_liked = self.button_liked_raw.resize((35, 35), Image.ANTIALIAS)
-        self.button_liked_active = self.button_liked_raw.resize((37, 37), Image.ANTIALIAS)
+        self.button_liked = self.button_liked_raw.resize((35, 35), Image.LANCZOS)
+        self.button_liked_active = self.button_liked_raw.resize((37, 37), Image.LANCZOS)
         self.button_liked = ImageTk.PhotoImage(self.button_liked)
         self.button_liked_active = ImageTk.PhotoImage(self.button_liked_active)
 
         self.music_menu_button_raw = Image.open('images/music_menu_button.png')
-        self.music_menu_button = self.music_menu_button_raw.resize((33, 33), Image.ANTIALIAS)
-        self.music_menu_button_active = self.music_menu_button_raw.resize((35, 35), Image.ANTIALIAS)
+        self.music_menu_button = self.music_menu_button_raw.resize((33, 33), Image.LANCZOS)
+        self.music_menu_button_active = self.music_menu_button_raw.resize((35, 35), Image.LANCZOS)
         self.music_menu_button = ImageTk.PhotoImage(self.music_menu_button)
         self.music_menu_button_active = ImageTk.PhotoImage(self.music_menu_button_active)
 
         self.play_raw = Image.open('images/play.png')
-        self.play = self.play_raw.resize((100, 35), Image.ANTIALIAS)
-        self.play_active = self.play_raw.resize((103, 38), Image.ANTIALIAS)
+        self.play = self.play_raw.resize((100, 35), Image.LANCZOS)
+        self.play_active = self.play_raw.resize((103, 38), Image.LANCZOS)
         self.play = ImageTk.PhotoImage(self.play)
         self.play_active = ImageTk.PhotoImage(self.play_active)
 
-        # self.menu_button_image = tk.PhotoImage(file=r'images/button_heart.png')
+        # self.menu_button_image = tk.PhotoImage(file=r'hình ảnh/button_heart.png')
 
         self.text_heading = tk.Label(self,
                                      background='#000000',
@@ -158,14 +158,14 @@ class PlayHeadIcon(tk.Button):
         self.data = data
 
         self.play_raw = Image.open('images/play.png')
-        self.play = self.play_raw.resize((100, 35), Image.ANTIALIAS)
-        self.play_active = self.play_raw.resize((103, 38), Image.ANTIALIAS)
+        self.play = self.play_raw.resize((100, 35), Image.LANCZOS)
+        self.play_active = self.play_raw.resize((103, 38), Image.LANCZOS)
         self.play = ImageTk.PhotoImage(self.play)
         self.play_active = ImageTk.PhotoImage(self.play_active)
 
         self.pause_raw = Image.open('images/pause.png')
-        self.pause = self.pause_raw.resize((100, 35), Image.ANTIALIAS)
-        self.pause_active = self.pause_raw.resize((103, 38), Image.ANTIALIAS)
+        self.pause = self.pause_raw.resize((100, 35), Image.LANCZOS)
+        self.pause_active = self.pause_raw.resize((103, 38), Image.LANCZOS)
         self.pause = ImageTk.PhotoImage(self.pause)
         self.pause_active = ImageTk.PhotoImage(self.pause_active)
 

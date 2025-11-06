@@ -63,6 +63,6 @@ class LikeButton(tk.Button):
     @staticmethod
     def prepare_image(filename, size):
         icon = Image.open('images/'+filename)
-        icon = icon.resize((size, size), Image.ANTIALIAS)
+        icon = icon.resize((size, size), Image.LANCZOS)
         icon = ImageTk.PhotoImage(icon)
         return icon

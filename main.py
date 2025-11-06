@@ -20,7 +20,11 @@ class Splash(tk.Toplevel):
         self.labelLogo = tk.Label(self, image=self.logo, bd=0, bg='black')
         self.labelLogo.grid(row=1, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
         self.grid_columnconfigure(0, weight=1)
-        self.state('normal')
+        # Sử dụng attributes cho cửa sổ phóng to trên Linux
+        try:
+            self.state('zoomed')
+        except:
+            self.attributes('-zoomed', True)
         self.overrideredirect(True)
 
         lbl.load('ActivityIndicator/Activity.gif')
@@ -56,6 +60,7 @@ class Root(tk.Tk):
             self.withdraw()
            
             self.title('Amplify')
+            # self.title['bg']='black'
             app_icon = tk.PhotoImage(file=r"images/app_64.png")
             self.iconphoto(False, app_icon)
 
@@ -64,7 +69,11 @@ class Root(tk.Tk):
 
             self.grid_columnconfigure(0, weight=1)
             self.grid_rowconfigure(0, weight=1)
-            self.state('zoomed')
+            # Phóng to cửa sổ - tương thích đa nền tảng
+            try:
+                self.state('zoomed')
+            except:
+                self.attributes('-zoomed', True)
 
         def Splash_Screen():
             splash = Splash(self)
@@ -73,15 +82,18 @@ class Root(tk.Tk):
                 splash.destroy()
                 self.deiconify()
 
-            splash.after(3000, myfun)  # 3 seconds splash screen
+            splash.after(30000, myfun)
+            # time.sleep(15000)
 
         self.tk_player = Thread(target=TK_player)
         self.tk_player.start()
         self.splash = Thread(target=Splash_Screen)
         self.splash.start()
 
+ 
+
     def toggle_fullscreen(self, event=None):
-        self.counter = not self.counter
+        self.counter = not self.counter  # Chỉ đảo ngược boolean
         self.attributes("-fullscreen", self.counter)
         return "break"
 
@@ -93,23 +105,25 @@ class Root(tk.Tk):
 
 if __name__ == '__main__':
     from Database.Database import get_user
+    
+
     from os import path
 
     if path.exists('user'):
         f = open('user', 'r')
-        user_id = f.readline().strip()
+        doc = get_user(f.readline().strip())
         f.close()
-        
-        doc = get_user(int(user_id))
+
+        # Nếu không tìm thấy người dùng, hiển thị màn hình đăng nhập
         if doc:
             root = Root(data=doc)
             root.mainloop()
         else:
-            # User not found, show login
             from Pages.UserAuthentication.AuthBase import AuthBase
             login = AuthBase()
             login.mainloop()
     else:
         from Pages.UserAuthentication.AuthBase import AuthBase
+
         login = AuthBase()
         login.mainloop()

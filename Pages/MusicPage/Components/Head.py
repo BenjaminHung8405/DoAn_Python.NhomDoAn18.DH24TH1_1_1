@@ -41,7 +41,7 @@ class Head(tk.Frame):
             height = int(round(event.height / 2))
 
             self.photo = self.photo.resize((height, height),
-                                           Image.ANTIALIAS)
+                                           Image.LANCZOS)
             self.photo = ImageTk.PhotoImage(self.photo)
             self.image_label.config(width=width, height=height)
 

@@ -15,7 +15,7 @@ class Left(tk.Frame):
         self.imageFrame = tk.Frame(self)
         self.textFrame = tk.Frame(self, width=250)
 
-        self.image = image.resize((50, 50), Image.ANTIALIAS)
+        self.image = image.resize((50, 50), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
         self.imageLabel = tk.Label(self.imageFrame,
                                    image=self.image,

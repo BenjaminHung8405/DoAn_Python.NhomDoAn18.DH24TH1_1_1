@@ -11,30 +11,30 @@ class UserEntry(tk.Entry):
     def __init__(self, master, placeholder, textvariable, songDict, *args, **kwargs):
         tk.Entry.__init__(self, master, *args, **kwargs)
 
-        # placeholder function
+        # hàm placeholder
         def default_placeholder(self):
             self.insert(0, placeholder)
 
         default_placeholder(self)
 
-        # font size, style
+        # kích thước font, kiểu
         self.appHighlightFont = font.Font(
             family='lineto circular',
             size=11,
         )
 
-        # font color
+        # màu font
         self.default_fg = 'black'
         self.input_fg = 'white'
 
-        # properties of Entry widget
+        # thuộc tính của widget Entry
         self['background'] = 'white'
         self['foreground'] = self.default_fg
         self['insertbackground'] = 'black'
         self['font'] = self.appHighlightFont
         self['border'] = 0
 
-        # function called on focusing
+        # hàm được gọi khi focus
         def foc_in(event):
             if self.get() == placeholder:
                 self['foreground'] = self.default_fg
@@ -42,7 +42,7 @@ class UserEntry(tk.Entry):
             self['foreground'] = 'black'
             self['textvariable'] = textvariable
 
-        # function called when not focusing
+        # hàm được gọi khi không focus
         def foc_out(event):
             self['foreground'] = self.default_fg
          
@@ -83,18 +83,10 @@ class TopRightTop(tk.Frame):
         self['background'] = '#000000'
         self['height'] = 1
 
-        try:
-            f = open('user')
-            x = f.readlines()[0].strip()
-            f.close()
-        except FileNotFoundError:
-            x = None  # No user logged in
-        
-        if x:
-            from Database.Database import get_user
-            myobject = get_user(x)
-        else:
-            myobject = {'display_name': 'Guest'}
+        f = open('user')
+        x = f.readlines()[0]
+        from Database.Database import get_user
+        myobject  = get_user(x)
 
         self.back = Back(self)
         self.search = tk.Frame(self, bg='#000000')
@@ -116,24 +108,24 @@ class TopRightTop(tk.Frame):
         )
         self.filter.bind("<Return>",lambda e: self.sendSearchData(e))
 
-        # User_button
+        # Nút người dùng
        
         self.appHighlightFont = font.Font(family='lineto circular', size=11, weight='bold')
         self.appHighlightFont2 = font.Font(family='lineto circular', underline=1, size=11, weight='bold')
-        # self.user_icon = tk.PhotoImage(file=r".\Images\user2.png", height=25, width=25)
-        # self.userButton = IconButton(self.name,
-        #                              master, text=myobject['display_name'],
-        #                              image=self.user_icon,
-        #                              command=lambda: self.master.master.show_frame(UserPage)
-        #                              )
-        self.userButton = tk.Button(self.name, text=myobject['display_name'], command=lambda: self.master.master.show_frame(UserPage))
+        self.user_icon = tk.PhotoImage(file="images/user2.png", height=25, width=25)
+        self.userButton = IconButton(self.name,
+                                     master, text=myobject['display_name'],
+                                     image=self.user_icon,
+                                     command=lambda: self.master.master.show_frame(UserPage)
+                                     )
         self.userButton.bind("<Enter>", lambda e: self.userButtonHighlight(e))
         self.userButton.bind("<Leave>", lambda e: self.userButtonLeave(e))
 
-        # user_dropdown
+        # menu thả xuống người dùng
+        self.down = tk.PhotoImage(file="images/down_arrow.png", width=25, height=25)
         self.user_menu = tk.Menubutton(
             self.name,
-            text="▼",
+            image=self.down,
             background="#000000",
             activebackground="#000000",
             bd=0, padx=2, pady=0
@@ -207,13 +199,11 @@ class Back(tk.Frame):
         tk.Frame.__init__(self, master, *args, **kwargs)
         self['background'] = '#000000'
 
-        # self.leftImage = tk.PhotoImage(file=r'.\images\left_arrow.png')
-        # self.rightImage = tk.PhotoImage(file=r'.\images\right_arrow.png')
+        self.leftImage = tk.PhotoImage(file=r'./images/left_arrow.png')
+        self.rightImage = tk.PhotoImage(file=r'./images/right_arrow.png')
 
-        # self.left = ArrowButton(self, image=self.leftImage, command=self.left)
-        # self.right = ArrowButton(self, image=self.rightImage, command=self.right)
-        self.left = tk.Button(self, text="<", command=self.left)
-        self.right = tk.Button(self, text=">", command=self.right)
+        self.left = ArrowButton(self, image=self.leftImage, command=self.left)
+        self.right = ArrowButton(self, image=self.rightImage, command=self.right)
 
         self.left.grid(row=0, column=0, sticky='ew')
         self.right.grid(row=0, column=1, sticky='ew')
@@ -324,18 +314,7 @@ class MinMaxCross(tk.Frame):
 
     @staticmethod
     def prepare_icon(filename, size):
-        try:
-            icon = Image.open('images/' + filename)
-            # Try different resampling methods for compatibility
-            try:
-                icon = icon.resize((size, size), Image.LANCZOS)
-            except AttributeError:
-                try:
-                    icon = icon.resize((size, size), Image.Resampling.LANCZOS)
-                except AttributeError:
-                    icon = icon.resize((size, size), Image.ANTIALIAS)  # fallback
-            icon = ImageTk.PhotoImage(icon)
-            return icon
-        except Exception as e:
-            print(f"Error loading icon {filename}: {e}")
-            return None
+        icon = Image.open('images/' + filename)
+        icon = icon.resize((size, size), Image.LANCZOS)
+        icon = ImageTk.PhotoImage(icon)
+        return icon
