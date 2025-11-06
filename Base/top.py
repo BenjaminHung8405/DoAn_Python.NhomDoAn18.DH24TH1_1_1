@@ -9,18 +9,25 @@ from Pages.AlbumPage.Album import Album
 from Pages.UserPage.UserPage import UserPage
 from .listOfPage import *
 from Pages.SearchPage.SearchPage import SearchPage
+import sys
+import os
+
+# Import theme mới
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from theme import COLORS
 
 
 class Top(tk.Frame):
-
+    """Main container - Chứa sidebar và nội dung chính với theme hiện đại"""
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
-        self['background'] = 'yellow'
+        # Sử dụng màu nền primary thay vì yellow
+        self['background'] = COLORS['bg_primary']
 
         self.topleft = TopLeft(self)
         self.topRight = TopRight(self)
         # --------------------------------------------------------------------------
-        # Loading all the các khung
+        # Loading all the frames
 
         self.frames = {}
         for F in (Home, Browse, UserPage, Artist, Album):
