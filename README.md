@@ -58,172 +58,232 @@
 
 
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+<!-- VỀ DỰ ÁN -->
+## Về Dự Án
 ![image](https://user-images.githubusercontent.com/49261633/80867197-6e3f5b00-8cb0-11ea-8e62-b9ddb2ea6533.png)
 
+**Amplify** là ứng dụng nghe nhạc được phát triển bằng Python với giao diện Tkinter và database PostgreSQL. Đây là đồ án môn học Python của Nhóm 18 - Lớp DH24TH1.
 
-There are many great applications available on GitHub, however, this can be counted as one them.We wanted to create a application just so amazing that it'll be same as spotify but with python and firebase which is hell of a task.
+### ✨ Tính Năng Chính
 
-Here's why:
-* We needed hands on practice on python.
-* We wanted to get an idea of creating open-source projects. /play heygirl
-* We wanted to explore about the Firebase and online streaming content. :smile:
+* 🎵 Phát nhạc trực tuyến với chất lượng cao
+* 👤 Đăng ký/Đăng nhập người dùng với PostgreSQL
+* ❤️ Thích và lưu các bài hát yêu thích
+* 🔍 Tìm kiếm bài hát theo tên, nghệ sĩ, thể loại
+* 📱 Giao diện thân thiện, dễ sử dụng
+* 🎨 Hiển thị ảnh bìa album và nghệ sĩ
+* 🔐 Bảo mật thông tin người dùng
+
+### 🛠️ Công Nghệ Sử Dụng
+
+* **Python 3.13** - Ngôn ngữ lập trình chính
+* **PostgreSQL (Neon)** - Cơ sở dữ liệu đám mây
+* **Tkinter** - Thư viện GUI
+* **Pygame/Pyglet** - Phát nhạc
+* **Pillow** - Xử lý hình ảnh
+* **psycopg2** - Kết nối PostgreSQL
+
+### 📝 Lịch Sử Phát Triển
+
+* **v1.0**: Sử dụng Firebase Firestore
+* **v2.0**: Migration sang PostgreSQL (Neon) với connection pooling
+* **v2.1**: Chuyển đổi toàn bộ chú thích sang tiếng Việt
 
 
 
-A list of commonly used resources that I find helpful are listed in the acknowledgements.
+<!-- BẮT ĐẦU -->
+## Bắt Đầu
 
-### Built With
+### 📋 Yêu Cầu Hệ Thống
 
-I am only listing the main things which are needed for this rest you can see inside the requirements.txt
+* **Python 3.13 trở lên**
+* **PostgreSQL database** (hoặc sử dụng Neon serverless)
+* **Internet connection** để stream nhạc
+
+### ⚙️ Cấu Trúc Database PostgreSQL
+
+```sql
+-- Bảng users (người dùng)
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    display_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng tracks (bài hát)
+CREATE TABLE tracks (
+    track_id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    artist VARCHAR(255) NOT NULL,
+    genre VARCHAR(100),
+    language VARCHAR(50),
+    location TEXT NOT NULL,
+    like_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng artists (nghệ sĩ)
+CREATE TABLE artists (
+    artist_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    image_url TEXT
+);
+
+-- Bảng genres (thể loại)
+CREATE TABLE genres (
+    genre_id SERIAL PRIMARY KEY,
+    genre_name VARCHAR(100) UNIQUE NOT NULL,
+    genre_image TEXT
+);
+
+-- Bảng languages (ngôn ngữ)
+CREATE TABLE languages (
+    language_id SERIAL PRIMARY KEY,
+    language_name VARCHAR(50) UNIQUE NOT NULL,
+    language_image TEXT
+);
+
+-- Bảng user_likes (bài hát yêu thích)
+CREATE TABLE user_likes (
+    like_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(user_id),
+    track_id INTEGER REFERENCES tracks(track_id),
+    liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, track_id)
+);
+```
+
+### 🔧 Cài Đặt
+
+1. **Clone repository**
+```bash
+git clone https://github.com/BenjaminHung8405/DoAn_Python.NhomDoAn18.DH24TH1_1_1.git
+cd DoAn_Python.NhomDoAn18.DH24TH1_1_1
+```
+
+2. **Tạo virtual environment**
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux/Mac
+source .venv/bin/activate
+```
+
+3. **Cài đặt dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+4. **Tạo file .env với DATABASE_URL**
+```bash
+# File .env
+DATABASE_URL=postgresql://username:password@host:5432/database?sslmode=require
+```
+
+5. **Khởi tạo database schema**
+```bash
+python Database/reset_schema.py
+```
+
+6. **Chạy ứng dụng**
+```bash
+python main.py
+```
+
+### 🎉 Hoàn Tất!
+
+Giờ bạn có thể đăng ký tài khoản mới và bắt đầu nghe nhạc!
+
+
+
+<!-- LỘ TRÌNH PHÁT TRIỂN -->
+## Lộ Trình Phát Triển
+
+### ✅ Đã Hoàn Thành
+
+- [x] Migration từ Firebase sang PostgreSQL
+- [x] Chuyển đổi chú thích sang tiếng Việt
+- [x] Hỗ trợ đa nền tảng (Windows/Linux/macOS)
+- [x] Connection pooling cho PostgreSQL
+- [x] User authentication với PostgreSQL
+- [x] Like/Unlike bài hát
+- [x] Tìm kiếm theo thể loại và ngôn ngữ
+
+### 🚀 Sắp Tới
+
+- [ ] Tạo playlist cá nhân
+- [ ] Follow nghệ sĩ yêu thích
+- [ ] Lịch sử nghe nhạc
+- [ ] Gợi ý bài hát dựa trên sở thích
+- [ ] Chia sẻ bài hát qua email
+- [ ] Thêm lyrics hiển thị
+- [ ] Dark/Light theme toggle
+
+Xem thêm tại [open issues](https://github.com/BenjaminHung8405/DoAn_Python.NhomDoAn18.DH24TH1_1_1/issues)
+
+
+
+<!-- ĐÓNG GÓP -->
+## Đóng Góp
+
+Mọi đóng góp đều được **đánh giá cao**! Đây là cách bạn có thể đóng góp:
+
+1. Fork dự án
+2. Tạo Feature Branch (`git checkout -b feature/TinhNangMoi`)
+3. Commit thay đổi (`git commit -m 'Thêm tính năng mới'`)
+4. Push lên Branch (`git push origin feature/TinhNangMoi`)
+5. Mở Pull Request
+
+### 📝 Quy Tắc Đóng Góp
+
+- Code phải có chú thích bằng **tiếng Việt**
+- Tuân thủ PEP 8 style guide
+- Test kỹ trước khi commit
+- Viết commit message rõ ràng
+
+<!-- GIẤY PHÉP -->
+## Giấy Phép
+
+Phân phối theo giấy phép MIT License. Xem `LICENSE` để biết thêm thông tin.
+
+<!-- THÀNH VIÊN -->
+## Thành Viên Nhóm 18
+
+👨‍💻 **Đồ Án Python - Nhóm 18 - DH24TH1**
+
+- Benjamin Hung ([GitHub](https://github.com/BenjaminHung8405))
+- Thành viên 2
+- Thành viên 3
+
+<!-- LIÊN HỆ -->
+## Liên Hệ
+
+📧 Email: amplifyteam1234@gmail.com
+
+🔗 GitHub: [DoAn_Python.NhomDoAn18.DH24TH1_1_1](https://github.com/BenjaminHung8405/DoAn_Python.NhomDoAn18.DH24TH1_1_1)
+
+<!-- CẢM ƠN -->
+## Cảm Ơn
 
 * [Python](https://www.python.org/)
-* [Firebase](https://console.firebase.google.com/u/0/)
-* [Tkinter](https://docs.python.org/3/library/tkinter.html)
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-First of all you will need a database of your own which should be created in firebase , we created out database with cloud-firestore you can use whichever database you want, we recommend Firestore.
-This the Database structure.
-```
-[
-  Tracks : [
-    {
-      "Language" :  (String),
-      "artist" : (String),
-      "genre" : (String),
-      "like_count" : (Integer),
-      "location" : (String [ Url of the track ]),
-      "title" : (String)
-     }
-  ],
-  artist : [
-    {
-      "name" : (String),
-      "image_url" : (String [ Url of the image ]),
-    } 
-  ],
-  genres : [
-    {
-      "genre_name" : (String),
-      "genre_image" : (String [ Url of the image ]),
-    } 
-  ],
-  languages : [
-    {
-      "language_name" : (String),
-      "language_image" : (String [ Url of the image ]),
-    } 
-  ],
-  users : [
-    Liked_songs : [
-      Track_object
-      (as mentioned above)
-     ]
-    {
-      "display_name" : (String),
-      "email" : (String),
-      "email_verified : (boolean),
-      "password" : (String),
-      "verification_code" : (String),
-    }
-  ]
-]
-
-
-
-
-```
-After this add Data to your database and then integrate your database with by service_key.json generated by Firebase.
-
-Post this you need to run the following command in the same directory in the Terminal or command prompt.
-```py
-pip install -r requirements.txt
-```
-If you have made it so far then you are genius enough to make your own application.
-Now run 
-```py
-python main.py 
-```
-and ka-boom!! :clap:
-<h2  align="center">Seems Godlike!</h2>
-<p align="center">
-  <img width="640" height="331" src="https://user-images.githubusercontent.com/49261633/80869513-89b16280-8cbe-11ea-9602-a318458058f1.gif">
-</p>
-
-### Prerequisites
-
-
-* Python
-* Firebase admin-sdk 
-* and some libraries
-
-### Installation
-
-1.Generate youre sevice key account 
-2. Clone the repo
-```sh
-git clone https://github.com/your_username_/Project-Name.git
-```
-3. Install packages
-```py
-pip install -r requirements.txt
-```
-4. Enter your API in `config.py`
-```py
-cred = credentials.Certificate("Database/YOUR_SERVICE_KEY.json")
-```
-and place service key in the database directory.
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/Srajan1122/TK-Player/issues) for a list of proposed features (and known issues).
-
-
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## Contributors
-
-
-
-<!-- CONTACT -->
-## Contact
-
-AmplifyTeam - [Mail](amplifyteam1234@gmail.com) - amplifyteam1234@gmail.com
-
-Project Link: [https://github.com/Srajan1122/TK-Player](https://github.com/Srajan1122/TK-Player)
-
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
+* [PostgreSQL](https://www.postgresql.org/)
+* [Neon Serverless Postgres](https://neon.tech/)
+* [Tkinter Documentation](https://docs.python.org/3/library/tkinter.html)
+* [Pygame](https://www.pygame.org/)
+* [Pillow (PIL)](https://pillow.readthedocs.io/)
 * [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
 * [Choose an Open Source License](https://choosealicense.com)
+
+---
+
+<div align="center">
+  <p>⭐ Nếu bạn thích dự án này, hãy cho chúng tôi một star nhé! ⭐</p>
+  <p>Made with ❤️ by Nhóm 18 - DH24TH1</p>
+</div>
 
 
 
