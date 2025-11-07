@@ -198,7 +198,33 @@ python main.py
 
 Giờ bạn có thể đăng ký tài khoản mới và bắt đầu nghe nhạc!
 
+---
 
+## 🔒 Migration Lock System (Mới!)
+
+**Vấn đề:** Team migration đồng thời có thể làm mất dữ liệu
+
+**Giải pháp:** Hệ thống lock tự động với backup
+
+### Quick Start
+
+```bash
+# Kiểm tra lock trước khi migration
+python -m Database.migration_lock status
+
+# Chạy migration an toàn (auto lock + backup)
+python -m Database.protected_migration run
+
+# Seed dữ liệu mẫu
+python -m Database.seed_data seed
+```
+
+### Tài Liệu Chi Tiết
+
+- 📖 [Team Migration Guide - BẮT BUỘC ĐỌC](Database/TEAM_MIGRATION_GUIDE.md)
+- 📖 [Migration Lock System - Chi tiết](Database/MIGRATION_LOCK_GUIDE.md)
+
+---
 
 <!-- LỘ TRÌNH PHÁT TRIỂN -->
 ## Lộ Trình Phát Triển
@@ -206,6 +232,9 @@ Giờ bạn có thể đăng ký tài khoản mới và bắt đầu nghe nhạc
 ### ✅ Đã Hoàn Thành
 
 - [x] Migration từ Firebase sang PostgreSQL
+- [x] **Migration Lock System - Bảo vệ database** 🔒
+- [x] **Auto Backup trước migration** 💾
+- [x] **Seed data system** 🌱
 - [x] Chuyển đổi chú thích sang tiếng Việt
 - [x] Hỗ trợ đa nền tảng (Windows/Linux/macOS)
 - [x] Connection pooling cho PostgreSQL

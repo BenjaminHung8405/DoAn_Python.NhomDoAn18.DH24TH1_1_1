@@ -6,6 +6,9 @@ from PIL import ImageTk, Image
 import requests
 from io import BytesIO
 
+# Initialize global variables
+w = 200  # Default width
+width = 1000  # Default total width
 
 def wid():
     global w
@@ -88,20 +91,32 @@ class Lower(tk.Frame):
 
         for i in data:
             try:
+                # Skip entries with empty URLs
+                if not i.get('url'):
+                    print(f'Skipping entry with empty URL: {i.get("text", "Unknown")}')
+                    # Add placeholder image
+                    self.images.append(None)
+                    continue
+                    
                 # Tải hình ảnh từ URL sử dụng PIL
                 response = requests.get(i['url'], timeout=10)
                 self.image = Image.open(BytesIO(response.content))
                 self.images.append(self.image)
             except Exception as ex:
                 print('---------------------------------------------------------------------')
-                print(f'Failed to load image from URL: {i["url"]} - {ex}')
+                print(f'Failed to load image from URL: {i.get("url", "N/A")} - {ex}')
                 print('---------------------------------------------------------------------')
+                # Add placeholder to maintain index alignment
+                self.images.append(None)
+                
         for i, j in enumerate(data):
             musicPages[Lower.count].append(0)
+            # Use placeholder image if URL failed to load
+            image_to_use = self.images[i] if i < len(self.images) and self.images[i] is not None else None
             self.button = CardButton(self.frame, text=j['text'],
-                                     url=self.images[i],
+                                     url=image_to_use,
                                      command=lambda d=j['tracks'],
-                                                    img=self.images[i],
+                                                    img=image_to_use,
                                                     txt=j['text'],
                                                     r=Lower.count,
                                                     c=i:
@@ -163,6 +178,9 @@ class CardButton(tk.Button):
         global width
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
+        # Skip if image is None (empty URL)
+        if self.url is None:
+            return
         self.image = self.url
         self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)
@@ -172,6 +190,9 @@ class CardButton(tk.Button):
         global width
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
+        # Skip if image is None (empty URL)
+        if self.url is None:
+            return
         self.image = self.url
         self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
         # self.greyscale = self.image.convert('LA')
@@ -182,6 +203,9 @@ class CardButton(tk.Button):
         global width
         w = width / 5 - 14
         self.configure(width=int(round(w)), height=int(round(w)) + 50)
+        # Skip if image is None (empty URL)
+        if self.url is None:
+            return
         self.image = self.url
         self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
         self.image = ImageTk.PhotoImage(self.image)

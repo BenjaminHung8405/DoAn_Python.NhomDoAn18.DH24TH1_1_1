@@ -5,12 +5,28 @@ from Database.config import db
 
 def get_artist_row():
     try:
-        doc = db.collection(u'artist')
-        my_ref = list(map(lambda x: x.to_dict(), list(doc.stream())))
+        from Database.config import get_connection, release_connection
+        conn = get_connection()
+        if not conn:
+            return False
+        
+        cur = conn.cursor()
+        cur.execute("SELECT artist_id, name, image_url FROM artists ORDER BY name")
+        rows = cur.fetchall()
+        cur.close()
+        release_connection(conn)
+        
         artists = []
-        return my_ref
+        for row in rows:
+            artist_dict = {
+                'artist_id': row[0],
+                'name': row[1],
+                'image_url': row[2] if row[2] else ''
+            }
+            artists.append(artist_dict)
+        return artists
     except Exception as ex:
-        print('Exception Occured which is of type :', ex.__class__.__name__)
+        print('Exception Occurred which is of type :', ex.__class__.__name__)
         y = input('If you want to see Traceback press 1 : ')
         if y == '1':
             traceback.print_exc()

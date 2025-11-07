@@ -70,21 +70,24 @@ class UserPage(tk.Frame):
                                 bg="#000000"
                             )
         self.contactLabel.grid(row=3, column=0, padx=20, pady=20)
+        # Phone number removed from schema - display email or placeholder
+        contact_text = myobject.get('phone_number', 'N/A')
         self.contact = tk.Label(
-                        self.frame1, text=myobject['phone_number'],
+                        self.frame1, text=contact_text,
                         bg="#000000", fg="#FFFFFF", font=fontStyle
                     )
         self.contact.grid(row=3, column=1, padx=20, pady=20)
 
-        #Mật khẩu
+        #Mật khẩu (hiển thị dạng ẩn vì lý do bảo mật)
         self.password_icon = self.prepare_image('password.png',45,135)
         self.passwordLabel = tk.Label(
                                 self.frame1, image=self.password_icon,
                                 bg="#000000"
                             )
         self.passwordLabel.grid(row=4, column=0, padx=20, pady=20)
+        # Không hiển thị password_hash vì lý do bảo mật, chỉ hiển thị ký tự ẩn
         self.password = tk.Label(
-                        self.frame1, text=myobject['password'],
+                        self.frame1, text='••••••••',
                         bg="#000000", fg="#FFFFFF", font=fontStyle
                     )
         self.password.grid(row=4, column=1, padx=20, pady=20)

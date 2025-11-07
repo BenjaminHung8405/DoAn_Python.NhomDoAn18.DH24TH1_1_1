@@ -1,7 +1,6 @@
 import tkinter as tk
 from Base import top
 from Base.bottom import Bottom
-from threading import Thread
 from ActivityIndicator.Activity_Indicator import ImageLabel
 
 
@@ -56,39 +55,39 @@ class Root(tk.Tk):
         self.bind("<F11>", self.toggle_fullscreen)
         self.bind("<Escape>", self.end_fullscreen)
 
-        def TK_player():
-            self.withdraw()
-           
-            self.title('Amplify')
-            # self.title['bg']='black'
-            app_icon = tk.PhotoImage(file=r"images/app_64.png")
-            self.iconphoto(False, app_icon)
+        # Hide main window initially
+        self.withdraw()
+        
+        # Show splash screen
+        splash = Splash(self)
+        
+        # Schedule main window creation after splash
+        self.after(3000, lambda: self.create_main_window(splash, data))
+    
+    def create_main_window(self, splash, data):
+        """Create the main application window after splash screen"""
+        # Destroy splash
+        splash.destroy()
+        
+        # Setup main window
+        self.title('Amplify')
+        app_icon = tk.PhotoImage(file=r"images/app_64.png")
+        self.iconphoto(False, app_icon)
 
-            container = Container(self)
-            container.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
+        container = Container(self)
+        container.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
 
-            self.grid_columnconfigure(0, weight=1)
-            self.grid_rowconfigure(0, weight=1)
-            # Phóng to cửa sổ - tương thích đa nền tảng
-            try:
-                self.state('zoomed')
-            except:
-                self.attributes('-zoomed', True)
-
-        def Splash_Screen():
-            splash = Splash(self)
-
-            def myfun():
-                splash.destroy()
-                self.deiconify()
-
-            splash.after(30000, myfun)
-            # time.sleep(15000)
-
-        self.tk_player = Thread(target=TK_player)
-        self.tk_player.start()
-        self.splash = Thread(target=Splash_Screen)
-        self.splash.start()
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        
+        # Phóng to cửa sổ - tương thích đa nền tảng
+        try:
+            self.state('zoomed')
+        except:
+            self.attributes('-zoomed', True)
+        
+        # Show main window
+        self.deiconify()
 
  
 

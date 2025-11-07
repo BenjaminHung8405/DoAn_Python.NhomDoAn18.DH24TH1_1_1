@@ -193,7 +193,9 @@ class TopRightTop(tk.Frame):
             pass
         self.master.master.master.master.destroy()
         import subprocess
-        _ = subprocess.call(["venv/Scripts/python.exe", "main.py"])
+        import sys
+        # Use current Python interpreter instead of hardcoded path
+        _ = subprocess.call([sys.executable, "main.py"])
 
 
 class Back(tk.Frame):
