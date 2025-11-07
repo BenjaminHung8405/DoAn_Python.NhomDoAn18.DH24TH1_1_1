@@ -24,7 +24,7 @@ class Splash(tk.Toplevel):
             self.state('zoomed')
         except:
             self.attributes('-zoomed', True)
-        self.overrideredirect(True)
+        # self.overrideredirect(True)  # Removed for better UX - allows window controls
 
         lbl.load('ActivityIndicator/Activity.gif')
 
@@ -62,7 +62,7 @@ class Root(tk.Tk):
         splash = Splash(self)
         
         # Schedule main window creation after splash
-        self.after(3000, lambda: self.create_main_window(splash, data))
+        self.after(5000, lambda: self.create_main_window(splash, data))
     
     def create_main_window(self, splash, data):
         """Create the main application window after splash screen"""
