@@ -917,93 +917,6 @@ def sign_out():
 
 	# sign_out()
 # myuser = register_user('devdatta','dkhoche70@gmail.com','9145253235','15412342')
-def generate_otp(uid):
-	import string
-	import random
-
-	# Tạo OTP 6 số ngẫu nhiên
-	try:
-		generate_pass = ''.join([random.choice(string.digits) for n in range(6)])
-
-		# Lưu OTP vào database (cần thêm column verification_code vào bảng users)
-		conn = get_connection()
-		if not conn:
-			return False
-		
-		cur = conn.cursor()
-		# Tạm thời không lưu OTP vào DB (cần migrate schema trước)
-		# cur.execute("UPDATE users SET verification_code = %s WHERE user_id = %s", (generate_pass, uid))
-		# conn.commit()
-		cur.close()
-		release_connection(conn)
-		
-		print(f"Generated OTP: {generate_pass}")
-		return generate_pass
-		
-	except Exception as ex:
-		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
-		
-		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
-		return False
-
-
-def check_verification(email):
-	user = get_user_by_email(email)
-	if not user:
-		return False
-	# Cho migration PostgreSQL: bỏ qua xác thực email, cho phép tất cả người dùng đăng nhập
-	return True  # Luôn trả về True để bỏ qua xác thực OTP
-
-
-def send_email_verification_otp(email):
-	'''
-
-	:param otp:
-		   email: email of the user
-	:return: bool
-
-
-	'''
-	try:
-		import smtplib
-		
-		user = get_user_by_email(email)
-		if not user:
-			from Pages.UserAuthentication.Exceptions import User_not_Found
-			User_not_Found()
-			return False
-		
-		otp = generate_otp(user['uid'])
-		fromaddr = 'amplifyteam1234@gmail.com.'
-		toaddrs = email
-		Text = f"Hello {user['display_name']},\nEnter the following OTP to verify your email address.\nYour verification code is {otp}\nIf you didn't ask to verify this address, you can ignore this email.\nThanks,\nYour AmplifyTeam"
-		subject = 'Email Verification'
-		username = 'amplifyteam1234@gmail.com'
-		password = '15412342'
-		print('Sending verification email...')
-		message = 'Subject: {}\n\n{}'.format(subject, Text)
-		message = message.encode()
-		server = smtplib.SMTP('smtp.gmail.com', 587)
-		server.ehlo()
-		server.starttls()
-		server.login(username, password)
-		server.sendmail(fromaddr, toaddrs, message)
-		server.quit()
-		return True
-		
-	except Exception as ex:
-		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
-		
-		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
-		return False
-
-
 def generate_password(uid):
 	import random
 	import string
@@ -1067,43 +980,6 @@ def Forget_password_email(email):
 			traceback.print_exc()
 		return False
 
-def verify_email_database(email, entered_otp):
-	'''
-	Verifies if the OTP is correct 
-	Returns bool depending on Success
-	'''
-	
-	conn = None
-	try:
-		user = get_user_by_email(email)
-		if not user:
-			return False
-			
-		db_user = get_user_by_email(email)
-		if entered_otp == db_user['verification_code']:
-			# Update email_verified status in PostgreSQL
-			conn = get_connection()
-			cur = conn.cursor()
-			cur.execute(
-				"UPDATE users SET email_verified = TRUE WHERE email = %s",
-				(email,)
-			)
-			conn.commit()
-			cur.close()
-			return True
-		else:
-			return False
-	except Exception as ex:
-		if conn:
-			conn.rollback()
-		print(f'Exception occurred: {ex.__class__.__name__}')
-		traceback.print_exc()
-		return False
-	finally:
-		if conn:
-			release_connection(conn)
-
-# send_email_verification_otp('dkhoche2000@gmail.com')
 def user_create_playlist(uid, playlist_name):
 	'''
 

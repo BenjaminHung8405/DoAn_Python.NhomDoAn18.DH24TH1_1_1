@@ -4,7 +4,6 @@ import tkinter as tk
 from .Frame1 import Frame1
 from .Frame2 import Frame2
 from .Frame3 import Frame3
-from .Frame4 import Frame4
 from main import Root
 
 #Bố cục của Cơ sở
@@ -43,7 +42,7 @@ class AuthFrame(tk.Frame):
         #Các Khung
         self.frames = {}
 
-        for F in (Frame1, Frame2, Frame3, Frame4):
+        for F in (Frame1, Frame2, Frame3):
             frame = F(self)
             self.frames[F] = frame
             frame.grid(row=0, column=0)
@@ -86,12 +85,5 @@ class AuthFrame(tk.Frame):
         self.master.destroy()
         main = Root(data=user_object)
         main.mainloop()
-
-    def openFrame4(self):
-        framee = self.frames[Frame4]
-        framee.tkraise()
-    def openFrame3(self):
-        framee = self.frames[Frame3]
-        framee.tkraise()
 
 

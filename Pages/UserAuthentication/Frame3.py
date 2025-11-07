@@ -8,7 +8,6 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import font
 import re
-from Database.Database import check_verification
 
 # data2 để kiểm tra thông tin đăng nhập và truyền chúng
 global data2
@@ -279,49 +278,13 @@ class Frame3(tk.Frame):
 			self.result['text'] = "Password must be atleast 8 characters long"
 			return
 		
-
-		self.verify = tk.Button(
-			self.container,
-			border=0,
-			text="",
-			background='#121212',
-			activebackground='#121212',
-			foreground='white',
-			activeforeground='white',
-			font=self.appHighlightFont,
-			command=lambda: self.master.openFrame4()
-			)
-		self.verify.grid(
-			row=6,
-			column=0,
-			sticky='news',
-			padx=2,
-			pady=5,
-			ipadx=20,
-			ipady=10
-			)
-
-
-
-		data3['email'] = email
-	
-		if check_verification(data3['email']):
-			from Database.Database import sign_in_with_email_and_password
-			
-			user_object = sign_in_with_email_and_password(email,password)
-			if(user_object):
-				
-				self.result['text'] = "Please have patience"
-				
-				
-				self.master.login(user_object)
-				
-			
+		# Perform login directly without verification
+		from Database.Database import sign_in_with_email_and_password
+		user_object = sign_in_with_email_and_password(email, password)
+		if user_object:
+			self.result['text'] = "Please have patience"
+			self.master.login(user_object)
 		else:
-			from Database.Database import send_email_verification_otp
-			self.master.openFrame4()
-			send_email_verification_otp(data3['email'])
-			# self.verify['text'] = "You haven't verified your email.\nPlease Verify First."
-			
+			self.result['text'] = "Invalid Credentials"
 
- 
+
