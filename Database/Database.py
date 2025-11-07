@@ -440,7 +440,7 @@ def get_track(trackName):
 	finally:
 		if conn:
 			release_connection(conn)
-def register_user(username, email, password):
+def register_user(username, email, phone, password):
 	"""
 	Returns user uid if successfully registered
 	else returns false
@@ -465,10 +465,10 @@ def register_user(username, email, password):
 		
 		cur = conn.cursor()
 		cur.execute("""
-			INSERT INTO users (display_name, email, password_hash, created_at)
-			VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+			INSERT INTO users (display_name, email, phone_number, password_hash, created_at)
+			VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
 			RETURNING user_id
-		""", (username, email, hashed_password))
+		""", (username, email, phone, hashed_password))
 		
 		user_id = cur.fetchone()[0]
 		conn.commit()
@@ -878,7 +878,7 @@ def sign_in_with_email_and_password(email, password):
 		hashed_password = hashlib.sha256(password.encode()).hexdigest()
 		
 		# doc là dict, sử dụng dict keys
-		if doc['email'] == email and doc['password'] == hashed_password:
+		if doc['email'] == email and doc['password_hash'] == hashed_password:
 			f = open('user', "w+")
 			f.write(doc['uid'])
 			f.close()

@@ -16,7 +16,7 @@ SQL = [
         user_id SERIAL PRIMARY KEY,
         display_name VARCHAR(255),
         email VARCHAR(255) UNIQUE,
-        password VARCHAR(255),
+        password_hash VARCHAR(255),
         phone_number VARCHAR(50),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
