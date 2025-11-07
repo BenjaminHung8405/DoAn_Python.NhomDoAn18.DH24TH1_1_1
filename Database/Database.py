@@ -500,21 +500,49 @@ def register_user(username, email, phone, password):
 
 def set_album(track_title, album_name, artist):
 	"""
- Returns boolean value depending upon success
- and atleast one track in needed for the album.
+	Returns boolean value depending upon success
+	and atleast one track is needed for the album.
 	"""
+	conn = None
 	try:
-		track_object = get_track(track_title)
-		doc_ref = db.collection(u'albums/' + album_name + '/tracks').document(track_object['title'])
-		doc_ref.set(track_object)
-		doc_ref = db.collection(u'albums').document(album_name)
-		doc_ref.set({
-			'album_title': album_name,
-			'artist': artist
-		})
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		# Get or create artist
+		cur.execute("SELECT artist_id FROM artists WHERE name = %s", (artist,))
+		artist_result = cur.fetchone()
+		if not artist_result:
+			cur.execute("INSERT INTO artists (name, image_url) VALUES (%s, %s) RETURNING artist_id", 
+					   (artist, ''))
+			artist_id = cur.fetchone()[0]
+		else:
+			artist_id = artist_result[0]
+		
+		# Create or get album
+		cur.execute("SELECT album_id FROM albums WHERE title = %s AND artist_id = %s", 
+				   (album_name, artist_id))
+		album_result = cur.fetchone()
+		if not album_result:
+			cur.execute("""
+				INSERT INTO albums (title, artist_id, cover_image_url) 
+				VALUES (%s, %s, %s) RETURNING album_id
+			""", (album_name, artist_id, ''))
+			album_id = cur.fetchone()[0]
+		else:
+			album_id = album_result[0]
+		
+		# Update track's album_id
+		cur.execute("UPDATE tracks SET album_id = %s WHERE title = %s", 
+				   (album_id, track_title))
+		
+		conn.commit()
+		cur.close()
+		
 		print('Album Created Successfully')
 		return True
 	except Exception as ex:
+		if conn:
+			conn.rollback()
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
@@ -522,23 +550,58 @@ def set_album(track_title, album_name, artist):
 		if y == '1':
 			traceback.print_exc()
 		return False
+	finally:
+		if conn:
+			release_connection(conn)
 
 
 def get_album(**kwargs):
 	"""
 	parameters : album_name, artist_name
 	if want all the albums dont pass any argument else pass name of the album or artist of the album.
-	eg:- get_album(album_name = devdatta)
-	Kwargs : album_name
+	eg:- get_album(album_name = 'devdatta')
+	Kwargs : album_name or artist
 	"""
-
+	conn = None
+	
 	if 'album_name' in kwargs:
 		try:
-			doc_ref = db.collection(u'albums/' + kwargs['album_name'] + '/tracks')
-			snapshots = list(doc_ref.stream())
-			if len(snapshots):
-				tracks = list(map(lambda x: x.to_dict(), snapshots))
-				return tracks
+			conn = get_connection()
+			cur = conn.cursor()
+			
+			# Get tracks for specific album
+			cur.execute("""
+				SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
+					   a.name as artist, g.name as genre, l.name as language, al.title as album
+				FROM tracks t
+				LEFT JOIN track_artists ta ON t.track_id = ta.track_id
+				LEFT JOIN artists a ON ta.artist_id = a.artist_id
+				LEFT JOIN genres g ON t.genre_id = g.genre_id
+				LEFT JOIN languages l ON t.language_id = l.language_id
+				LEFT JOIN albums al ON t.album_id = al.album_id
+				WHERE al.title = %s
+			""", (kwargs['album_name'],))
+			
+			rows = cur.fetchall()
+			cur.close()
+			
+			tracks = []
+			for row in rows:
+				track_dict = {
+					'track_id': row[0],
+					'title': row[1],
+					'duration_seconds': row[2],
+					'location': row[3],
+					'like_count': row[4],
+					'artist': row[5],
+					'genre': row[6],
+					'language': row[7],
+					'album': row[8]
+				}
+				tracks.append(track_dict)
+			
+			return tracks if tracks else []
+			
 		except Exception as ex:
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			
@@ -547,16 +610,41 @@ def get_album(**kwargs):
 			if y == '1':
 				traceback.print_exc()
 			return False
+		finally:
+			if conn:
+				release_connection(conn)
+				
 	elif 'artist' in kwargs:
 		try:
-			doc_ref = db.collection('albums')
-			snapshots = list(doc_ref.where(u'artist', u'==', kwargs['artist']).stream())
-
-			if len(snapshots):
-				object_list = list(map(lambda x: x.to_dict(), snapshots))
-				return object_list
-			else:
-				raise Exception('No data with the give artist found')
+			conn = get_connection()
+			cur = conn.cursor()
+			
+			# Get all albums by specific artist
+			cur.execute("""
+				SELECT al.album_id, al.title, al.cover_image_url, a.name as artist
+				FROM albums al
+				LEFT JOIN artists a ON al.artist_id = a.artist_id
+				WHERE a.name = %s
+			""", (kwargs['artist'],))
+			
+			rows = cur.fetchall()
+			cur.close()
+			
+			if not rows:
+				raise Exception('No data with the given artist found')
+			
+			albums = []
+			for row in rows:
+				album_dict = {
+					'album_id': row[0],
+					'album_title': row[1],
+					'cover_image_url': row[2],
+					'artist': row[3]
+				}
+				albums.append(album_dict)
+			
+			return albums
+			
 		except Exception as ex:
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			
@@ -565,10 +653,37 @@ def get_album(**kwargs):
 			if y == '1':
 				traceback.print_exc()
 			return False
+		finally:
+			if conn:
+				release_connection(conn)
 	else:
 		try:
-			collection = db.collection(u'albums')
-			print(list(map(lambda x: x.to_dict(), collection.stream())))
+			conn = get_connection()
+			cur = conn.cursor()
+			
+			# Get all albums
+			cur.execute("""
+				SELECT al.album_id, al.title, al.cover_image_url, a.name as artist
+				FROM albums al
+				LEFT JOIN artists a ON al.artist_id = a.artist_id
+				ORDER BY al.title
+			""")
+			
+			rows = cur.fetchall()
+			cur.close()
+			
+			albums = []
+			for row in rows:
+				album_dict = {
+					'album_id': row[0],
+					'album_title': row[1],
+					'cover_image_url': row[2],
+					'artist': row[3]
+				}
+				albums.append(album_dict)
+			
+			return albums
+			
 		except Exception as ex:
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			
@@ -577,6 +692,9 @@ def get_album(**kwargs):
 			if y == '1':
 				traceback.print_exc()
 			return False
+		finally:
+			if conn:
+				release_connection(conn)
 
 
 def get_all_tracks():
@@ -631,27 +749,26 @@ def get_all_tracks():
 			release_connection(conn)
 def set_genre(genre):
 	'''
-
-
 	:param genre:
 	This is the name of the genre
 
 	:return:
 	Bool if success
-
 	'''
+	conn = None
 	try:
 		if(Check_genre(genre)):
 			pass
 		else : 
-			doc_ref = db.collection(u'genres').document(genre)
-			doc_ref.set({
-				'genre_name' : genre,
-				'genre_image':'',
-
-			})
+			conn = get_connection()
+			cur = conn.cursor()
+			cur.execute("INSERT INTO genres (name, image_url) VALUES (%s, %s)", (genre, ''))
+			conn.commit()
+			cur.close()
 		return True
 	except Exception as ex:
+		if conn:
+			conn.rollback()
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
@@ -659,6 +776,9 @@ def set_genre(genre):
 		if y == '1':
 			traceback.print_exc()
 		return False
+	finally:
+		if conn:
+			release_connection(conn)
 def get_tracks_by_genre(**kwargs):
 	"""
 	Returns a list of songs with particular genre
@@ -1021,18 +1141,57 @@ def user_create_playlist(uid, playlist_name):
 			release_connection(conn)
 def add_song_to_playlist(uid,playlist_name,track_name):
 	'''
-
 	:param uid: unique identification of the user
 	:param playlist_name: name of a particular playlist
 	:param track_name: track_title which is to be added
 	:return: bool
 	'''
+	conn = None
 	try:
-		collection = db.collection(u'users/' + uid + '/playlists/'+playlist_name+'/Tracks').document(track_name)
-		track_object = get_track(track_name)
-		collection.set(track_object)
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		# Get playlist_id from name and user_id
+		cur.execute("SELECT playlist_id FROM playlists WHERE name = %s AND user_id = %s", 
+				   (playlist_name, uid))
+		playlist_result = cur.fetchone()
+		
+		if not playlist_result:
+			print('Playlist not found')
+			return False
+		
+		playlist_id = playlist_result[0]
+		
+		# Get track_id from track_name
+		cur.execute("SELECT track_id FROM tracks WHERE title = %s", (track_name,))
+		track_result = cur.fetchone()
+		
+		if not track_result:
+			print('Track not found')
+			return False
+		
+		track_id = track_result[0]
+		
+		# Get max track_order for this playlist
+		cur.execute("SELECT COALESCE(MAX(track_order), 0) FROM playlist_tracks WHERE playlist_id = %s", 
+				   (playlist_id,))
+		max_order = cur.fetchone()[0]
+		
+		# Insert into playlist_tracks
+		cur.execute("""
+			INSERT INTO playlist_tracks (playlist_id, track_id, track_order, added_at)
+			VALUES (%s, %s, %s, NOW())
+			ON CONFLICT (playlist_id, track_id) DO NOTHING
+		""", (playlist_id, track_id, max_order + 1))
+		
+		conn.commit()
+		cur.close()
+		
+		print('Track added to playlist successfully')
 		return True
 	except Exception as ex:
+		if conn:
+			conn.rollback()
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
@@ -1040,30 +1199,86 @@ def add_song_to_playlist(uid,playlist_name,track_name):
 		if y == '1':
 			traceback.print_exc()
 		return False
+	finally:
+		if conn:
+			release_connection(conn)
 
 def get_playlists(uid,**kwargs):
 	'''
-
 	:param uid: unique identification of the user
-	:param kwargs: playlist = 'required Playlist'
+	:param kwargs: playlist = 'required Playlist name'
 	:return: if mentioned playlist as kwarg then return a list of the all tracks of the particular playlist.
-			elseif left no kwarg is passed gives the names aof all the playlist
+			elseif no kwarg is passed gives the names of all the playlist
 			else returns false
 			If there are no songs then returns a empty list
-
 	'''
+	conn = None
 	try:
-		if 'playlist' in kwargs :
-			doc_ref = db.collection(u'users/'+uid+'/playlists/'+kwargs['playlist']+'/Tracks')
-			snapshots = list(doc_ref.stream())
-			if len(snapshots):
-				tracks = list(map(lambda x: x.to_dict(), snapshots))
-				return tracks
-			return []
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		if 'playlist' in kwargs:
+			# Get tracks for specific playlist
+			cur.execute("""
+				SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
+					   a.name as artist, g.name as genre, l.name as language, al.title as album
+				FROM playlist_tracks pt
+				JOIN tracks t ON pt.track_id = t.track_id
+				JOIN playlists pl ON pt.playlist_id = pl.playlist_id
+				LEFT JOIN track_artists ta ON t.track_id = ta.track_id
+				LEFT JOIN artists a ON ta.artist_id = a.artist_id
+				LEFT JOIN genres g ON t.genre_id = g.genre_id
+				LEFT JOIN languages l ON t.language_id = l.language_id
+				LEFT JOIN albums al ON t.album_id = al.album_id
+				WHERE pl.name = %s AND pl.user_id = %s
+				ORDER BY pt.track_order
+			""", (kwargs['playlist'], uid))
+			
+			rows = cur.fetchall()
+			cur.close()
+			
+			tracks = []
+			for row in rows:
+				track_dict = {
+					'track_id': row[0],
+					'title': row[1],
+					'duration_seconds': row[2],
+					'location': row[3],
+					'like_count': row[4],
+					'artist': row[5],
+					'genre': row[6],
+					'language': row[7],
+					'album': row[8]
+				}
+				tracks.append(track_dict)
+			
+			return tracks
 		else:
-			doc_ref = db.collection(u'users/'+uid+'/playlists').stream()
-			object_list = list(map(lambda x: x.to_dict(), doc_ref))
-			return object_list
+			# Get all playlists of user
+			cur.execute("""
+				SELECT playlist_id, name, description, cover_image_url, is_public, created_at
+				FROM playlists
+				WHERE user_id = %s
+				ORDER BY created_at DESC
+			""", (uid,))
+			
+			rows = cur.fetchall()
+			cur.close()
+			
+			playlists = []
+			for row in rows:
+				playlist_dict = {
+					'playlist_id': row[0],
+					'playlist_name': row[1],
+					'description': row[2],
+					'cover_image_url': row[3],
+					'is_public': row[4],
+					'created_at': row[5]
+				}
+				playlists.append(playlist_dict)
+			
+			return playlists
+			
 	except Exception as ex:
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
@@ -1072,6 +1287,9 @@ def get_playlists(uid,**kwargs):
 		if y == '1':
 			traceback.print_exc()
 		return False
+	finally:
+		if conn:
+			release_connection(conn)
 
 def Following_artist(artist_name,uid):
 	'''
@@ -1320,19 +1538,28 @@ def order_simple_trending_song():
 		
 
 def add_like_count(title):
+	"""
+	Increments the like_count for a track in PostgreSQL
+	"""
+	conn = None
 	try:
-		myobject = get_track(title)
-		doc_ref  = db.collection(u'Tracks').document(title)
-		doc_ref.update({
-			'like_count' : myobject['like_count'] + 1
-		})
-		doc_ref = db.collection(u'artist/'+myobject['artist']+'/tracks').document(title)
-		doc_ref.update({
-			'like_count' : myobject['like_count'] + 1 
-
-		})
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		# Update like_count in tracks table
+		cur.execute("""
+			UPDATE tracks 
+			SET like_count = like_count + 1 
+			WHERE title = %s
+		""", (title,))
+		
+		conn.commit()
+		cur.close()
+		
 		return True
 	except Exception as ex:
+		if conn:
+			conn.rollback()
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
@@ -1340,22 +1567,34 @@ def add_like_count(title):
 		if y == '1':
 			traceback.print_exc()
 		return False
+	finally:
+		if conn:
+			release_connection(conn)
 
 
 def decrease_like_count(title):
+	"""
+	Decrements the like_count for a track in PostgreSQL
+	"""
+	conn = None
 	try:
-		myobject = get_track(title)
-		doc_ref  = db.collection(u'Tracks').document(title)
-		doc_ref.update({
-			'like_count' : myobject['like_count'] - 1
-		})
-		doc_ref = db.collection(u'artist/'+myobject['artist']+'/tracks').document(title)
-		doc_ref.update({
-			'like_count' : myobject['like_count'] - 1 
-
-		})
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		# Update like_count in tracks table
+		cur.execute("""
+			UPDATE tracks 
+			SET like_count = GREATEST(like_count - 1, 0)
+			WHERE title = %s
+		""", (title,))
+		
+		conn.commit()
+		cur.close()
+		
 		return True
 	except Exception as ex:
+		if conn:
+			conn.rollback()
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
@@ -1363,6 +1602,9 @@ def decrease_like_count(title):
 		if y == '1':
 			traceback.print_exc()
 		return False
+	finally:
+		if conn:
+			release_connection(conn)
 
 
 def get_genre(genre_name):

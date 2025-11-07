@@ -76,6 +76,27 @@ SQL = [
         PRIMARY KEY (user_id, track_id)
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS playlists (
+        playlist_id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        cover_image_url TEXT,
+        user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+        is_public BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS playlist_tracks (
+        playlist_id INTEGER REFERENCES playlists(playlist_id) ON DELETE CASCADE,
+        track_id INTEGER REFERENCES tracks(track_id) ON DELETE CASCADE,
+        position INTEGER DEFAULT 0,
+        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (playlist_id, track_id)
+    )
+    """,
 ]
 
 
