@@ -2,6 +2,7 @@ from Database.config import *
 import traceback
 import tkinter as tk
 from tkinter import messagebox
+import random
 
 
 def Check_artist(artist):
@@ -1403,12 +1404,12 @@ def add_language_and_Like_count():
 
 def order_simple_trending_song():
 	'''
-	Returns list of songs in the descending order
+	Returns list of 10 randomly selected songs for fake trending
 
 	'''
 	conn = None
 	try:
-		# Truy vấn bảng tracks của PostgreSQL được sắp xếp theo like_count
+		# Truy vấn tất cả tracks từ PostgreSQL
 		conn = get_connection()
 		if not conn:
 			return []
@@ -1423,16 +1424,14 @@ def order_simple_trending_song():
 			LEFT JOIN genres g ON t.genre_id = g.genre_id
 			LEFT JOIN languages l ON t.language_id = l.language_id
 			LEFT JOIN albums al ON t.album_id = al.album_id
-			ORDER BY t.like_count DESC
-			LIMIT 100
 		""")
 		rows = cur.fetchall()
 		cur.close()
 		
-		# Chuyển đổi sang định dạng dict để tương thích
-		tracks = []
+		# Chuyển đổi sang định dạng dict
+		all_tracks = []
 		for row in rows:
-			tracks.append({
+			all_tracks.append({
 				'track_id': row[0],
 				'title': row[1],
 				'duration_seconds': row[2],
@@ -1443,9 +1442,17 @@ def order_simple_trending_song():
 				'language': row[7],
 				'album': row[8]
 			})
-		return tracks
+		
+		# Random chọn tối đa 10 bài hát
+		if not all_tracks:
+			return []
+		max_count = 10
+		count = min(len(all_tracks), max_count)
+		selected_tracks = random.sample(all_tracks, count)
+		
+		return selected_tracks
 	except Exception as ex:
-		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		messagebox.showerror('Lỗi','Ối!! Đã xảy ra lỗi!!\nHãy thử lại sau.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
 		return []

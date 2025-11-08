@@ -74,7 +74,7 @@ def Top_hits_data():
     from Database.Database import  order_simple_trending_song
     data = order_simple_trending_song()
     my_dict = {
-        'text':'Top Hits',
+        'text':'Bài hát thịnh hành',
         'url':'https://firebasestorage.googleapis.com/v0/b/another-tk-player.appspot.com/o/Top%20Hits.jpg?alt=media&token=38eec66b-9bf9-455c-b24f-d8cdf6906186',
         'tracks':data
     }

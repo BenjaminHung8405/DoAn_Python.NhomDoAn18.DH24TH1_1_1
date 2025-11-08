@@ -303,7 +303,7 @@ class Frame2(tk.Frame):
 
 	#Hàm xác thực cho số liên lạc
 	def phoneCheck(self,s):
-		Pattern = re.compile(r"^0[0-9]{9}$")
+		Pattern = re.compile(r'^(\+84|0)[3-9]\d{8}$')
 		return Pattern.match(s)
 
 	#Hàm xác thực cho email
@@ -340,23 +340,23 @@ class Frame2(tk.Frame):
 		email_placeholder = "  Email ID"
 	
 		if username==username_placeholder or password==password_placeholder or phone==phone_placeholder or email==email_placeholder:
-			self.result['text'] = "Please enter all fields"
+			self.result['text'] = "Vui lòng nhập tất cả các trường"
 			return
 
 		if username.strip(' ')=='' or password.strip(' ')=='' or phone.strip(' ')=='' or email.strip(' ')=='' :
-			self.result['text'] = "Invalid Credentials" 
+			self.result['text'] = "Thông tin đăng nhập không hợp lệ" 
 			return
 
 		if not self.passwordCheck(password):
-			self.result['text'] = "Password must be atleast 8 characters long"
+			self.result['text'] = "Mật khẩu phải có ít nhất 8 ký tự"
 			return
 
 		if not self.phoneCheck(phone):
-			self.result['text'] = "Invalid Contact Number"
+			self.result['text'] = "Số điện thoại không hợp lệ"
 			return
 
 		if not self.emailCheck(email):
-			self.result['text'] = "Invalid Email ID"
+			self.result['text'] = "Email không hợp lệ"
 			return
 		data3['email'] = email
 		
@@ -365,13 +365,13 @@ class Frame2(tk.Frame):
 		
 		success = register_user(username, email, phone, password)
 		if success:
-			self.result['text'] = "Account created successfully! Please login."
+			self.result['text'] = "Tài khoản đã được tạo thành công! Vui lòng đăng nhập."
 			# Lưu user_id vào file để tự động đăng nhập
 			# Hiển thị khung đăng nhập
 			from .Frame3 import Frame3
 			return self.master.show_frame(Frame3)
 		else:
-			self.result['text'] = "Email already exists or registration failed. Please try again."
+			self.result['text'] = "Email đã tồn tại hoặc đăng ký không thành công. Vui lòng thử lại."
 
 
 
