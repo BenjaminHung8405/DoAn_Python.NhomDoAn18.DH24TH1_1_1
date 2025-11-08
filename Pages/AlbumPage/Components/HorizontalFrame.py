@@ -105,9 +105,57 @@ class Lower(tk.Frame):
         self.images = []
 
         for i in data:
-            response = requests.get(i['url'], timeout=10); self.image = Image.open(BytesIO(response.content))
-            self.image = self.image
-            self.images.append(self.image)
+            try:
+                # Skip entries with empty URLs
+                if not i.get('url'):
+                    print(f'Skipping entry with empty URL: {i.get("text", "Unknown")}')
+                    # Add placeholder image
+                    self.images.append(None)
+                    continue
+                    
+                # Tải hình ảnh từ URL sử dụng PIL với kiểm tra tốt hơn
+                response = requests.get(i['url'], timeout=10, headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                })
+                
+                # Kiểm tra response status
+                if response.status_code != 200:
+                    print(f'❌ HTTP {response.status_code} for URL: {i["url"]} - {i.get("text", "Unknown")}')
+                    self.images.append(None)
+                    continue
+                
+                # Kiểm tra content-type
+                content_type = response.headers.get('content-type', '').lower()
+                if not content_type.startswith('image/'):
+                    print(f'❌ Not an image content-type: {content_type} for URL: {i["url"]} - {i.get("text", "Unknown")}')
+                    print(f'   Response preview: {response.text[:200]}...')
+                    self.images.append(None)
+                    continue
+                
+                # Thử mở hình ảnh
+                image_data = BytesIO(response.content)
+                self.image = Image.open(image_data)
+                
+                # Convert to RGB if necessary (some formats like PNG with transparency)
+                if self.image.mode not in ('RGB', 'RGBA'):
+                    self.image = self.image.convert('RGB')
+                
+                self.images.append(self.image)
+                print(f'✅ Successfully loaded image for: {i.get("text", "Unknown")}')
+                
+            except requests.exceptions.RequestException as req_ex:
+                print(f'❌ Network error loading image from URL: {i.get("url", "N/A")} - {req_ex} - {i.get("text", "Unknown")}')
+                self.images.append(None)
+            except Image.UnidentifiedImageError as img_ex:
+                print(f'❌ Cannot identify image format from URL: {i.get("url", "N/A")} - {img_ex} - {i.get("text", "Unknown")}')
+                print(f'   Content-Type: {response.headers.get("content-type", "unknown") if "response" in locals() else "N/A"}')
+                self.images.append(None)
+            except Exception as ex:
+                print('---------------------------------------------------------------------')
+                print(f'❌ Failed to load image from URL: {i.get("url", "N/A")} - {ex} - {i.get("text", "Unknown")}')
+                print('---------------------------------------------------------------------')
+                # Add placeholder to maintain index alignment
+                self.images.append(None)
 
         row = 0
         column = 0
