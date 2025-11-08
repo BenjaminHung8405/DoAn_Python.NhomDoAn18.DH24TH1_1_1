@@ -72,6 +72,15 @@ SPACING = {
     'xxl': 32,
 }
 
+# ==================== SIZES / LAYOUT ====================
+# Các kích thước tiêu chuẩn cho component và layout
+SIZES = {
+    'card_min_width': 160,
+    'card_max_width': 220,
+    'card_gap': 16,
+    'content_max_width': 1200,
+}
+
 PADDING = {
     'card': {'padx': 16, 'pady': 16},
     'button': {'padx': 20, 'pady': 10},
@@ -201,12 +210,46 @@ def apply_hover_effect(widget, enter_color=None, leave_color=None):
     widget.bind('<Enter>', on_enter)
     widget.bind('<Leave>', on_leave)
 
+def apply_card_button_style(button):
+    """Style chuẩn cho Card dạng Button (ảnh + tiêu đề)"""
+    try:
+        button['background'] = COLORS['bg_card']
+        button['activebackground'] = COLORS['bg_hover']
+        button['foreground'] = COLORS['text_primary']
+        button['activeforeground'] = COLORS['text_primary']
+        button['relief'] = 'flat'
+        button['border'] = 0
+        button['borderwidth'] = 0
+        button['highlightthickness'] = 1
+        button['highlightbackground'] = COLORS['border']
+        button['cursor'] = 'hand2'
+    except:
+        pass
+
+    def on_enter(_):
+        try:
+            button['background'] = COLORS['bg_hover']
+            button['highlightbackground'] = COLORS['accent_primary']
+        except:
+            pass
+
+    def on_leave(_):
+        try:
+            button['background'] = COLORS['bg_card']
+            button['highlightbackground'] = COLORS['border']
+        except:
+            pass
+
+    button.bind('<Enter>', on_enter)
+    button.bind('<Leave>', on_leave)
+
 # ==================== EXPORT ====================
 
 __all__ = [
     'COLORS',
     'FONTS', 
     'SPACING',
+    'SIZES',
     'PADDING',
     'RADIUS',
     'SHADOWS',
@@ -215,4 +258,5 @@ __all__ = [
     'get_gradient_colors',
     'apply_button_style',
     'apply_hover_effect',
+    'apply_card_button_style',
 ]

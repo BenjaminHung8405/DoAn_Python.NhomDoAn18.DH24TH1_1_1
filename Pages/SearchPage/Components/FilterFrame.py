@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font
 import re
+from utils import remove_accents
 
 global matchingSongs
 matchingSongs = []
@@ -115,15 +116,16 @@ class FilterFrame(tk.Frame):
         self.songs = data
 
        
-        user_input = self.filter.get().upper()
+        user_input = remove_accents(self.filter.get()).upper()
        
 
         
         for i in range(len(self.songs)):
           
+            title_normalized = remove_accents(self.songs[i]['title']).upper()
             input_matcher = re.search(
-                user_input,
-                self.songs[i]['title'].upper()
+                re.escape(user_input),
+                title_normalized
             )
             
             if input_matcher:

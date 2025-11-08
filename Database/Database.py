@@ -833,6 +833,7 @@ def get_tracks_by_genre(**kwargs):
 			if conn:
 				release_connection(conn)
 	else:
+		conn = None
 		try:
 			# Truy vấn bảng genres của PostgreSQL
 			conn = get_connection()
@@ -843,7 +844,6 @@ def get_tracks_by_genre(**kwargs):
 			cur.execute("SELECT name, image_url FROM genres")
 			rows = cur.fetchall()
 			cur.close()
-			conn.close()
 			
 			all_dicts = []
 			for row in rows:
@@ -861,6 +861,9 @@ def get_tracks_by_genre(**kwargs):
 			if y == '1':
 				traceback.print_exc()
 			return []
+		finally:
+			if conn:
+				release_connection(conn)
 
 
 def get_user(uid):
@@ -1406,6 +1409,7 @@ def delete_liked_song(uid,track_title):
 			release_connection(conn)
 
 def get_all_liked_songs(uid): 
+	conn = None
 	try:
 		# Truy vấn bảng user_liked_songs cho các bài hát đã thích của người dùng này
 		conn = get_connection()
@@ -1426,7 +1430,6 @@ def get_all_liked_songs(uid):
 		
 		rows = cur.fetchall()
 		cur.close()
-		conn.close()
 		
 		# Chuyển đổi sang định dạng dict để tương thích với cấu trúc Firebase
 		liked_songs = []
@@ -1453,6 +1456,9 @@ def get_all_liked_songs(uid):
 		if y == '1':
 			traceback.print_exc()
 		return []
+	finally:
+		if conn:
+			release_connection(conn)
 
 
 	
@@ -1481,6 +1487,7 @@ def order_simple_trending_song():
 	Returns list of songs in the descending order
 
 	'''
+	conn = None
 	try:
 		# Truy vấn bảng tracks của PostgreSQL được sắp xếp theo like_count
 		conn = get_connection()
@@ -1502,7 +1509,6 @@ def order_simple_trending_song():
 		""")
 		rows = cur.fetchall()
 		cur.close()
-		conn.close()
 		
 		# Chuyển đổi sang định dạng dict để tương thích
 		tracks = []
@@ -1527,7 +1533,10 @@ def order_simple_trending_song():
 		if y == '1':
 			traceback.print_exc()
 		return []
-		
+	finally:
+		if conn:
+			release_connection(conn)
+
 
 def add_like_count(title):
 	"""

@@ -7,6 +7,7 @@ import pyglet
 import tkinter.font as tkfont
 import re
 from Database.Database import get_all_tracks
+from utils import remove_accents
 
 global matchingSongs
 matchingSongs = []
@@ -63,14 +64,15 @@ class SearchPage(tk.Frame):
         else:
             matchingSongs.clear()
            
-            user_input = data
+            user_input = remove_accents(data).upper()
            
             song_list = self.listOfSongs()
             for i in range(len(song_list)):
               
+                title_normalized = remove_accents(song_list[i]['title']).upper()
                 input_matcher = re.search(
-                    user_input.upper(),
-                    song_list[i]['title'].upper()
+                    re.escape(user_input),
+                    title_normalized
                 )
                
                 if input_matcher:

@@ -1,245 +1,166 @@
 import tkinter as tk
 import pyglet
 import tkinter.font as tkfont
+import tkinter as tk
+import pyglet
+import tkinter.font as tkfont
 from Pages.Resource.HorizontalScrollableFrame import HorizontalScrollableFrame
 from PIL import ImageTk, Image
 import requests
 from io import BytesIO
+from theme import COLORS, SPACING, SIZES, apply_card_button_style
 
-# Initialize global variables
-w = 200  # Default width
-width = 1000  # Default total width
+# Global sizing cache
+_card_target_width = 200
+_container_width = 1000
 
 def wid():
-    global w
-    return w
-
+    return _card_target_width
 
 class HorizontalFrame(tk.Frame):
+    """Section gồm tiêu đề + vùng card scroll ngang."""
     def __init__(self, master, controller, data, text, *args, **kwargs):
-        tk.Frame.__init__(self, master, *args, **kwargs)
-        self['background'] = '#181818'
-        self['padx'] = 20
-        self['pady'] = 20
+        super().__init__(master, *args, **kwargs)
+        self.controller = controller
+        self.data = data
+        self.section_title = text
+        self.configure(background=COLORS['bg_secondary'])
+        self['padx'] = SPACING['xl']
+        self['pady'] = SPACING['lg']
 
-        self.upper = Upper(self, text, data)
-        self.line = tk.Frame(self, background='#333333')
-        self.lower = Lower(self, controller, data)
+        self.header = Upper(self, self.section_title, self.data)
+        self.divider = tk.Frame(self, height=1, background=COLORS['border'])
+        self.content = Lower(self, controller, data)
 
-        self.upper.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
-        self.line.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
-        self.lower.grid(row=2, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+        self.header.grid(row=0, column=0, sticky='we')
+        self.divider.grid(row=1, column=0, sticky='we', pady=(SPACING['sm'], SPACING['md']))
+        self.content.grid(row=2, column=0, sticky='nwe')
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure(2, weight=1)
 
     def right(self):
-        self.lower.scrollable.right()
+        self.content.scrollable.right()
 
     def left(self):
-        self.lower.scrollable.left()
-
+        self.content.scrollable.left()
 
 class Upper(tk.Frame):
     def __init__(self, master, text, data, *args, **kwargs):
-        tk.Frame.__init__(self, master, *args, **kwargs)
-        self['background'] = '#181818'
-        self.master = master
-
+        super().__init__(master, *args, **kwargs)
+        self.configure(background=COLORS['bg_secondary'])
         pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
-        play = tkfont.Font(family="Play", size=15, weight="bold")
-
-        self.left = tk.PhotoImage(file=r'./images/left_arrow.png')
-        self.right = tk.PhotoImage(file=r'./images/right_arrow.png')
-
-        self.label = tk.Label(self,
-                              text=text,
-                              font=play,
-                              anchor=tk.W,
-                              background='#181818',
-                              foreground='white')
-
+        heading_font = tkfont.Font(family='Play', size=18, weight='bold')
+        self.label = tk.Label(self, text=text, font=heading_font, anchor='w',
+                              background=COLORS['bg_secondary'], foreground=COLORS['text_primary'])
+        self.label.grid(row=0, column=0, sticky='w')
         if len(data) > 5:
-            self.left_button = ArrowButton(self, image=self.left, command=master.left)
-            self.right_button = ArrowButton(self, image=self.right, command=master.right)
-
-            self.left_button.grid(row=0, column=1, sticky=tk.N + tk.S + tk.E + tk.W)
-            self.right_button.grid(row=0, column=2, sticky=tk.N + tk.S + tk.E + tk.W)
-
-        self.label.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
-
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=100)
-        self.grid_columnconfigure((1, 2), weight=1)
-
+            nav = tk.Frame(self, background=COLORS['bg_secondary'])
+            nav.grid(row=0, column=1, sticky='e')
+            left_icon = tk.PhotoImage(file=r'./images/left_arrow.png')
+            right_icon = tk.PhotoImage(file=r'./images/right_arrow.png')
+            ArrowButton(nav, image=left_icon, command=master.left).grid(row=0, column=0, padx=(0, SPACING['xs']))
+            ArrowButton(nav, image=right_icon, command=master.right).grid(row=0, column=1)
+            # Keep refs
+            self.left_icon = left_icon
+            self.right_icon = right_icon
+        self.grid_columnconfigure(0, weight=1)
 
 class Lower(tk.Frame):
     count = 0
-
     def __init__(self, master, controller, data, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
         from Base.listOfPage import musicPages
         musicPages.append([])
-        tk.Frame.__init__(self, master, *args, **kwargs)
-        self['background'] = '#181818'
-        self['pady'] = 10
-        self.bind('<Configure>', self.size)
-
+        self.configure(background=COLORS['bg_secondary'])
+        self['pady'] = SPACING['md']
+        self.bind('<Configure>', self._on_resize)
         self.scrollable = HorizontalScrollableFrame(self)
-        self.frame = tk.Frame(self.scrollable.scrollable_frame, bg='#181818')
-
+        self.frame = tk.Frame(self.scrollable.scrollable_frame, bg=COLORS['bg_secondary'])
+        self.scrollable.grid(row=0, column=0, sticky='we')
+        self.frame.grid(row=0, column=0, sticky='w')
         self.images = []
-
-        for i in data:
-            try:
-                # Skip entries with empty URLs
-                if not i.get('url'):
-                    print(f'Skipping entry with empty URL: {i.get("text", "Unknown")}')
-                    # Add placeholder image
-                    self.images.append(None)
-                    continue
-
-                # Tải hình ảnh từ URL sử dụng PIL với kiểm tra tốt hơn
-                response = requests.get(i['url'], timeout=10, headers={
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                })
-
-                # Kiểm tra response status
-                if response.status_code != 200:
-                    print(f'❌ HTTP {response.status_code} for URL: {i["url"]} - {i.get("text", "Unknown")}')
-                    self.images.append(None)
-                    continue
-
-                # Kiểm tra content-type
-                content_type = response.headers.get('content-type', '').lower()
-                if not content_type.startswith('image/'):
-                    print(f'❌ Not an image content-type: {content_type} for URL: {i["url"]} - {i.get("text", "Unknown")}')
-                    print(f'   Response preview: {response.text[:200]}...')
-                    self.images.append(None)
-                    continue
-
-                # Thử mở hình ảnh
-                image_data = BytesIO(response.content)
-                self.image = Image.open(image_data)
-
-                # Convert to RGB if necessary (some formats like PNG with transparency)
-                if self.image.mode not in ('RGB', 'RGBA'):
-                    self.image = self.image.convert('RGB')
-
-                self.images.append(self.image)
-
-            except requests.exceptions.RequestException as req_ex:
-                print(f'❌ Network error loading image from URL: {i.get("url", "N/A")} - {req_ex} - {i.get("text", "Unknown")}')
-                self.images.append(None)
-            except Image.UnidentifiedImageError as img_ex:
-                print(f'❌ Cannot identify image format from URL: {i.get("url", "N/A")} - {img_ex} - {i.get("text", "Unknown")}')
-                print(f'   Content-Type: {response.headers.get("content-type", "unknown") if "response" in locals() else "N/A"}')
-                self.images.append(None)
-            except Exception as ex:
-                print('---------------------------------------------------------------------')
-                print(f'❌ Failed to load image from URL: {i.get("url", "N/A")} - {ex} - {i.get("text", "Unknown")}')
-                print('---------------------------------------------------------------------')
-                # Add placeholder to maintain index alignment
-                self.images.append(None)
-                
-        for i, j in enumerate(data):
+        # Load images
+        for item in data:
+            img = self._load_image(item)
+            self.images.append(img)
+        for idx, item in enumerate(data):
             musicPages[Lower.count].append(0)
-            # Use placeholder image if URL failed to load
-            image_to_use = self.images[i] if i < len(self.images) and self.images[i] is not None else None
-            self.button = CardButton(self.frame, text=j['text'],
-                                     url=image_to_use,
-                                     command=lambda d=j['tracks'],
-                                                    img=image_to_use,
-                                                    txt=j['text'],
-                                                    r=Lower.count,
-                                                    c=i:
-                                     controller.show_frame_Main(data=d,
-                                                                image=img,
-                                                                text=txt,
-                                                                r=r, c=c)
-                                     )
-            self.button.grid(row=0, column=i, padx=(0, 10))
-
-        self.frame.grid(row=0, column=0, sticky='nsew')
-
-        self.scrollable.grid(row=0, column=0, sticky=tk.W + tk.E)
-
+            img = self.images[idx] if idx < len(self.images) else None
+            btn = CardButton(self.frame, text=item['text'], url=img,
+                             command=lambda d=item['tracks'], im=img, txt=item['text'], r=Lower.count, c=idx: controller.show_frame_Main(
+                                 data=d, image=im, text=txt, r=r, c=c))
+            btn.grid(row=0, column=idx, padx=(0, SPACING['sm']))
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
         Lower.count += 1
 
-    def size(self, event):
-        global width
-        global w
-        width = event.width
-        w = event.width / 5 - 14
+    def _load_image(self, item):
+        url = item.get('url')
+        if not url:
+            return None
+        try:
+            response = requests.get(url, timeout=8, headers={'User-Agent': 'Mozilla/5.0'})
+            if response.status_code != 200:
+                return None
+            if not response.headers.get('content-type', '').lower().startswith('image/'):
+                return None
+            data = BytesIO(response.content)
+            img = Image.open(data)
+            if img.mode not in ('RGB', 'RGBA'):
+                img = img.convert('RGB')
+            return img
+        except Exception:
+            return None
 
+    def _on_resize(self, event):
+        global _container_width, _card_target_width
+        _container_width = event.width
+        raw = event.width / 5 - (SIZES['card_gap'] - 2)
+        _card_target_width = max(SIZES['card_min_width'], min(SIZES['card_max_width'], raw))
 
 class ArrowButton(tk.Button):
     def __init__(self, master, *args, **kwargs):
-        tk.Button.__init__(self, master, *args, **kwargs)
-        self['relief'] = tk.FLAT
-        self['background'] = '#181818'
-        self['foreground'] = 'white'
-        self['activebackground'] = '#181818'
-        self['activeforeground'] = 'white'
-        self['borderwidth'] = 0
-
+        super().__init__(master, *args, **kwargs)
+        self.configure(relief='flat', background=COLORS['bg_secondary'], foreground=COLORS['text_primary'],
+                       activebackground=COLORS['bg_hover'], activeforeground=COLORS['text_primary'], borderwidth=0,
+                       cursor='hand2')
 
 class CardButton(tk.Button):
     def __init__(self, master, url, *args, **kwargs):
-        tk.Button.__init__(self, master, *args, **kwargs)
+        super().__init__(master, *args, **kwargs)
         self.url = url
-
-        self.bind('<Configure>', self.size)
-
         pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
-        play = tkfont.Font(family="Play", size=15, weight="bold")
-        self['background'] = '#181818'
-        self['height'] = 300
-        self['border'] = 0
-        self['font'] = play
-        self['compound'] = tk.TOP
-        self['activebackground'] = '#181818'
-        self['foreground'] = 'white'
-        self['activeforeground'] = 'white'
+        font_play = tkfont.Font(family='Play', size=13, weight='bold')
+        self.configure(height=300, border=0, font=font_play, compound='top', wraplength=SIZES['card_max_width'], justify='center')
+        apply_card_button_style(self)
+        self.bind('<Configure>', self._resize)
+        self.bind('<Enter>', self._hover_in)
+        self.bind('<Leave>', self._hover_out)
 
-        self.bind('<Enter>', self.enter)
-        self.bind('<Leave>', self.leave)
+    def _get_size(self):
+        raw = _container_width / 5 - (SIZES['card_gap'] - 2)
+        return max(SIZES['card_min_width'], min(SIZES['card_max_width'], raw))
 
-    def size(self, event):
-        global width
-        w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        # Skip if image is None (empty URL)
+    def _resize(self, _):
         if self.url is None:
             return
-        self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
-        self.image = ImageTk.PhotoImage(self.image)
+        w = self._get_size()
+        self.configure(width=int(round(w)), height=int(round(w)) + SPACING['xl'])
+        resample = getattr(getattr(Image, 'Resampling', Image), 'LANCZOS', getattr(Image, 'ANTIALIAS', Image.NEAREST))
+        img = self.url.resize((int(round(w)), int(round(w))), resample)
+        self.image = ImageTk.PhotoImage(img)
         self.config(image=self.image)
 
-    def enter(self, event):
-        global width
-        w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        # Skip if image is None (empty URL)
+    def _hover_in(self, _):
         if self.url is None:
             return
-        self.image = self.url
-        self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
-        # self.greyscale = self.image.convert('LA')
-        self.image = ImageTk.PhotoImage(self.image)
+        w = self._get_size()
+        self.configure(width=int(round(w)), height=int(round(w)) + SPACING['xl'])
+        resample = getattr(getattr(Image, 'Resampling', Image), 'LANCZOS', getattr(Image, 'ANTIALIAS', Image.NEAREST))
+        img = self.url.resize((int(round(w))+3, int(round(w))+3), resample)
+        self.image = ImageTk.PhotoImage(img)
         self.config(image=self.image)
 
-    def leave(self, event):
-        global width
-        w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        # Skip if image is None (empty URL)
-        if self.url is None:
-            return
-        self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
-        self.image = ImageTk.PhotoImage(self.image)
-        self.config(image=self.image)
+    def _hover_out(self, _):
+        self._resize(_)
 
