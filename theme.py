@@ -47,20 +47,20 @@ COLORS = {
 
 FONTS = {
     # Headings
-    'heading_xl': ('Segoe UI', 32, 'bold'),
-    'heading_lg': ('Segoe UI', 24, 'bold'),
-    'heading_md': ('Segoe UI', 20, 'bold'),
-    'heading_sm': ('Segoe UI', 16, 'bold'),
+    'heading_xl': ('Play', 32, 'bold'),
+    'heading_lg': ('Play', 24, 'bold'),
+    'heading_md': ('Play', 20, 'bold'),
+    'heading_sm': ('Play', 16, 'bold'),
     
     # Body text
-    'body_lg': ('Segoe UI', 14),
-    'body_md': ('Segoe UI', 12),
-    'body_sm': ('Segoe UI', 11),
+    'body_lg': ('Play', 14),
+    'body_md': ('Play', 12),
+    'body_sm': ('Play', 11),
     
     # Special
-    'button': ('Segoe UI', 12, 'bold'),
-    'label': ('Segoe UI', 10),
-    'caption': ('Segoe UI', 9),
+    'button': ('Play', 12, 'bold'),
+    'label': ('Play', 10),
+    'caption': ('Play', 9),
 }
 
 # ==================== SPACING ====================

@@ -24,7 +24,7 @@ class Splash(tk.Toplevel):
         
         # Add loading text
         self.loading_text = tk.Label(self, text="Đang tải dữ liệu ứng dụng...", 
-                                   fg='white', bg='black', font=('Segoe UI', 12))
+                                   fg='white', bg='black', font=('Play', 12))
         self.loading_text.grid(row=2, column=0, pady=(10, 0))
         
         self.grid_columnconfigure(0, weight=1)

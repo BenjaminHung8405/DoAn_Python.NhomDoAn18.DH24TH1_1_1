@@ -115,7 +115,7 @@ class TopRightTop(tk.Frame):
 
         # User button với style mới
         self.appHighlightFont = FONTS['button']
-        self.appHighlightFont2 = font.Font(family='Segoe UI', underline=1, size=12, weight='bold')
+        self.appHighlightFont2 = font.Font(family='Play', underline=1, size=12, weight='bold')
         self.user_icon = tk.PhotoImage(file="images/user2.png", height=25, width=25)
         
         self.userButton = IconButton(

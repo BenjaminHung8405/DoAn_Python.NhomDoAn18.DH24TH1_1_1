@@ -18,7 +18,7 @@ except Exception as e:
     # Fallback to old colors if theme fails
     COLORS = {'sidebar_bg': '#121212', 'text_secondary': '#a8a8a8', 'sidebar_hover': '#151A3D', 
               'text_primary': '#FFFFFF', 'sidebar_active': '#1E2749', 'bg_primary': '#121212'}
-    FONTS = {'body_md': ('Segoe UI', 12), 'button': ('Segoe UI', 12, 'bold')}
+    FONTS = {'body_md': ('Play', 12), 'button': ('Play', 12, 'bold')}
     SPACING = {'sm': 8, 'md': 12, 'lg': 16}
     PADDING = {'button': {'padx': 20, 'pady': 10}}
 

@@ -212,57 +212,83 @@ class CardFrame(tk.Frame):
     def __init__(self, master, url, text, album_id, command=None, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
         self['background'] = '#181818'
-        
+
         self.url = url
         self.text = text
         self.album_id = album_id
         self.command = command
 
-        # Create image button
-        self.image_button = tk.Button(self, background='#181818', border=0, activebackground='#181818', command=self.command)
-        self.image_button.bind('<Configure>', self.size)
-        self.image_button.bind('<Enter>', self.enter)
-        self.image_button.bind('<Leave>', self.leave)
+        # Container to hold image and label
+        self.container = tk.Frame(self, bg='#181818')
+        self.container.grid(row=0, column=0, sticky='nsew')
 
-        # Create like button
+        # Image displayed via Label to preserve pixel sizing
+        self.image_label = tk.Label(self.container, bg='#181818', bd=0)
+        self.image_label.grid(row=0, column=0, sticky='n')
+        self.image_label.bind('<Configure>', self.size)
+        self.image_label.bind('<Enter>', self.enter)
+        self.image_label.bind('<Leave>', self.leave)
+        if self.command:
+            self.image_label.bind('<Button-1>', lambda e: self.command())
+
+        # Title under the image
+        self.text_label = tk.Label(self.container, text=self.text, bg='#181818', fg='white', wraplength=200, justify='center')
+        self.text_label.grid(row=1, column=0, sticky='n', pady=(6, 0))
+
+        # Like button overlay
         from .AlbumLikeButton import AlbumLikeButton
         self.like_button = AlbumLikeButton(self, album_id=self.album_id, album_title=self.text)
-
-        # Layout
-        self.image_button.grid(row=0, column=0, sticky='nsew')
-        self.like_button.grid(row=0, column=1, sticky='ne', padx=(0, 5), pady=(5, 0))
+        # place at top-right corner of the card
+        self.like_button.place(relx=1.0, x=-8, y=8, anchor='ne')
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
+        # Keep reference to PhotoImage to avoid GC
+        self._photo = None
+
+    def _resize_image(self, target_w):
+        if not self.url:
+            return None
+        try:
+            img = self.url.resize((int(round(target_w)), int(round(target_w))), Image.LANCZOS)
+            return ImageTk.PhotoImage(img)
+        except Exception:
+            return None
+
     def size(self, event):
-        global width
-        w = width / 5 - 14
-        self.image_button.configure(width=int(round(w)), height=int(round(w)) + 50)
+        try:
+            global width
+            w = width / 5 - 14
+        except Exception:
+            w = event.width
         if self.url:
-            self.image = self.url
-            self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
-            self.image = ImageTk.PhotoImage(self.image)
-            self.image_button.config(image=self.image, compound=tk.TOP, text=self.text, foreground='white', activeforeground='white')
-        else:
-            self.image_button.config(text=self.text, foreground='white', activeforeground='white')
+            photo = self._resize_image(w)
+            if photo:
+                self._photo = photo
+                self.image_label.config(image=self._photo, width=int(round(w)), height=int(round(w)))
+        self.text_label.config(wraplength=int(round(w)))
 
     def enter(self, event):
-        global width
-        w = width / 5 - 14
-        self.image_button.configure(width=int(round(w)), height=int(round(w)) + 50)
+        try:
+            global width
+            w = width / 5 - 14
+        except Exception:
+            w = event.width
         if self.url:
-            self.image = self.url
-            self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
-            self.image = ImageTk.PhotoImage(self.image)
-            self.image_button.config(image=self.image)
+            photo = self._resize_image(w + 3)
+            if photo:
+                self._photo = photo
+                self.image_label.config(image=self._photo)
 
     def leave(self, event):
-        global width
-        w = width / 5 - 14
-        self.image_button.configure(width=int(round(w)), height=int(round(w)) + 50)
+        try:
+            global width
+            w = width / 5 - 14
+        except Exception:
+            w = event.width
         if self.url:
-            self.image = self.url
-            self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
-            self.image = ImageTk.PhotoImage(self.image)
-            self.image_button.config(image=self.image)
+            photo = self._resize_image(w)
+            if photo:
+                self._photo = photo
+                self.image_label.config(image=self._photo)

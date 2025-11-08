@@ -162,8 +162,7 @@ class Lower(tk.Frame):
                 row += 1
                 column=0
             musicPages2[Lower.count].append(0)
-            self.button = CardButton(self.frame, text=j['text'],
-                                     url=self.images[i],
+            self.button = CardFrame(self.frame, url=self.images[i], text=j['text'],
                                      command=lambda d=j['tracks'],
                                                     img=self.images[i],
                                                     txt=j['text'],
@@ -208,51 +207,80 @@ class ArrowButton(tk.Button):
         self['borderwidth'] = 0
 
 
-class CardButton(tk.Button):
-    def __init__(self, master, url, *args, **kwargs):
-        tk.Button.__init__(self, master, *args, **kwargs)
-        self.url = url
-
-        self.bind('<Configure>', self.size)
-
-        pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
-        play = tkfont.Font(family="Play", size=15, weight="bold")
+class CardFrame(tk.Frame):
+    def __init__(self, master, url, text, command=None, *args, **kwargs):
+        tk.Frame.__init__(self, master, *args, **kwargs)
         self['background'] = '#181818'
-        self['height'] = 300
-        self['border'] = 0
-        self['font'] = play
-        self['compound'] = tk.TOP
-        self['activebackground'] = '#181818'
-        self['foreground'] = 'white'
-        self['activeforeground'] = 'white'
 
-        self.bind('<Enter>', self.enter)
-        self.bind('<Leave>', self.leave)
+        self.url = url
+        self.text = text
+        self.command = command
+
+        # Container to hold image and label
+        self.container = tk.Frame(self, bg='#181818')
+        self.container.grid(row=0, column=0, sticky='nsew')
+
+        # Image displayed via Label to preserve pixel sizing
+        self.image_label = tk.Label(self.container, bg='#181818', bd=0)
+        self.image_label.grid(row=0, column=0, sticky='n')
+        self.image_label.bind('<Configure>', self.size)
+        self.image_label.bind('<Enter>', self.enter)
+        self.image_label.bind('<Leave>', self.leave)
+        if self.command and callable(self.command):
+            self.image_label.bind('<Button-1>', lambda e: self.command())
+
+        # Title under the image
+        self.text_label = tk.Label(self.container, text=self.text, bg='#181818', fg='white', wraplength=200, justify='center')
+        self.text_label.grid(row=1, column=0, sticky='n', pady=(6, 0))
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Keep reference to PhotoImage to avoid GC
+        self._photo = None
+
+    def _resize_image(self, target_w):
+        if not self.url:
+            return None
+        try:
+            img = self.url.resize((int(round(target_w)), int(round(target_w))), Image.LANCZOS)
+            return ImageTk.PhotoImage(img)
+        except Exception:
+            return None
 
     def size(self, event):
-        global width
-        w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
-        self.image = ImageTk.PhotoImage(self.image)
-        self.config(image=self.image)
+        try:
+            global width
+            w = width / 5 - 14
+        except Exception:
+            w = event.width
+        if self.url:
+            photo = self._resize_image(w)
+            if photo:
+                self._photo = photo
+                self.image_label.config(image=self._photo, width=int(round(w)), height=int(round(w)))
+        self.text_label.config(wraplength=int(round(w)))
 
     def enter(self, event):
-        global width
-        w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        self.image = self.url
-        self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
-        # self.greyscale = self.image.convert('LA')
-        self.image = ImageTk.PhotoImage(self.image)
-        self.config(image=self.image)
+        try:
+            global width
+            w = width / 5 - 14
+        except Exception:
+            w = event.width
+        if self.url:
+            photo = self._resize_image(w + 3)
+            if photo:
+                self._photo = photo
+                self.image_label.config(image=self._photo)
 
     def leave(self, event):
-        global width
-        w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
-        self.image = ImageTk.PhotoImage(self.image)
-        self.config(image=self.image)
+        try:
+            global width
+            w = width / 5 - 14
+        except Exception:
+            w = event.width
+        if self.url:
+            photo = self._resize_image(w)
+            if photo:
+                self._photo = photo
+                self.image_label.config(image=self._photo)
