@@ -11,14 +11,16 @@ class AuthBase(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title('Login')
-        # Sử dụng attributes cho fullscreen/maximize đa nền tảng
-        try:
-            self.state('zoomed')  # Windows
-        except tk.TclError:
-            # Linux/macOS: phóng to bằng geometry hoặc -fullscreen
-            self.attributes('-zoomed', True)  # Một số môi trường desktop Linux
-        except:
-            pass  # Dự phòng: cửa sổ bình thường
+        
+        # Make window borderless to prevent accidental closing
+        # self.overrideredirect(True)
+        
+        # Make window fullscreen
+        self.attributes('-fullscreen', True)
+        
+        # Add keyboard shortcuts for closing the app
+        self.bind('<Control-q>', lambda e: self.quit())
+        self.bind('<Alt-F4>', lambda e: self.quit())
 
         self.frame = AuthFrame(self)
         self.frame.grid(row=0, column=0, sticky='nsew')
@@ -28,7 +30,7 @@ class AuthBase(tk.Tk):
         
       
 
-#Khung của Cơ sở
+    #Khung của Cơ sở
 class AuthFrame(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
@@ -79,8 +81,6 @@ class AuthFrame(tk.Frame):
         """
         if False:
             return
-
-      
 
         self.master.destroy()
         main = Root(data=user_object)

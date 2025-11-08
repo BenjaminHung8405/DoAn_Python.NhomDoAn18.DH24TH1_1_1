@@ -52,6 +52,16 @@ class Root(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.counter = False
 
+        # Make window borderless to prevent accidental closing
+        # self.overrideredirect(True)
+        
+        # Make window fullscreen
+        self.attributes('-fullscreen', True)
+        
+        # Add keyboard shortcuts for closing the app
+        self.bind('<Control-q>', lambda e: self.quit())
+        self.bind('<Alt-F4>', lambda e: self.quit())
+
         self.bind("<F11>", self.toggle_fullscreen)
         self.bind("<Escape>", self.end_fullscreen)
 
