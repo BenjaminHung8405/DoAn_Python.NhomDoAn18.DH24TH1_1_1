@@ -24,9 +24,6 @@ def Check_artist(artist):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -52,9 +49,6 @@ def Check_genre(genre):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -80,9 +74,6 @@ def Check_language(language):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -116,9 +107,6 @@ def set_language(language):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -170,9 +158,6 @@ def get_tracks_by_language(**kwargs):
 		except Exception as ex:
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			print('Exception Occurred which is of type :', ex.__class__.__name__)
-			y = input('If you want to see Traceback press 1 : ')
-			if y == '1':
-				traceback.print_exc()
 			return []
 		finally:
 			if conn:
@@ -200,9 +185,6 @@ def get_tracks_by_language(**kwargs):
 		except Exception as ex:
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			print('Exception Occurred which is of type :', ex.__class__.__name__)
-			y = input('If you want to see Traceback press 1 : ')
-			if y == '1':
-				traceback.print_exc()
 			return []
 		finally:
 			if conn:
@@ -261,9 +243,6 @@ def set_artist(track_title, track_genre, track_location, track_artist, language)
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -315,9 +294,6 @@ def get_artist_tracks(artist):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -380,9 +356,6 @@ def set_track(track_title, track_genre, track_location, track_artist, language):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -433,9 +406,6 @@ def get_track(trackName):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -546,9 +516,6 @@ def set_album(track_title, album_name, artist):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -606,9 +573,6 @@ def get_album(**kwargs):
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			
 			print('Exception Occured which is of type :', ex.__class__.__name__)
-			y = input('If you want to see Traceback press 1 : ')
-			if y == '1':
-				traceback.print_exc()
 			return False
 		finally:
 			if conn:
@@ -649,9 +613,6 @@ def get_album(**kwargs):
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			
 			print('Exception Occurred which is of type :', ex.__class__.__name__)
-			y = input('If you want to see Traceback press 1 : ')
-			if y == '1':
-				traceback.print_exc()
 			return False
 		finally:
 			if conn:
@@ -688,9 +649,6 @@ def get_album(**kwargs):
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			
 			print('Exception Occurred which is of type :', ex.__class__.__name__)
-			y = input('If you want to see Traceback press 1 : ')
-			if y == '1':
-				traceback.print_exc()
 			return False
 		finally:
 			if conn:
@@ -740,9 +698,6 @@ def get_all_tracks():
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -772,9 +727,6 @@ def set_genre(genre):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -825,9 +777,6 @@ def get_tracks_by_genre(**kwargs):
 		except Exception as ex:
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			print('Exception Occurred which is of type :', ex.__class__.__name__)
-			y = input('If you want to see Traceback press 1 : ')
-			if y == '1':
-				traceback.print_exc()
 			return []
 		finally:
 			if conn:
@@ -857,9 +806,6 @@ def get_tracks_by_genre(**kwargs):
 			messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 			
 			print('Exception Occurred which is of type :', ex.__class__.__name__)
-			y = input('If you want to see Traceback press 1 : ')
-			if y == '1':
-				traceback.print_exc()
 			return []
 		finally:
 			if conn:
@@ -907,9 +853,6 @@ def get_user(uid):
 	except Exception as ex:
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		release_connection(conn)
@@ -1020,14 +963,14 @@ def sign_out():
 	"""
 	import os
 	try:
-		os.remove("user")
+		if os.path.exists("user"):
+			os.remove("user")
+		return True
 	except Exception as ex:
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
+		print(str(ex))
 		return False
 
 	# sign_out()
@@ -1090,9 +1033,6 @@ def Forget_password_email(email):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 
 def user_create_playlist(uid, playlist_name):
@@ -1127,9 +1067,6 @@ def user_create_playlist(uid, playlist_name):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -1190,9 +1127,6 @@ def add_song_to_playlist(uid,playlist_name,track_name):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -1278,9 +1212,6 @@ def get_playlists(uid,**kwargs):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -1304,9 +1235,6 @@ def Following_artist(artist_name,uid):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 
 def get_user_artists(uid):
@@ -1354,9 +1282,6 @@ def add_liked_songs(track_object,uid):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -1400,9 +1325,6 @@ def delete_liked_song(uid,track_title):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -1452,9 +1374,6 @@ def get_all_liked_songs(uid):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return []
 	finally:
 		if conn:
@@ -1529,9 +1448,6 @@ def order_simple_trending_song():
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return []
 	finally:
 		if conn:
@@ -1564,9 +1480,6 @@ def add_like_count(title):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -1599,9 +1512,6 @@ def decrease_like_count(title):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -1634,9 +1544,6 @@ def get_genre(genre_name):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:
@@ -1668,9 +1575,6 @@ def get_artist(artist_name):
 		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
 		
 		print('Exception Occured which is of type :', ex.__class__.__name__)
-		y = input('If you want to see Traceback press 1 : ')
-		if y == '1':
-			traceback.print_exc()
 		return False
 	finally:
 		if conn:

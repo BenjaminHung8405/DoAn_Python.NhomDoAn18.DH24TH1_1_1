@@ -291,7 +291,7 @@ class MinMaxCross(tk.Frame):
             bd=0,
             cursor='hand2',
             activebackground=COLORS['bg_hover'],
-            command=lambda: self.master.master.master.master.master.state('zoomed')
+            command=lambda: self.master.master.master.master.master.state('normal')
         )
         self.cross = tk.Button(
             self,
