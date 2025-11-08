@@ -1,5 +1,3 @@
-
-
 [![Contributors][contributors-shield]][contributors-url]
 [![Language][Language-shield]][Language-url]
 [![Activity][activity-shield]][activity-url]
@@ -45,49 +43,12 @@
 
 ## Table of Contents
 
-* [About the Project](#about-the-project)
-  * [Built With](#built-with)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
-* [Contact](#contact)
-* [Acknowledgements](#acknowledgements)
-
-
-
-<!-- VỀ DỰ ÁN -->
-## Về Dự Án
-![image](https://user-images.githubusercontent.com/49261633/80867197-6e3f5b00-8cb0-11ea-8e62-b9ddb2ea6533.png)
-
-**Amplify** là ứng dụng nghe nhạc được phát triển bằng Python với giao diện Tkinter và database PostgreSQL. Đây là đồ án môn học Python của Nhóm 18 - Lớp DH24TH1.
-
-### ✨ Tính Năng Chính
-
-* 🎵 Phát nhạc trực tuyến với chất lượng cao
-* 👤 Đăng ký/Đăng nhập người dùng với PostgreSQL
-* ❤️ Thích và lưu các bài hát yêu thích
-* 🔍 Tìm kiếm bài hát theo tên, nghệ sĩ, thể loại
-* 📱 Giao diện thân thiện, dễ sử dụng
-* 🎨 Hiển thị ảnh bìa album và nghệ sĩ
-* 🔐 Bảo mật thông tin người dùng
-
-### 🛠️ Công Nghệ Sử Dụng
-
-* **Python 3.13** - Ngôn ngữ lập trình chính
-* **PostgreSQL (Neon)** - Cơ sở dữ liệu đám mây
-* **Tkinter** - Thư viện GUI
-* **Pygame/Pyglet** - Phát nhạc
-* **Pillow** - Xử lý hình ảnh
-* **psycopg2** - Kết nối PostgreSQL
-
-### 📝 Lịch Sử Phát Triển
-
-* **v1.0**: Sử dụng Firebase Firestore
-* **v2.0**: Migration sang PostgreSQL (Neon) với connection pooling
-* **v2.1**: Chuyển đổi toàn bộ chú thích sang tiếng Việt
 
 
 
@@ -278,34 +239,6 @@ Mọi đóng góp đều được **đánh giá cao**! Đây là cách bạn có
 ## Giấy Phép
 
 Phân phối theo giấy phép MIT License. Xem `LICENSE` để biết thêm thông tin.
-
-<!-- THÀNH VIÊN -->
-## Thành Viên Nhóm 18
-
-👨‍💻 **Đồ Án Python - Nhóm 18 - DH24TH1**
-
-- Benjamin Hung ([GitHub](https://github.com/BenjaminHung8405))
-- Thành viên 2
-- Thành viên 3
-
-<!-- LIÊN HỆ -->
-## Liên Hệ
-
-📧 Email: amplifyteam1234@gmail.com
-
-🔗 GitHub: [DoAn_Python.NhomDoAn18.DH24TH1_1_1](https://github.com/BenjaminHung8405/DoAn_Python.NhomDoAn18.DH24TH1_1_1)
-
-<!-- CẢM ƠN -->
-## Cảm Ơn
-
-* [Python](https://www.python.org/)
-* [PostgreSQL](https://www.postgresql.org/)
-* [Neon Serverless Postgres](https://neon.tech/)
-* [Tkinter Documentation](https://docs.python.org/3/library/tkinter.html)
-* [Pygame](https://www.pygame.org/)
-* [Pillow (PIL)](https://pillow.readthedocs.io/)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Choose an Open Source License](https://choosealicense.com)
 
 ---
 

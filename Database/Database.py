@@ -1010,11 +1010,11 @@ def Forget_password_email(email):
 			return False
 			
 		password = generate_password(user['uid'])
-		fromaddr = 'amplifyteam1234@gmail.com.'
+		fromaddr = 'support@amplify.com'
 		toaddrs = email
-		Text = f"Hello {user['display_name']},\nThis is your new password now on.\nYour new password is {password}.\nMake sure you don't forget it.\nThanks,\nYour AmplifyTeam"
+		Text = f"Hello {user['display_name']},\nThis is your new password now on.\nYour new password is {password}.\nMake sure you don't forget it.\nThanks,\nAmplify Support"
 		subject = 'New Password Request'
-		username = 'amplifyteam1234@gmail.com'
+		username = 'support@amplify.com'
 		smtp_password = '15412342'
 		# print('i ma in the funtion')
 		message = 'Subject: {}\n\n{}'.format(subject, Text)

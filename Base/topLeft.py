@@ -153,8 +153,6 @@ class TopLeft(tk.Frame):
         self.menu2['menu'] = self.menu2.menu
         self.menu2.menu.add_command(label='AMPLIFY')
         self.menu2.menu.add_command(label=self.string1)
-        self.menu2.menu.add_command(label='Contact us:')
-        self.menu2.menu.add_command(label='amplifyteam1234@gmail.com')
 
         # ============= NAVIGATION =============
         self.frame2 = tk.Frame(self, bg=COLORS['sidebar_bg'], padx=SPACING['sm'])
@@ -242,33 +240,6 @@ class TopLeft(tk.Frame):
             font=FONTS['caption']
         )
         
-        # ============= CONTACT INFO =============
-        self.frame5 = tk.Frame(self, bg=COLORS['sidebar_bg'], padx=SPACING['md'], pady=SPACING['sm'])
-        
-        self.label4 = tk.Label(
-            self.frame5,
-            text='📧 CONTACT US',
-            background=COLORS['sidebar_bg'],
-            foreground=COLORS['text_muted'],
-            anchor=tk.W,
-            font=FONTS['caption']
-        )
-        self.label3 = tk.Label(
-            self.frame5,
-            text='amplifyteam1234@gmail.com',
-            background=COLORS['sidebar_bg'],
-            foreground=COLORS['text_accent'],
-            anchor=tk.W,
-            font=FONTS['caption'],
-            cursor='hand2'
-        )
-        # Hover effect cho email
-        self.label3.bind('<Enter>', lambda e: self.label3.configure(
-            foreground=COLORS['accent_primary']
-        ))
-        self.label3.bind('<Leave>', lambda e: self.label3.configure(
-            foreground=COLORS['text_accent']
-        ))
 
         # ============= GRID LAYOUT =============
         # Components
@@ -282,8 +253,6 @@ class TopLeft(tk.Frame):
         self.artists.grid(row=4, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
         self.copyright.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)        
         self.label2.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
-        self.label3.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
-        self.label4.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
 
         # Frames
         self.frame1.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
@@ -291,18 +260,13 @@ class TopLeft(tk.Frame):
         self.frame3.grid(row=2, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=SPACING['sm'])
         self.line.grid(row=3, column=0, sticky=tk.E + tk.W, pady=SPACING['lg'])
         self.frame4.grid(row=4, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
-        self.frame5.grid(row=5, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
         # Grid weights
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=2)
         self.grid_rowconfigure(2, weight=9)
-        self.grid_rowconfigure(4, weight=1)
-        self.grid_rowconfigure(5, weight=1)
-
-        self.frame5.grid_columnconfigure(0, weight=1)
-        self.frame5.grid_rowconfigure((0,1), weight=1)
+        self.grid_rowconfigure(3, weight=1)
 
     def logout(self):
         import os
