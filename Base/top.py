@@ -9,6 +9,8 @@ from Pages.AlbumPage.Album import Album
 from Pages.UserPage.UserPage import UserPage
 from .listOfPage import *
 from Pages.SearchPage.SearchPage import SearchPage
+from Pages.Resource.VerticalScrollableFrame import ScrollableFrame
+from Pages.AlbumPage.Components.HorizontalFrame import HorizontalFrame
 import sys
 import os
 
@@ -166,6 +168,55 @@ class Top(tk.Frame):
                             self,
                             data=data)
         frame.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
+        rightPage.clear()
+        resetCount()
+        pages.append(frame)
+        frame.tkraise()
+
+    def show_frame_liked_albums(self, data, image, text):
+        """Display liked albums in album format"""
+        from Pages.AlbumPage.Album import Album
+        
+        # Create a temporary Album frame with liked albums data
+        frame = Album(self.topRight.topRightBottom, self)
+        
+        # Override the data method to return liked albums
+        def liked_albums_data():
+            title = ['Your Liked Albums']
+            data_list = [data]
+            info = [
+                {'title': title[0], 'data': data_list[0]}
+            ]
+            return info
+        
+        # Replace the data method
+        frame.data = liked_albums_data
+        
+        # Update header text
+        frame.head.label.config(text=text)
+        
+        # Clear existing content and recreate
+        for widget in frame.main.winfo_children():
+            if widget != frame.head:
+                widget.destroy()
+        
+        # Recreate the content area
+        frame.scrollable = ScrollableFrame(frame.main)
+        
+        for i, j in enumerate(frame.data()):
+            frame.item = HorizontalFrame(frame.scrollable.scrollable_frame,
+                                        self,  # controller is self (Top instance)
+                                        text=j['title'], data=j['data'])
+            frame.item.grid(row=i, column=0, sticky=tk.N + tk.W + tk.E)
+            break
+
+        frame.head.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+        frame.main.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+
+        frame.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
+        if len(pages) > 1:
+            if pages[len(pages) - 1] == frame:
+                return
         rightPage.clear()
         resetCount()
         pages.append(frame)

@@ -1586,3 +1586,135 @@ def get_artist(artist_name):
 	finally:
 		if conn:
 			release_connection(conn)
+def like_album(user_id, album_id):
+	"""
+	Add album to user's liked albums
+	"""
+	conn = None
+	try:
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		# Insert into user_liked_albums, ignore if already exists
+		cur.execute("""
+			INSERT INTO user_liked_albums (user_id, album_id)
+			VALUES (%s, %s)
+			ON CONFLICT (user_id, album_id) DO NOTHING
+		""", (user_id, album_id))
+		
+		conn.commit()
+		cur.close()
+		
+		print('Album liked successfully')
+		return True
+	except Exception as ex:
+		if conn:
+			conn.rollback()
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		return False
+	finally:
+		if conn:
+			release_connection(conn)
+
+
+def unlike_album(user_id, album_id):
+	"""
+	Remove album from user's liked albums
+	"""
+	conn = None
+	try:
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		cur.execute("""
+			DELETE FROM user_liked_albums
+			WHERE user_id = %s AND album_id = %s
+		""", (user_id, album_id))
+		
+		conn.commit()
+		cur.close()
+		
+		print('Album unliked successfully')
+		return True
+	except Exception as ex:
+		if conn:
+			conn.rollback()
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		return False
+	finally:
+		if conn:
+			release_connection(conn)
+
+
+def is_album_liked(user_id, album_id):
+	"""
+	Check if user has liked the album
+	"""
+	conn = None
+	try:
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		cur.execute("""
+			SELECT 1 FROM user_liked_albums
+			WHERE user_id = %s AND album_id = %s
+		""", (user_id, album_id))
+		
+		result = cur.fetchone()
+		cur.close()
+		
+		return result is not None
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		return False
+	finally:
+		if conn:
+			release_connection(conn)
+
+
+def get_user_liked_albums(user_id):
+	"""
+	Get all albums liked by user
+	"""
+	conn = None
+	try:
+		conn = get_connection()
+		cur = conn.cursor()
+		
+		cur.execute("""
+			SELECT a.album_id, a.title, a.cover_image_url, ar.name as artist
+			FROM user_liked_albums ula
+			JOIN albums a ON ula.album_id = a.album_id
+			LEFT JOIN artists ar ON a.artist_id = ar.artist_id
+			WHERE ula.user_id = %s
+			ORDER BY ula.liked_at DESC
+		""", (user_id,))
+		
+		rows = cur.fetchall()
+		cur.close()
+		
+		albums = []
+		for row in rows:
+			album_dict = {
+				'album_id': row[0],
+				'title': row[1],
+				'cover_image_url': row[2],
+				'artist': row[3]
+			}
+			albums.append(album_dict)
+		
+		return albums
+	except Exception as ex:
+		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		
+		print('Exception Occurred which is of type :', ex.__class__.__name__)
+		return []
+	finally:
+		if conn:
+			release_connection(conn)

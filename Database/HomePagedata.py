@@ -99,6 +99,7 @@ def get_album_data():
             tracks = get_album(album_name=album['album_title'])
             
             album_dict = {
+                'album_id': album['album_id'],
                 'text': album['album_title'],
                 'url': album.get('cover_image_url', ''),  # Fixed: use cover_image_url from schema
                 'tracks': tracks if tracks else []

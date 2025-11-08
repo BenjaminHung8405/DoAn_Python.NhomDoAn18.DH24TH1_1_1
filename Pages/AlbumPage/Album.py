@@ -35,7 +35,7 @@ class Album(tk.Frame):
         from Database import HomePagedata
         title = ['Listen to your favourite Album']
         data = [
-            HomePagedata.genre_data
+            HomePagedata.album_data
         ]
         info = [
             {'title': title[0], 'data': data[0]}

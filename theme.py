@@ -7,38 +7,40 @@ Theme và Style Configuration cho Amplify
 
 # Background Colors - Gradient Dark Theme
 COLORS = {
-    # Primary Background
-    'bg_primary': '#0A0E27',      # Navy blue dark - nền chính
-    'bg_secondary': '#151A3D',    # Lighter navy - nền phụ
-    'bg_card': '#1E2749',         # Card background
-    'bg_hover': '#2A3254',        # Hover state
+    # 1. Primary Backgrounds (Nền chính của Spotify)
+    'bg_primary': '#000000',      # Nền ngoài cùng, sidebar (Đen tuyền)
+    'bg_secondary': '#121212',    # Nền nội dung chính (Xám rất tối)
+    'bg_card': '#181818',         # Nền thẻ (album, artist), thanh player
+    'bg_hover': '#2A2A2A',        # Màu khi di chuột qua thẻ (card)
     
-    # Accent Colors
-    'accent_primary': '#6C63FF',  # Purple - màu chính
-    'accent_secondary': '#4ECDC4', # Teal - màu phụ
-    'accent_gradient_start': '#667EEA',
-    'accent_gradient_end': '#764BA2',
+    # 2. Accent Colors (Màu nhấn)
+    'accent_primary': '#1DB954',  # Xanh lá cây chính của Spotify
+    'accent_secondary': '#FFFFFF',# Thường dùng cho các nút phụ (ví dụ: 'Sign up')
     
-    # Text Colors
-    'text_primary': '#FFFFFF',    # White - text chính
-    'text_secondary': '#A0AEC0',  # Gray - text phụ
-    'text_muted': '#718096',      # Muted gray
-    'text_accent': '#6C63FF',     # Purple text
+    # (Spotify không dùng gradient, đặt trùng màu chính để tránh lỗi)
+    'accent_gradient_start': '#1DB954',
+    'accent_gradient_end': '#1DB954',
     
-    # Status Colors
-    'success': '#48BB78',         # Green
-    'warning': '#ECC94B',         # Yellow
-    'error': '#F56565',           # Red
-    'info': '#4299E1',            # Blue
+    # 3. Text Colors (Màu văn bản)
+    'text_primary': '#FFFFFF',    # Văn bản chính (Tiêu đề bài hát, v.v.)
+    'text_secondary': '#B3B3B3',  # Văn bản phụ (Tên nghệ sĩ, menu không active)
+    'text_muted': '#535353',      # Văn bản chìm (Thông tin phụ, sub-text)
+    'text_accent': '#1DB954',     # Văn bản màu xanh lá
     
-    # Border & Divider
-    'border': '#2D3748',
-    'divider': '#1A202C',
+    # 4. Status Colors (Màu trạng thái)
+    'success': '#1DB954',         # Dùng luôn màu xanh Spotify cho 'Thành công'
+    'warning': '#FFAF36',         # Vàng (Màu cảnh báo chung)
+    'error': '#F56565',           # Đỏ (Màu lỗi chung)
+    'info': '#4299E1',            # Xanh dương (Màu thông tin chung)
     
-    # Sidebar
-    'sidebar_bg': '#0D1224',
-    'sidebar_active': '#1E2749',
-    'sidebar_hover': '#151A3D',
+    # 5. Border & Divider (Viền & Phân cách)
+    'border': '#2A2A2A',          # Viền thẻ (nếu có)
+    'divider': '#2A2A2A',         # Đường kẻ phân cách (subtle)
+    
+    # 6. Sidebar (Thanh điều hướng)
+    'sidebar_bg': '#000000',      # Nền sidebar (Đen tuyền)
+    'sidebar_active': '#181818',  # Nền của mục đang được chọn
+    'sidebar_hover': '#181818',   # Nền khi di chuột qua mục
 }
 
 # ==================== FONTS ====================

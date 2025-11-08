@@ -163,8 +163,7 @@ class Lower(tk.Frame):
                 row += 1
                 column=0
             musicPages3[Lower.count].append(0)
-            self.button = CardButton(self.frame, text=j['text'],
-                                     url=self.images[i],
+            self.button = CardFrame(self.frame, url=self.images[i], text=j['text'], album_id=j['album_id'],
                                      command=lambda d=j['tracks'],
                                                     img=self.images[i],
                                                     txt=j['text'],
@@ -209,51 +208,61 @@ class ArrowButton(tk.Button):
         self['borderwidth'] = 0
 
 
-class CardButton(tk.Button):
-    def __init__(self, master, url, *args, **kwargs):
-        tk.Button.__init__(self, master, *args, **kwargs)
-        self.url = url
-
-        self.bind('<Configure>', self.size)
-
-        pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
-        play = tkfont.Font(family="Play", size=15, weight="bold")
+class CardFrame(tk.Frame):
+    def __init__(self, master, url, text, album_id, command=None, *args, **kwargs):
+        tk.Frame.__init__(self, master, *args, **kwargs)
         self['background'] = '#181818'
-        self['height'] = 300
-        self['border'] = 0
-        self['font'] = play
-        self['compound'] = tk.TOP
-        self['activebackground'] = '#181818'
-        self['foreground'] = 'white'
-        self['activeforeground'] = 'white'
+        
+        self.url = url
+        self.text = text
+        self.album_id = album_id
+        self.command = command
 
-        self.bind('<Enter>', self.enter)
-        self.bind('<Leave>', self.leave)
+        # Create image button
+        self.image_button = tk.Button(self, background='#181818', border=0, activebackground='#181818', command=self.command)
+        self.image_button.bind('<Configure>', self.size)
+        self.image_button.bind('<Enter>', self.enter)
+        self.image_button.bind('<Leave>', self.leave)
+
+        # Create like button
+        from .AlbumLikeButton import AlbumLikeButton
+        self.like_button = AlbumLikeButton(self, album_id=self.album_id, album_title=self.text)
+
+        # Layout
+        self.image_button.grid(row=0, column=0, sticky='nsew')
+        self.like_button.grid(row=0, column=1, sticky='ne', padx=(0, 5), pady=(5, 0))
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
     def size(self, event):
         global width
         w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
-        self.image = ImageTk.PhotoImage(self.image)
-        self.config(image=self.image)
+        self.image_button.configure(width=int(round(w)), height=int(round(w)) + 50)
+        if self.url:
+            self.image = self.url
+            self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
+            self.image = ImageTk.PhotoImage(self.image)
+            self.image_button.config(image=self.image, compound=tk.TOP, text=self.text, foreground='white', activeforeground='white')
+        else:
+            self.image_button.config(text=self.text, foreground='white', activeforeground='white')
 
     def enter(self, event):
         global width
         w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        self.image = self.url
-        self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
-        # self.greyscale = self.image.convert('LA')
-        self.image = ImageTk.PhotoImage(self.image)
-        self.config(image=self.image)
+        self.image_button.configure(width=int(round(w)), height=int(round(w)) + 50)
+        if self.url:
+            self.image = self.url
+            self.image = self.image.resize((int(round(w))+3, int(round(w))+3), Image.LANCZOS)
+            self.image = ImageTk.PhotoImage(self.image)
+            self.image_button.config(image=self.image)
 
     def leave(self, event):
         global width
         w = width / 5 - 14
-        self.configure(width=int(round(w)), height=int(round(w)) + 50)
-        self.image = self.url
-        self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
-        self.image = ImageTk.PhotoImage(self.image)
-        self.config(image=self.image)
+        self.image_button.configure(width=int(round(w)), height=int(round(w)) + 50)
+        if self.url:
+            self.image = self.url
+            self.image = self.image.resize((int(round(w)), int(round(w))), Image.LANCZOS)
+            self.image = ImageTk.PhotoImage(self.image)
+            self.image_button.config(image=self.image)

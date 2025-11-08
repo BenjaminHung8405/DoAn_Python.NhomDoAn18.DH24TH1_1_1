@@ -126,6 +126,7 @@ class TopLeft(tk.Frame):
         self.browse_icon = tk.PhotoImage(file="images/browse2.png")
         self.menu_icon = tk.PhotoImage(file="images/menu2.png")
         self.liked_image = Image.open("images/purple_heart.png")
+        self.album_image = Image.open("images/playlist.png")
 
         # ============= HEADER - Logo & Menu =============
         self.frame1 = tk.Frame(self, bg=COLORS['sidebar_bg'], padx=SPACING['md'], pady=SPACING['md'])
@@ -198,6 +199,15 @@ class TopLeft(tk.Frame):
                 image=self.liked_image
             )
         )
+        self.likedAlbums = NormalButton(
+            self.frame3,
+            text='💿  Liked Albums',
+            command=lambda data=self.get_liked_albums(): self.master.show_frame_liked_albums(
+                data=self.get_liked_albums(),
+                text='Liked Album',
+                image=self.album_image
+            )
+        )
         self.albums = NormalButton(
             self.frame3,
             text='💿  Albums',
@@ -267,8 +277,9 @@ class TopLeft(tk.Frame):
         self.browse.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
         self.label.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         self.likedSongs.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
-        self.albums.grid(row=2, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
-        self.artists.grid(row=3, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
+        self.likedAlbums.grid(row=2, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
+        self.albums.grid(row=3, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
+        self.artists.grid(row=4, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
         self.copyright.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)        
         self.label2.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
         self.label3.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W, pady=2)
@@ -312,4 +323,29 @@ class TopLeft(tk.Frame):
             
         from Database.Database import get_all_liked_songs
         return get_all_liked_songs(user_id)
+
+    def get_liked_albums(self):
+        # Lấy user_id từ session thay vì file
+        from user_session import UserSession
+        user_id = UserSession.get_user_id()
+        if not user_id:
+            return []  # Trả về danh sách rỗng nếu không có user
+            
+        from Database.Database import get_user_liked_albums, get_album
+        liked_albums = get_user_liked_albums(user_id)
+        
+        # Chuyển đổi format để tương thích với show_frame_liked
+        album_data = []
+        for album in liked_albums:
+            # Load tracks cho album
+            tracks = get_album(album_name=album['title'])
+            album_dict = {
+                'album_id': album['album_id'],
+                'text': album['title'],
+                'url': album['cover_image_url'] or '',
+                'tracks': tracks if tracks else []
+            }
+            album_data.append(album_dict)
+        
+        return album_data
 
