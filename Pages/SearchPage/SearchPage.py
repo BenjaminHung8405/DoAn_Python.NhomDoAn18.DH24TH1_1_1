@@ -23,7 +23,7 @@ class SearchPage(tk.Frame):
         pyglet.font.add_file('fonts/Play/Play-Bold.ttf')
         play = tkfont.Font(family="Play", size=35, weight="bold")
         
-        self.heading = tk.Label(self.titleFrame,text="Search",bg="#000000",foreground='white',font=play,padx=20)
+        self.heading = tk.Label(self.titleFrame,text="Tìm kiếm",bg="#000000",foreground='white',font=play,padx=20)
 
        
       

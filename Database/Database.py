@@ -453,16 +453,16 @@ def register_user(username, email, phone, password):
 		if conn:
 			conn.rollback()
 			release_connection(conn)
-		messagebox.showerror('Error', 'Email already exists! Please use a different email.')
+		messagebox.showerror('Lỗi', 'Email đã tồn tại! Vui lòng sử dụng email khác.')
 		print('Registration failed: Email already exists')
 		return False
 	except psycopg2.errors.UniqueViolation as ex:
 		# Số điện thoại đã tồn tại
-		messagebox.showerror('Error', 'Phone number already exists! Please use a different phone.')
+		messagebox.showerror('Lỗi', 'Số điện thoại đã tồn tại! Vui lòng sử dụng số khác.')
 		print('Registration failed: Phone number already exists')
 		return False
 	except Exception as ex:
-		messagebox.showerror('Error','Oops!! Something went wrong!!\nTry again later.')
+		messagebox.showerror('Lỗi','Ối!! Đã xảy ra lỗi!!\nHãy thử lại sau.')
 		print('Exception Occurred which is of type :', ex.__class__.__name__)
 		print(str(ex))
 		return False

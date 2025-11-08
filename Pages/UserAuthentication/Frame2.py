@@ -168,7 +168,7 @@ class Frame2(tk.Frame):
 		self.back = tk.Button(
 			self.container,
 			border=0,
-			text='Back',
+			text='Quay lại',
 			background='#121212',
 			activebackground='#121212',
 			activeforeground='white',
@@ -190,7 +190,7 @@ class Frame2(tk.Frame):
 		self.username_input = tk.StringVar()
 		self.username = UserEntry(
 			self.container,
-			placeholder="  Username",
+			placeholder="  Tên người dùng",
 			show=0,
 			textvariable=None,
 			id="username"
@@ -208,7 +208,7 @@ class Frame2(tk.Frame):
 		#Nhập Mật khẩu
 		self.password = UserEntry(
 			self.container,
-			placeholder="  Password",
+			placeholder="  Mật khẩu",
 			show=1,
 			textvariable=None,
 			id="password"
@@ -226,7 +226,7 @@ class Frame2(tk.Frame):
 		#Nhập Số liên lạc
 		self.phone = UserEntry(
 			self.container,
-			placeholder="  Contact Number",
+			placeholder="  Số liên lạc",
 			show=0,
 			textvariable=None,
 			id="phone",
@@ -244,7 +244,7 @@ class Frame2(tk.Frame):
 		#Nhập Email
 		self.email = UserEntry(
 			self.container,
-			placeholder="  Email ID",
+			placeholder="  Email",
 			show=0,
 			textvariable=None,
 			id="email"
@@ -280,7 +280,7 @@ class Frame2(tk.Frame):
 			background='#121212',
 			activebackground='#121212',
 			# image=self.btnimg,
-			text='Register',
+			text='Đăng ký',
 			command=self.registerNow
 		)
 		self.register.grid(row=6, column=0, pady=10)

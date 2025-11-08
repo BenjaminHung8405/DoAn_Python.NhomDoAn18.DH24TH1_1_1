@@ -26,17 +26,17 @@ class TitleFrame(tk.Frame):
         self.albumFrame.grid(row=0, column=3, sticky='nsew')
         self.menuFrame.grid(row=0, column=4, sticky='nsew')
 
-        self.titleLabel = TitleLabel(self.titleFrame, text='TITLE')
+        self.titleLabel = TitleLabel(self.titleFrame, text='TIÊU ĐỀ')
         self.titleLabel.grid(row=0, column=0, sticky='nsew')
         self.titleFrame.grid_columnconfigure(0, weight=1)
         self.titleFrame.grid_rowconfigure(0, weight=1)
 
-        self.artistLabel = TitleLabel(self.artistFrame, text='GENRE')
+        self.artistLabel = TitleLabel(self.artistFrame, text='THỂ LOẠI')
         self.artistLabel.grid(row=0, column=0, sticky='nsew')
         self.artistFrame.grid_columnconfigure(0, weight=1)
         self.artistFrame.grid_rowconfigure(0, weight=1)
 
-        self.albumLabel = TitleLabel(self.albumFrame, text='ARTIST')
+        self.albumLabel = TitleLabel(self.albumFrame, text='NGHỆ SĨ')
         self.albumLabel.grid(row=0, column=0, sticky='nsew')
         self.albumFrame.grid_columnconfigure(0, weight=1)
         self.albumFrame.grid_rowconfigure(0, weight=1)

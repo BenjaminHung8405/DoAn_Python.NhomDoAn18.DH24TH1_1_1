@@ -23,7 +23,7 @@ class Splash(tk.Toplevel):
         self.labelLogo.grid(row=1, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
         
         # Add loading text
-        self.loading_text = tk.Label(self, text="Loading application data...", 
+        self.loading_text = tk.Label(self, text="Đang tải dữ liệu ứng dụng...", 
                                    fg='white', bg='black', font=('Segoe UI', 12))
         self.loading_text.grid(row=2, column=0, pady=(10, 0))
         
@@ -58,37 +58,37 @@ class Splash(tk.Toplevel):
                 from Database import HomePagedata
                 # Force loading of genre data
                 _ = HomePagedata.genre_data
-                self.loading_text.config(text="Loading genres...")
+                self.loading_text.config(text="Đang tải thể loại...")
                 
             elif self.loading_step == 1:
                 # Load artist data
                 from Database import HomePagedata
                 _ = HomePagedata.artist_data
-                self.loading_text.config(text="Loading artists...")
+                self.loading_text.config(text="Đang tải nghệ sĩ...")
                 
             elif self.loading_step == 2:
                 # Load language data
                 from Database import HomePagedata
                 _ = HomePagedata.language_data
-                self.loading_text.config(text="Loading languages...")
+                self.loading_text.config(text="Đang tải ngôn ngữ...")
                 
             elif self.loading_step == 3:
                 # Load trending data
                 from Database import HomePagedata
                 _ = HomePagedata.Trending_data
-                self.loading_text.config(text="Loading trending songs...")
+                self.loading_text.config(text="Đang tải bài hát thịnh hành...")
                 
             elif self.loading_step == 4:
                 # Load album data
                 from Database import HomePagedata
                 _ = HomePagedata.album_data
-                self.loading_text.config(text="Loading albums...")
+                self.loading_text.config(text="Đang tải album...")
                 
             elif self.loading_step == 5:
                 # Load playlist data
                 from Database import HomePagedata
                 _ = HomePagedata.playlist_data
-                self.loading_text.config(text="Loading playlists...")
+                self.loading_text.config(text="Đang tải danh sách phát...")
                 
             elif self.loading_step == 6:
                 # Load user data if available
@@ -97,7 +97,7 @@ class Splash(tk.Toplevel):
                 if user_data:
                     from Database.Database import get_user
                     _ = get_user(user_data['uid'])
-                    self.loading_text.config(text="Loading user profile...")
+                    self.loading_text.config(text="Đang tải hồ sơ người dùng...")
                 # If no user data, skip to completion
                 
             self.loading_step += 1
@@ -120,9 +120,9 @@ class Splash(tk.Toplevel):
     def _on_loading_complete(self, success):
         """Called when loading is complete"""
         if success:
-            self.loading_text.config(text="Loading complete!", fg='#48BB78')
+            self.loading_text.config(text="Tải hoàn tất!", fg='#48BB78')
         else:
-            self.loading_text.config(text="Loading failed, but continuing...", fg='#F56565')
+            self.loading_text.config(text="Tải thất bại, nhưng tiếp tục...", fg='#F56565')
         
         # Restart GIF animation one final time
         if hasattr(self.lbl, 'next_frame'):

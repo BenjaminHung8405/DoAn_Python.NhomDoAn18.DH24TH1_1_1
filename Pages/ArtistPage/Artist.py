@@ -12,7 +12,7 @@ class Artist(tk.Frame):
         self.main = tk.Frame(self, bg='#181818')
         self.scrollable = ScrollableFrame(self.main)
 
-        self.head = Header(self, text='Artist')
+        self.head = Header(self, text='Nghệ sĩ')
 
         for i, j in enumerate(self.data()):
             self.item = HorizontalFrame(self.scrollable.scrollable_frame,
@@ -33,7 +33,7 @@ class Artist(tk.Frame):
 
     def data(self):
         from Database import HomePagedata
-        title = ['Listen to your favourite Artist']
+        title = ['Nghe nghệ sĩ yêu thích của bạn']
         data = [
             HomePagedata.artist_data
         ]

@@ -12,7 +12,7 @@ class Home(tk.Frame):
         self.main = tk.Frame(self, bg='#181818')
         self.scrollable = ScrollableFrame(self.main)
 
-        self.head = Header(self, text='Home')
+        self.head = Header(self, text='Trang chủ')
 
         for i, j in enumerate(self.data()):
             self.item = HorizontalFrame(self.scrollable.scrollable_frame,
@@ -32,7 +32,7 @@ class Home(tk.Frame):
 
     def data(self):
         from Database import HomePagedata
-        title = ['Trending Songs','Listen to your favourite Artist', 'Get your mood on', 'Popular Albums', 'Featured Playlists']
+        title = ['Bài hát thịnh hành','Nghe nghệ sĩ yêu thích của bạn', 'Thưởng thức tâm trạng của bạn', 'Album phổ biến', 'Danh sách phát nổi bật']
         data = [
            HomePagedata.Trending_data ,  HomePagedata.artist_data, HomePagedata.genre_data, HomePagedata.album_data, HomePagedata.playlist_data
         ]

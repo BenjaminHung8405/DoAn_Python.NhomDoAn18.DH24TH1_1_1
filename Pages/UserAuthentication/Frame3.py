@@ -113,7 +113,7 @@ class Frame3(tk.Frame):
 		self.back = tk.Button(
 			self.container,
 			border=0,
-			text='Back',
+			text='Quay lại',
 			background='#121212',
 			activebackground='#121212',
 			foreground='white',
@@ -136,12 +136,12 @@ class Frame3(tk.Frame):
 				email = self.email.get()
 				Forget_password_email(email)
 			except ValueError :
-				messagebox.showerror('Error','Please Enter email.')
+				messagebox.showerror('Error','Vui lòng nhập email.')
 		from Database.Database import Forget_password_email
 		self.Forget_password = tk.Button(
 			self.container,
 			border=0,
-			text="Forget password?",
+			text="Quên mật khẩu?",
 			background='#121212',
 			activebackground='#121212',
 			foreground='white',
@@ -166,7 +166,7 @@ class Frame3(tk.Frame):
 		#Nhập Email
 		self.email = UserEntry(
 			self.container,
-			placeholder="  Email ID",
+			placeholder="  Email",
 			show=0,
 			textvariable=None,
 			id="email"
@@ -184,7 +184,7 @@ class Frame3(tk.Frame):
 		#Nhập Mật khẩu
 		self.password = UserEntry(
 			self.container,
-			placeholder="  Password",
+			placeholder="  Mật khẩu",
 			show=1,
 			textvariable=None,
 			id="password"
@@ -267,15 +267,15 @@ class Frame3(tk.Frame):
 	
 
 		#các placeholder
-		email_placeholder = "  Email ID"
-		password_placeholder = "  Password"
+		email_placeholder = "  Email"
+		password_placeholder = "  Mật khẩu"
 
 		if email == email_placeholder or password == password_placeholder:
-			self.result['text'] = "Please enter all fields"
+			self.result['text'] = "Vui lòng nhập tất cả các trường"
 			return
 
 		if password.strip(' ') == '' or email.strip(' ') == '':
-			self.result['text'] = "Invalid Credentials"
+			self.result['text'] = "Thông tin đăng nhập không hợp lệ"
 			return
 
 		if not self.emailCheck(email):

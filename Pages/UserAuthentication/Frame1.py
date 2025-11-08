@@ -54,7 +54,7 @@ class Frame1(tk.Frame):
 		self.verify = tk.Label(
 			self.container,
 			border=0,
-			text="Amplify team Welcomes you!",
+			text="Đội ngũ Amplify chào mừng bạn!",
 			background='#121212',
 			# activebackground='#121212',
 			foreground='white',
