@@ -231,6 +231,14 @@ class Frame3(tk.Frame):
 		self.grid_rowconfigure(0, weight=1)
 		self.grid_columnconfigure(0, weight=1)
 
+		# Auto-focus vào trường đầu tiên (email)
+		self.email.focus_set()
+
+		# Bind Enter key để đăng nhập
+		self.bind('<Return>', lambda e: self.loginNow())
+		self.email.bind('<Return>', lambda e: self.loginNow())
+		self.password.bind('<Return>', lambda e: self.loginNow())
+
 	def leavefp(self,event):
 		self.Forget_password['font'] = self.appHighlightFont2
 

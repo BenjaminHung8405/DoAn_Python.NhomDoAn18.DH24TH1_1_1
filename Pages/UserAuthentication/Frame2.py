@@ -291,6 +291,16 @@ class Frame2(tk.Frame):
 		self.grid_rowconfigure(0, weight=1)
 		self.grid_columnconfigure(0, weight=1)
 
+		# Auto-focus vào trường đầu tiên (username)
+		self.username.focus_set()
+
+		# Bind Enter key để đăng ký
+		self.bind('<Return>', lambda e: self.registerNow())
+		self.username.bind('<Return>', lambda e: self.registerNow())
+		self.password.bind('<Return>', lambda e: self.registerNow())
+		self.phone.bind('<Return>', lambda e: self.registerNow())
+		self.email.bind('<Return>', lambda e: self.registerNow())
+
 	#Hàm xác thực cho số liên lạc
 	def phoneCheck(self,s):
 		Pattern = re.compile(r"^0[0-9]{9}$")
