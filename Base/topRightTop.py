@@ -86,10 +86,14 @@ class TopRightTop(tk.Frame):
         self['background'] = COLORS['bg_primary']
         self['height'] = 1
 
-        f = open('user')
-        x = f.readlines()[0]
+        # Lấy thông tin user từ session thay vì file
+        from user_session import UserSession
+        user_data = UserSession.get_user()
+        if not user_data:
+            return  # Không thể hiển thị nếu không có user
+            
         from Database.Database import get_user
-        myobject = get_user(x)
+        myobject = get_user(user_data['uid'])
 
         self.back = Back(self)
         self.search = tk.Frame(self, bg=COLORS['bg_primary'])

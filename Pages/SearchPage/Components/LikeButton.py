@@ -20,20 +20,26 @@ class LikeButton(tk.Button):
         self['bd'] = 0
         self['image'] = self.empty_heart
         self['command'] = self.clicked
-        f = open('user')
-        x = f.readlines()[0]
-        from Database.Database import get_all_liked_songs
-        for index, song in enumerate(get_all_liked_songs(x)):
-            for key, value in song.items():
-                if key == 'title' and value == self.title:
-                    self.liked = False
-                    self['image'] = self.filled_heart
+        # Lấy user_id từ session thay vì file
+        from user_session import UserSession
+        user_id = UserSession.get_user_id()
+        if user_id:
+            from Database.Database import get_all_liked_songs
+            for index, song in enumerate(get_all_liked_songs(user_id)):
+                for key, value in song.items():
+                    if key == 'title' and value == self.title:
+                        self.liked = False
+                        self['image'] = self.filled_heart
 
         # self.bind('<Button-1>', self.master.master.click)
 
     def clicked(self):
-        f = open('user')
-        x = f.readlines()[0]
+        # Lấy user_id từ session thay vì file
+        from user_session import UserSession
+        user_id = UserSession.get_user_id()
+        if not user_id:
+            return  # Không thể thực hiện nếu không có user
+            
         from Base.listOfPage import likedSong
         if not self.liked:
             # if unliked
@@ -41,7 +47,7 @@ class LikeButton(tk.Button):
             self.liked = True
            
             from Database.Database import delete_liked_song
-            delete_liked_song(x , self.title)
+            delete_liked_song(user_id , self.title)
                 
             
             return
@@ -56,7 +62,7 @@ class LikeButton(tk.Button):
             'location': self.url
         }
         
-        add_liked_songs(track_object,x)
+        add_liked_songs(track_object, user_id)
         likedSong.append(track_object)
 
 

@@ -9,10 +9,15 @@ class UserPage(tk.Frame):
 
         self['background'] = '#000000'
        
-        f = open('user')
-        x = f.readlines()[0]
+        # Lấy thông tin user từ session thay vì file
+        from user_session import UserSession
+        user_data = UserSession.get_user()
+        if not user_data:
+            # Nếu không có user trong session, không thể hiển thị trang user
+            return
+            
         from Database.Database import get_user
-        myobject  = get_user(x)
+        myobject  = get_user(user_data['uid'])
         fontStyle = tkFont.Font(family="Lucida Grande", size=18, weight='bold' )
         Dynamic_Font = tkFont.Font(family="Lucida Grande", size=20 , weight = 'bold' )
 
@@ -105,4 +110,3 @@ class UserPage(tk.Frame):
 
 
 
-      

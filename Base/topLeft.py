@@ -304,11 +304,12 @@ class TopLeft(tk.Frame):
         login.mainloop()
 
     def get_liked_song(self):
-        f = open('user')
-    
-        x = f.readlines()[0]
+        # Lấy user_id từ session thay vì file
+        from user_session import UserSession
+        user_id = UserSession.get_user_id()
+        if not user_id:
+            return []  # Trả về danh sách rỗng nếu không có user
+            
         from Database.Database import get_all_liked_songs
-       
-        
-        return get_all_liked_songs(x)
+        return get_all_liked_songs(user_id)
 

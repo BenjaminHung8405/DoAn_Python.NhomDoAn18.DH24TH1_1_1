@@ -975,17 +975,9 @@ def sign_in_with_email_and_password(email, password):
 	Returns user if email and password match
 	else false
 	"""
-	from os import path
 	import hashlib
 
 	try:
-		# Kiểm tra nếu đã login (có file user)
-		if path.exists('user'):
-			f = open('user', 'r')
-			doc = get_user(f.readline())
-			f.close()
-			return doc
-		
 		# Lấy user từ database
 		doc = get_user_by_email(email)
 		
@@ -999,9 +991,9 @@ def sign_in_with_email_and_password(email, password):
 		
 		# doc là dict, sử dụng dict keys
 		if doc['email'] == email and doc['password_hash'] == hashed_password:
-			f = open('user', "w+")
-			f.write(doc['uid'])
-			f.close()
+			# Lưu thông tin user vào session thay vì file
+			from user_session import UserSession
+			UserSession.set_user(doc)
 			return doc
 		else:
 			from Pages.UserAuthentication.Exceptions import Invalid_credentials

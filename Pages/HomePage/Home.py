@@ -42,8 +42,6 @@ class Home(tk.Frame):
             {'title': title[2], 'data': data[2]},
             {'title': title[3], 'data': data[3]},
             {'title': title[4], 'data': data[4]},
-            {'title': title[5], 'data': data[5]},
-
         ]
 
         return info

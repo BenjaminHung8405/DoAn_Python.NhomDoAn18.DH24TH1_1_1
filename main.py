@@ -103,26 +103,7 @@ class Root(tk.Tk):
 
 
 if __name__ == '__main__':
-    from Database.Database import get_user
-    
-
-    from os import path
-
-    if path.exists('user'):
-        f = open('user', 'r')
-        doc = get_user(f.readline().strip())
-        f.close()
-
-        # Nếu không tìm thấy người dùng, hiển thị màn hình đăng nhập
-        if doc:
-            root = Root(data=doc)
-            root.mainloop()
-        else:
-            from Pages.UserAuthentication.AuthBase import AuthBase
-            login = AuthBase()
-            login.mainloop()
-    else:
-        from Pages.UserAuthentication.AuthBase import AuthBase
-
-        login = AuthBase()
-        login.mainloop()
+    # Luôn hiển thị màn hình đăng nhập - không còn phụ thuộc vào file "user"
+    from Pages.UserAuthentication.AuthBase import AuthBase
+    login = AuthBase()
+    login.mainloop()

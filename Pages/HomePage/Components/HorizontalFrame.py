@@ -126,7 +126,6 @@ class Lower(tk.Frame):
                     self.image = self.image.convert('RGB')
 
                 self.images.append(self.image)
-                print(f'✅ Successfully loaded image for: {i.get("text", "Unknown")}')
 
             except requests.exceptions.RequestException as req_ex:
                 print(f'❌ Network error loading image from URL: {i.get("url", "N/A")} - {req_ex} - {i.get("text", "Unknown")}')
