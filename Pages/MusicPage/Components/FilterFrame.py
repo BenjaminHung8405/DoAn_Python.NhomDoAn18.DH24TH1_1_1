@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font
 import re
+from utils import remove_accents
 
 global matchingSongs
 matchingSongs = []
@@ -67,7 +68,7 @@ class FilterFrame(tk.Frame):
         self.search_icon.grid(row=0, column=0, ipadx=10, ipady=3, sticky='nsew')
 
         self.filter = UserEntry(
-            self, placeholder="  Filter",
+            self, placeholder="  Lọc",
             textvariable=None,
             songDict=data
         )
@@ -104,7 +105,7 @@ class FilterFrame(tk.Frame):
     def foc_out(self, event):
         self.filter['foreground'] = "#867f7a"
         if not self.filter.get():
-            self.filter.insert(0, "  Filter")
+            self.filter.insert(0, "  Lọc")
         else:
             self.filter.insert(0, self['textvariable'])
 
@@ -115,15 +116,11 @@ class FilterFrame(tk.Frame):
 
        
         user_input = self.filter.get().upper()
+        input_normalized = remove_accents(user_input)
        
         for i in range(len(self.songs)):
-           
-            input_matcher = re.search(
-                user_input,
-                self.songs[i]['title'].upper()
-            )
-           
-            if input_matcher:
+            title_normalized = remove_accents(self.songs[i]['title']).upper()
+            if input_normalized in title_normalized:
                 matchingSongs.append(self.songs[i])
             
 
