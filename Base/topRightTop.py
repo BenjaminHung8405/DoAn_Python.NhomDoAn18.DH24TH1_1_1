@@ -84,7 +84,7 @@ class TopRightTop(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
         self['background'] = COLORS['bg_primary']
-        self['height'] = 1
+        self['height'] = 40
 
         # Lấy thông tin user từ session thay vì file
         from user_session import UserSession
