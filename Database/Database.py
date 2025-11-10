@@ -126,7 +126,7 @@ def get_tracks_by_language(**kwargs):
 			cur = conn.cursor()
 			cur.execute("""
 				SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-					   a.name as artist_name, al.title as album_title, g.name as genre_name, l.name as language_name
+					   STRING_AGG(a.name, ', ') as artists, al.title as album_title, g.name as genre_name, l.name as language_name
 				FROM tracks t
 				LEFT JOIN languages l ON t.language_id = l.language_id
 				LEFT JOIN genres g ON t.genre_id = g.genre_id
@@ -134,6 +134,7 @@ def get_tracks_by_language(**kwargs):
 				LEFT JOIN track_artists ta ON t.track_id = ta.track_id
 				LEFT JOIN artists a ON ta.artist_id = a.artist_id
 				WHERE l.name = %s
+				GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, al.title, g.name, l.name
 			""", (kwargs['language'],))
 			
 			rows = cur.fetchall()
@@ -261,13 +262,16 @@ def get_artist_tracks(artist):
 		
 		cur.execute("""
 			SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-				   a.name as artist_name, g.name as genre_name, l.name as language_name
+				   STRING_AGG(a2.name, ', ') as all_artists, g.name as genre_name, l.name as language_name
 			FROM tracks t
 			JOIN track_artists ta ON t.track_id = ta.track_id
 			JOIN artists a ON ta.artist_id = a.artist_id
+			LEFT JOIN track_artists ta2 ON t.track_id = ta2.track_id
+			LEFT JOIN artists a2 ON ta2.artist_id = a2.artist_id
 			LEFT JOIN genres g ON t.genre_id = g.genre_id
 			LEFT JOIN languages l ON t.language_id = l.language_id
 			WHERE a.name = %s
+			GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, g.name, l.name
 		""", (artist,))
 		
 		rows = cur.fetchall()
@@ -363,7 +367,7 @@ def set_track(track_title, track_genre, track_location, track_artist, language):
 			release_connection(conn)
 def get_track(trackName):
 	"""
-	Fetch particular track for user
+	Fetch particular track for user with combined artists
 	returns dictitonary with the keys as
 	artist, genre, location , title
 	if failed returns false
@@ -375,13 +379,14 @@ def get_track(trackName):
 		
 		cur.execute("""
 			SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-				   a.name as artist, g.name as genre, l.name as Language
+				   STRING_AGG(a.name, ', ') as artists, g.name as genre, l.name as language
 			FROM tracks t
 			LEFT JOIN track_artists ta ON t.track_id = ta.track_id
 			LEFT JOIN artists a ON ta.artist_id = a.artist_id
 			LEFT JOIN genres g ON t.genre_id = g.genre_id
 			LEFT JOIN languages l ON t.language_id = l.language_id
 			WHERE t.title = %s
+			GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, g.name, l.name
 			LIMIT 1
 		""", (trackName,))
 		
@@ -397,7 +402,7 @@ def get_track(trackName):
 			'duration_seconds': row[2],
 			'location': row[3],
 			'like_count': row[4],
-			'artist': row[5],
+			'artist': row[5],  # Now contains combined artist names
 			'genre': row[6],
 			'Language': row[7]
 		}
@@ -658,7 +663,7 @@ def get_album(**kwargs):
 
 def get_all_tracks():
 	"""
-	Returns a list of all track objects
+	Returns a list of all track objects with artists combined for tracks with multiple artists
 	if failed returns a false
 	"""
 	conn = None
@@ -667,13 +672,14 @@ def get_all_tracks():
 		cur = conn.cursor()
 		cur.execute("""
 			SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-				   a.name as artist, g.name as genre, l.name as language, al.title as album
+				   STRING_AGG(a.name, ', ') as artists, g.name as genre, l.name as language, al.title as album
 			FROM tracks t
 			LEFT JOIN track_artists ta ON t.track_id = ta.track_id
 			LEFT JOIN artists a ON ta.artist_id = a.artist_id
 			LEFT JOIN genres g ON t.genre_id = g.genre_id
 			LEFT JOIN languages l ON t.language_id = l.language_id
 			LEFT JOIN albums al ON t.album_id = al.album_id
+			GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, g.name, l.name, al.title
 			ORDER BY t.title
 		""")
 		rows = cur.fetchall()
@@ -687,7 +693,7 @@ def get_all_tracks():
 				'duration_seconds': row[2],
 				'location': row[3],
 				'like_count': row[4],
-				'artist': row[5],
+				'artist': row[5],  # Now contains combined artist names
 				'genre': row[6],
 				'language': row[7],
 				'album': row[8]
@@ -746,7 +752,7 @@ def get_tracks_by_genre(**kwargs):
 			cur = conn.cursor()
 			cur.execute("""
 				SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-					   a.name as artist, g.name as genre, l.name as language, al.title as album
+					   STRING_AGG(a.name, ', ') as artists, g.name as genre, l.name as language, al.title as album
 				FROM tracks t
 				LEFT JOIN track_artists ta ON t.track_id = ta.track_id
 				LEFT JOIN artists a ON ta.artist_id = a.artist_id
@@ -754,6 +760,7 @@ def get_tracks_by_genre(**kwargs):
 				LEFT JOIN languages l ON t.language_id = l.language_id
 				LEFT JOIN albums al ON t.album_id = al.album_id
 				WHERE g.name = %s
+				GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, g.name, l.name, al.title
 				ORDER BY t.title
 			""", (kwargs['genre'],))
 			rows = cur.fetchall()
@@ -1151,7 +1158,7 @@ def get_playlists(uid,**kwargs):
 			# Get tracks for specific playlist
 			cur.execute("""
 				SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-					   a.name as artist, g.name as genre, l.name as language, al.title as album
+					   STRING_AGG(a.name, ', ') as artist, g.name as genre, l.name as language, al.title as album, pt.track_order
 				FROM playlist_tracks pt
 				JOIN tracks t ON pt.track_id = t.track_id
 				JOIN playlists pl ON pt.playlist_id = pl.playlist_id
@@ -1161,6 +1168,7 @@ def get_playlists(uid,**kwargs):
 				LEFT JOIN languages l ON t.language_id = l.language_id
 				LEFT JOIN albums al ON t.album_id = al.album_id
 				WHERE pl.name = %s AND pl.user_id = %s
+				GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, g.name, l.name, al.title, pt.track_order
 				ORDER BY pt.track_order
 			""", (kwargs['playlist'], uid))
 			
@@ -1339,7 +1347,7 @@ def get_all_liked_songs(uid):
 		cur = conn.cursor()
 		cur.execute("""
 			SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-			       a.name as artist, g.name as genre, l.name as language, al.title as album
+			       STRING_AGG(a.name, ', ') as artist, g.name as genre, l.name as language, al.title as album, MAX(ul.liked_at) as liked_at
 			FROM user_liked_songs ul
 			JOIN tracks t ON ul.track_id = t.track_id
 			LEFT JOIN track_artists ta ON t.track_id = ta.track_id
@@ -1348,7 +1356,8 @@ def get_all_liked_songs(uid):
 			LEFT JOIN languages l ON t.language_id = l.language_id
 			LEFT JOIN albums al ON t.album_id = al.album_id
 			WHERE ul.user_id = %s
-			ORDER BY ul.liked_at DESC
+			GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, g.name, l.name, al.title
+			ORDER BY liked_at DESC
 		""", (uid,))
 		
 		rows = cur.fetchall()
@@ -1417,13 +1426,14 @@ def order_simple_trending_song():
 		cur = conn.cursor()
 		cur.execute("""
 			SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-			       a.name as artist, g.name as genre, l.name as language, al.title as album
+			       STRING_AGG(a.name, ', ') as artist, g.name as genre, l.name as language, al.title as album
 			FROM tracks t
 			LEFT JOIN track_artists ta ON t.track_id = ta.track_id
 			LEFT JOIN artists a ON ta.artist_id = a.artist_id
 			LEFT JOIN genres g ON t.genre_id = g.genre_id
 			LEFT JOIN languages l ON t.language_id = l.language_id
 			LEFT JOIN albums al ON t.album_id = al.album_id
+			GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, g.name, l.name, al.title
 		""")
 		rows = cur.fetchall()
 		cur.close()

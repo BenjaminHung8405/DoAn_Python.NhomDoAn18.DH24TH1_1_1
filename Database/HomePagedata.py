@@ -143,7 +143,7 @@ def get_playlist_data():
             # Get tracks for this playlist (using track_order from schema)
             cur.execute("""
                 SELECT t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count,
-                       a.name as artist, g.name as genre, l.name as language, al.title as album
+                       STRING_AGG(a.name, ', ') as artist, g.name as genre, l.name as language, al.title as album, pt.track_order
                 FROM playlist_tracks pt
                 JOIN tracks t ON pt.track_id = t.track_id
                 LEFT JOIN track_artists ta ON t.track_id = ta.track_id
@@ -152,6 +152,7 @@ def get_playlist_data():
                 LEFT JOIN languages l ON t.language_id = l.language_id
                 LEFT JOIN albums al ON t.album_id = al.album_id
                 WHERE pt.playlist_id = %s
+                GROUP BY t.track_id, t.title, t.duration_seconds, t.location_url, t.like_count, g.name, l.name, al.title, pt.track_order
                 ORDER BY pt.track_order
             """, (playlist_id,))
             
