@@ -4,6 +4,7 @@ psycopg2-binary==2.9.11
 # GUI
 Pillow>=10.3.0
 pyglet>=2.0.10
+ttkthemes>=3.2.0
 
 # Music playback
 pygame>=2.5.2

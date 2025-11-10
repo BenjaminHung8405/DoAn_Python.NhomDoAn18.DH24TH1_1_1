@@ -164,7 +164,9 @@ class MusicFrame(tk.Frame):
             except Exception:
                 print('Head Error')
                 pass
-            frame.play_music.Stop()
+            # Check if play_music exists before calling Stop
+            if hasattr(frame, 'play_music') and frame.play_music is not None:
+                frame.play_music.Stop()
 
         if len(current_playing) == 0:
             current_playing.append(self)
@@ -187,13 +189,16 @@ class MusicFrame(tk.Frame):
 
             currentTrack[0]['instance'] = self.play_music
         else:
-            # if currentTrack[0]['title'] == self.title:
-            #     self.play_music = currentTrack[0]['instance']
-            if currentTrack[0]['instance'] == self.play_music:
-                self.play_music = currentTrack[0]['instance']
+            # Check if we already have this track loaded
+            if (hasattr(self, 'play_music') and self.play_music is not None and 
+                currentTrack[0]['instance'] == self.play_music):
+                # Same track instance, reuse it
+                pass
             else:
+                # Different track, create new one
                 from Base.listOfPage import bottomPage
-                _ = bottomPage.pop()
+                if len(bottomPage) > 0:  # Check if bottomPage is not empty before popping
+                    _ = bottomPage.pop()
                 currentTrack[0]['title'] = self.title
                 currentTrack[0]['url'] = self.url
                 self.play_music = Track(self,

@@ -61,14 +61,18 @@ class PlayButton(tk.Button):
             self.playing = False
             self.master.master.master.master.master.master.master.head.text_frame.play_button.isPlaying = False
             self.master.master.master.master.master.master.master.head.text_frame.play_button.ifPlaying()
-            self.master.master.play_music.Stop()
+            # Check if play_music exists before calling Stop
+            if hasattr(self.master.master, 'play_music') and self.master.master.play_music is not None:
+                self.master.master.play_music.Stop()
             from Base.listOfPage import bottomPage
-            bottomPage[0].middle.button.config(image=self.pause_icon2)
-            bottomPage[0].middle.playing = False
+            if len(bottomPage) > 0:
+                bottomPage[0].middle.button.config(image=self.pause_icon2)
+                bottomPage[0].middle.playing = False
         else:
             self.playing = True
             self.master.master.double_click(event='')
             self['image'] = self.play_icon
             from Base.listOfPage import bottomPage
-            bottomPage[0].middle.button.config(image=self.play_icon2)
-            bottomPage[0].middle.playing = True
+            if len(bottomPage) > 0:
+                bottomPage[0].middle.button.config(image=self.play_icon2)
+                bottomPage[0].middle.playing = True
