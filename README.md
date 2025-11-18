@@ -145,12 +145,7 @@ pip install -r requirements.txt
 DATABASE_URL=postgresql://username:password@host:5432/database?sslmode=require
 ```
 
-5. **Khởi tạo database schema**
-```bash
-python Database/reset_schema.py
-```
-
-6. **Chạy ứng dụng**
+5. **Chạy ứng dụng**
 ```bash
 python main.py
 ```

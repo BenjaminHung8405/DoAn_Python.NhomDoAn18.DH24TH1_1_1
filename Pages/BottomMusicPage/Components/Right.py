@@ -58,7 +58,7 @@ class Right(tk.Frame):
         self.volume_button.grid(row=0, column=1, padx=(0, 2))
 
         self.volume = tk.DoubleVar()
-        self.volume.set(70)
+        self.volume.set(100)
         self.volumeSlider = ttk.Scale(self,
                                       to=100,
                                       orient=tk.HORIZONTAL,
